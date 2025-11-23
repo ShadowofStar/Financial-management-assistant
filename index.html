@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlowLedger - 極簡記帳</title>
+    <title>FMA - 極簡記帳</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        /* 隱藏數字輸入框的上下箭頭 */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
             -webkit-appearance: none; 
@@ -22,7 +21,7 @@
         
         <header class="bg-white px-6 py-5 flex items-center justify-center sticky top-0 z-10 border-b border-gray-100">
             <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold mr-2 shadow-blue-200 shadow-lg">F</div>
-            <h1 class="text-xl font-extrabold tracking-tight text-gray-900">FlowLedger</h1>
+            <h1 class="text-xl font-extrabold tracking-tight text-gray-900">FMA</h1>
         </header>
 
         <main class="p-6 pb-24 space-y-6">
@@ -83,8 +82,7 @@
                     <button onclick="clearAll()" class="text-xs text-red-400 hover:text-red-600">重置資料</button>
                 </div>
                 
-                <div id="transaction-list" class="space-y-3">
-                    </div>
+                <div id="transaction-list" class="space-y-3"></div>
                 
                 <div id="empty-state" class="hidden py-10 text-center">
                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-3">
@@ -98,10 +96,10 @@
     </div>
 
     <script>
-        // === 1. 初始化資料 ===
-        // 從 LocalStorage 讀取資料，如果沒有則使用預設值
-        let transactions = JSON.parse(localStorage.getItem('flowledger_data')) || [
-            { id: 1, title: '歡迎使用 FlowLedger', amount: 0, type: 'income', date: new Date().toLocaleDateString() }
+        // === 1. 初始化資料 (更新儲存空間名稱為 fma_data) ===
+        // 如果改了名字，我們使用新的儲存空間，舊資料會暫時清空
+        let transactions = JSON.parse(localStorage.getItem('fma_data')) || [
+            { id: 1, title: '歡迎使用 FMA', amount: 0, type: 'income', date: new Date().toLocaleDateString() }
         ];
 
         const form = document.getElementById('transaction-form');
@@ -111,15 +109,12 @@
         const incomeEl = document.getElementById('display-income');
         const expenseEl = document.getElementById('display-expense');
 
-        // === 2. 核心功能函數 ===
-
-        // 更新畫面 (Render)
+        // 更新畫面
         function updateUI() {
             listEl.innerHTML = '';
             let totalIncome = 0;
             let totalExpense = 0;
 
-            // 1. 計算收支
             transactions.forEach(t => {
                 if (t.type === 'income') {
                     totalIncome += Number(t.amount);
@@ -130,18 +125,15 @@
 
             const balance = totalIncome - totalExpense;
 
-            // 2. 更新儀表板數字
             balanceEl.innerText = `$ ${balance.toLocaleString()}`;
             incomeEl.innerText = `+ ${totalIncome.toLocaleString()}`;
             expenseEl.innerText = `- ${totalExpense.toLocaleString()}`;
 
-            // 3. 渲染列表
             if (transactions.length === 0) {
                 emptyState.classList.remove('hidden');
             } else {
                 emptyState.classList.add('hidden');
                 
-                // 按照 ID 倒序排列 (新的在上面)
                 transactions.sort((a, b) => b.id - a.id).forEach(t => {
                     const isIncome = t.type === 'income';
                     const sign = isIncome ? '+' : '-';
@@ -176,11 +168,10 @@
                 });
             }
 
-            // 4. 儲存到 LocalStorage
-            localStorage.setItem('flowledger_data', JSON.stringify(transactions));
+            // 更新儲存名稱為 fma_data
+            localStorage.setItem('fma_data', JSON.stringify(transactions));
         }
 
-        // 新增交易
         function addTransaction(e) {
             e.preventDefault();
             
@@ -204,14 +195,11 @@
             transactions.push(newTx);
             updateUI();
 
-            // 清空表單
             document.getElementById('inp-title').value = '';
             document.getElementById('inp-amount').value = '';
-            // 讓游標回到項目欄位，方便連續輸入
             document.getElementById('inp-title').focus();
         }
 
-        // 刪除交易
         function deleteTransaction(id) {
             if(confirm('確定要刪除這筆紀錄嗎？')) {
                 transactions = transactions.filter(t => t.id !== id);
@@ -219,7 +207,6 @@
             }
         }
 
-        // 重置所有資料
         function clearAll() {
             if(confirm('警告：這將刪除所有資料且無法復原！確定嗎？')) {
                 transactions = [];
@@ -227,10 +214,8 @@
             }
         }
 
-        // === 3. 綁定事件 ===
         form.addEventListener('submit', addTransaction);
 
-        // 初始化執行
         updateUI();
 
     </script>
