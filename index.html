@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FMA - 雲端記帳版</title>
+    <title>FMA - ID 好友版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -14,23 +14,21 @@
         #inp-photo { display: none; }
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .friend-active { border-color: #2563EB; background-color: #EFF6FF; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen">
 
-    <!-- 登入畫面 -->
     <div id="login-screen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-6 text-center fade-in">
         <div class="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-4xl font-bold shadow-xl mb-6">F</div>
-        <h1 class="text-3xl font-extrabold text-gray-900 mb-2">歡迎使用 FMA</h1>
-        <p class="text-gray-500 mb-10">你的雲端財務管家</p>
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2">FMA 社群版</h1>
+        <p class="text-gray-500 mb-10">專屬 ID，輕鬆加好友</p>
         <button id="btn-google-login" class="w-full max-w-sm bg-white border border-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-xl shadow-sm hover:bg-gray-50 transition flex items-center justify-center gap-3">
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="Google">
             使用 Google 帳號登入
         </button>
-        <p class="text-xs text-gray-400 mt-6">登入後資料將自動同步至雲端</p>
     </div>
 
-    <!-- 主程式 -->
     <div id="app-screen" class="hidden max-w-md mx-auto min-h-screen bg-white shadow-2xl overflow-hidden relative">
         <header class="bg-white px-6 py-4 flex items-center justify-between sticky top-0 z-20 border-b border-gray-100">
             <div class="flex items-center gap-2">
@@ -38,20 +36,25 @@
                 <h1 class="text-xl font-extrabold text-gray-900">FMA</h1>
             </div>
             <div class="flex items-center gap-3">
-                <button onclick="toggleChart()" class="text-sm text-blue-600 font-semibold bg-blue-50 px-3 py-1 rounded-full">📊 分析</button>
+                <button onclick="toggleFriendModal()" class="text-sm text-gray-600 font-semibold bg-gray-100 px-3 py-1 rounded-full flex items-center gap-1">
+                    👥 好友
+                </button>
                 <button onclick="logout()" class="text-gray-400 hover:text-red-500">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                 </button>
             </div>
         </header>
 
-        <div class="px-6 py-2 bg-gray-50 text-xs text-gray-500 flex justify-between items-center">
-            <span id="user-email">載入中...</span>
-            <span id="sync-status" class="text-green-600">已同步</span>
+        <div class="px-6 py-2 bg-blue-50 text-xs text-blue-600 flex justify-between items-center border-b border-blue-100">
+            <span id="current-view-label">我的帳本</span>
+            <div class="flex items-center gap-2">
+                <span class="bg-white px-2 py-0.5 rounded border border-blue-200 text-blue-800 font-mono font-bold" id="my-short-id">ID: ...</span>
+                <span id="sync-status" class="text-green-600 font-medium hidden sm:inline">已同步</span>
+            </div>
         </div>
 
         <main class="p-6 pb-24 space-y-6">
-            <div class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-2xl p-6 shadow-xl relative overflow-hidden">
+            <div id="dashboard-card" class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-2xl p-6 shadow-xl relative overflow-hidden transition-colors duration-500">
                 <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
                 <div class="relative z-10">
                     <div class="text-blue-100 text-xs font-medium uppercase mb-1">本月結餘</div>
@@ -72,8 +75,12 @@
             <div id="chart-container" class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 hidden">
                 <div class="relative h-64 w-full flex justify-center"><canvas id="expenseChart"></canvas></div>
             </div>
+            
+            <div class="flex justify-end">
+                <button onclick="toggleChart()" class="text-xs text-blue-500 font-semibold">📊 切換圖表顯示</button>
+            </div>
 
-            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+            <div id="input-section" class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
                 <h2 class="text-xs font-bold text-gray-400 uppercase mb-3">快速記帳</h2>
                 <form id="transaction-form" class="flex flex-col gap-3">
                     <div class="flex gap-2">
@@ -87,7 +94,7 @@
                     <div class="flex items-center gap-2">
                         <input type="file" id="inp-photo" accept="image/*" capture="environment" onchange="handlePhotoSelect(event)">
                         <label for="inp-photo" id="btn-camera" class="flex-1 cursor-pointer bg-gray-100 text-gray-500 py-2.5 rounded-lg flex items-center justify-center gap-2 border border-dashed border-gray-300">
-                            📷 <span id="camera-text" class="text-sm">拍收據/上傳</span>
+                            📷 <span id="camera-text" class="text-sm">拍收據</span>
                         </label>
                         <div id="preview-container" class="hidden relative w-12 h-10">
                             <img id="img-preview" class="w-full h-full object-cover rounded-md">
@@ -102,19 +109,42 @@
             <div id="empty-state" class="hidden py-10 text-center text-gray-400 text-sm">暫無紀錄</div>
         </main>
         
+        <div id="friend-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-end sm:items-center justify-center fade-in">
+            <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 h-[80vh] flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold">好友列表</h2>
+                    <button onclick="toggleFriendModal()" class="text-gray-400 text-xl">&times;</button>
+                </div>
+                
+                <div class="mb-2">
+                    <label class="text-xs text-gray-500 block mb-1">輸入對方的 6 位數 ID</label>
+                    <div class="flex gap-2">
+                        <input type="tel" maxlength="6" id="friend-id-input" placeholder="例如: 859102" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm font-mono tracking-wider text-center">
+                        <button onclick="addFriend()" class="bg-blue-600 text-white px-4 rounded-lg text-sm font-medium">加入</button>
+                    </div>
+                </div>
+                
+                <div class="text-center mb-4">
+                    <p class="text-xs text-gray-400">我的 ID: <span id="modal-my-id" class="text-blue-600 font-bold font-mono">載入中...</span> (點擊複製)</p>
+                </div>
+
+                <div class="flex-1 overflow-y-auto space-y-2 border-t border-gray-100 pt-2" id="friend-list-container">
+                    </div>
+            </div>
+        </div>
+
         <div id="photo-modal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4" onclick="closePhotoModal()">
             <img id="modal-img" src="" class="max-w-full max-h-full rounded-lg">
         </div>
     </div>
 
-    <!-- Firebase SDK & Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, setDoc, deleteDoc, doc, getDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // ============================================
-        // 🔥 已填入你的專屬設定 🔥
+        // 🔥 這裡已經填好你的金鑰囉！ 🔥
         // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyCQRVE28OmopT1v6hybciDaigW4-9GaVzY",
@@ -132,72 +162,211 @@
         const provider = new GoogleAuthProvider();
 
         let currentUser = null;
+        let currentViewUid = null;
         let transactions = [];
         let unsubscribe = null;
+        let friendsUnsubscribe = null;
+        let myShortId = null; 
 
+        // DOM
         const loginScreen = document.getElementById('login-screen');
         const appScreen = document.getElementById('app-screen');
-        const btnLogin = document.getElementById('btn-google-login');
-        const userEmailEl = document.getElementById('user-email');
+        const currentViewLabel = document.getElementById('current-view-label');
+        const myShortIdEl = document.getElementById('my-short-id');
+        const dashboardCard = document.getElementById('dashboard-card');
+        const inputSection = document.getElementById('input-section');
+        const friendModal = document.getElementById('friend-modal');
+        const friendListContainer = document.getElementById('friend-list-container');
         const syncStatus = document.getElementById('sync-status');
+        const modalMyIdEl = document.getElementById('modal-my-id');
 
         // 登入
-        btnLogin.addEventListener('click', () => {
-            signInWithPopup(auth, provider).catch((error) => alert("登入失敗: " + error.message));
+        document.getElementById('btn-google-login').addEventListener('click', () => {
+            signInWithPopup(auth, provider).catch((err) => alert("登入失敗: " + err.message));
         });
 
-        window.logout = () => {
-            if(confirm('確定要登出嗎？')) signOut(auth);
-        };
+        window.logout = () => { if(confirm('確定要登出嗎？')) signOut(auth); };
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
+                currentViewUid = user.uid;
+                
+                // 1. 確保用戶有 6 位數 ID
+                await ensureUserHasId(user);
+
                 loginScreen.classList.add('hidden');
                 appScreen.classList.remove('hidden');
-                userEmailEl.innerText = user.email;
-                loadDataRealtime();
+                
+                loadDataRealtime(user.uid);
+                loadFriends();
+                updateViewMode();
             } else {
                 currentUser = null;
+                myShortId = null;
                 loginScreen.classList.remove('hidden');
                 appScreen.classList.add('hidden');
-                transactions = [];
                 if(unsubscribe) unsubscribe();
+                if(friendsUnsubscribe) friendsUnsubscribe();
             }
         });
 
-        // 讀取資料
-        function loadDataRealtime() {
-            syncStatus.innerText = "同步中...";
-            const q = query(collection(db, "users", currentUser.uid, "transactions"), orderBy("dateTimestamp", "desc"));
+        // === 🚀 核心邏輯：生成與檢查 ID ===
+        async function ensureUserHasId(user) {
+            // 先檢查該用戶資料庫是否有 ID
+            const userRef = doc(db, "users", user.uid);
+            const userSnap = await getDoc(userRef);
+            
+            if (userSnap.exists() && userSnap.data().shortId) {
+                // 已經有 ID 了
+                myShortId = userSnap.data().shortId;
+            } else {
+                // 沒有 ID，開始生成 (防重複機制)
+                let isUnique = false;
+                let newId = "";
+                
+                while (!isUnique) {
+                    // 生成 100000 ~ 999999 隨機數
+                    newId = Math.floor(100000 + Math.random() * 900000).toString();
+                    
+                    // 檢查 public_codes 是否有人用過
+                    const checkSnap = await getDoc(doc(db, "public_codes", newId));
+                    if (!checkSnap.exists()) {
+                        isUnique = true;
+                    }
+                }
+
+                // 註冊 ID 到 public_codes (給別人搜尋用)
+                await setDoc(doc(db, "public_codes", newId), {
+                    uid: user.uid,
+                    email: user.email,
+                    name: user.displayName || "User"
+                });
+
+                // 存回自己的資料 (給自己看)
+                await setDoc(userRef, { shortId: newId }, { merge: true });
+                myShortId = newId;
+            }
+
+            // 更新 UI 顯示 ID
+            myShortIdEl.innerText = `ID: ${myShortId}`;
+            modalMyIdEl.innerText = myShortId;
+            
+            // 點擊複製功能
+            modalMyIdEl.onclick = () => {
+                navigator.clipboard.writeText(myShortId);
+                alert("ID 已複製！");
+            };
+        }
+
+        // === 好友系統 (用 ID 搜尋) ===
+        window.addFriend = async () => {
+            const inputId = document.getElementById('friend-id-input').value.trim();
+            if(inputId.length !== 6) return alert("請輸入 6 位數 ID");
+            if(inputId === myShortId) return alert("不能加自己為好友 XD");
+
+            try {
+                // 1. 去 public_codes 找這個 ID 對應的 UID
+                const targetDoc = await getDoc(doc(db, "public_codes", inputId));
+                
+                if (targetDoc.exists()) {
+                    const targetData = targetDoc.data();
+                    // 2. 加到我的好友列表
+                    await setDoc(doc(db, "users", currentUser.uid, "friends", targetData.uid), {
+                        uid: targetData.uid,
+                        shortId: inputId, 
+                        name: targetData.name,
+                        email: targetData.email,
+                        addedAt: Date.now()
+                    });
+                    alert(`成功加入 ${targetData.name} !`);
+                    document.getElementById('friend-id-input').value = "";
+                } else {
+                    alert("找不到此 ID，請確認號碼是否正確。");
+                }
+            } catch (e) {
+                alert("加入失敗：" + e.message);
+            }
+        };
+
+        function loadFriends() {
+            const q = query(collection(db, "users", currentUser.uid, "friends"));
+            friendsUnsubscribe = onSnapshot(q, (snapshot) => {
+                friendListContainer.innerHTML = '';
+                
+                const selfDiv = document.createElement('div');
+                selfDiv.className = `p-3 rounded-lg border cursor-pointer flex justify-between items-center ${currentViewUid === currentUser.uid ? 'friend-active' : 'border-gray-100 hover:bg-gray-50'}`;
+                selfDiv.innerHTML = `<span class="font-bold">👤 我的帳本</span>`;
+                selfDiv.onclick = () => switchView(currentUser.uid, '我的帳本');
+                friendListContainer.appendChild(selfDiv);
+
+                snapshot.forEach(doc => {
+                    const f = doc.data();
+                    const div = document.createElement('div');
+                    div.className = `p-3 rounded-lg border cursor-pointer flex justify-between items-center ${currentViewUid === f.uid ? 'friend-active' : 'border-gray-100 hover:bg-gray-50'}`;
+                    div.innerHTML = `
+                        <div>
+                            <div class="font-bold text-sm">${f.name}</div>
+                            <div class="text-xs text-gray-400">ID: ${f.shortId || '...'}</div>
+                        </div>
+                        <button onclick="deleteFriend('${f.uid}', event)" class="text-gray-300 hover:text-red-500 px-2">🗑️</button>
+                    `;
+                    div.onclick = (e) => {
+                        if(e.target.tagName !== 'BUTTON') switchView(f.uid, f.name);
+                    };
+                    friendListContainer.appendChild(div);
+                });
+            });
+        }
+
+        window.deleteFriend = async (friendUid, e) => {
+            e.stopPropagation();
+            if(confirm("確定刪除此好友？")) {
+                await deleteDoc(doc(db, "users", currentUser.uid, "friends", friendUid));
+                if(currentViewUid === friendUid) switchView(currentUser.uid, '我的帳本');
+            }
+        };
+
+        function switchView(targetUid, name) {
+            if (currentViewUid === targetUid) return;
+            currentViewUid = targetUid;
+            currentViewLabel.innerText = targetUid === currentUser.uid ? "我的帳本" : `${name} 的帳本`;
+            updateViewMode();
+            loadDataRealtime(targetUid);
+            toggleFriendModal();
+        }
+
+        function updateViewMode() {
+            const isSelf = currentViewUid === currentUser.uid;
+            if (isSelf) {
+                inputSection.classList.remove('hidden');
+                dashboardCard.classList.remove('from-purple-600', 'to-pink-600');
+                dashboardCard.classList.add('from-blue-600', 'to-indigo-700');
+            } else {
+                inputSection.classList.add('hidden');
+                dashboardCard.classList.remove('from-blue-600', 'to-indigo-700');
+                dashboardCard.classList.add('from-purple-600', 'to-pink-600');
+            }
+        }
+
+        function loadDataRealtime(targetUid) {
+            if(unsubscribe) unsubscribe();
+            syncStatus.innerText = "讀取中...";
+            
+            const q = query(collection(db, "users", targetUid, "transactions"), orderBy("dateTimestamp", "desc"));
+            
             unsubscribe = onSnapshot(q, (snapshot) => {
                 transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 updateUI();
                 syncStatus.innerText = "已同步";
             }, (error) => {
                 console.error(error);
-                syncStatus.innerText = "同步錯誤";
+                syncStatus.innerText = "權限不足";
+                alert("無法查看此帳本，可能對方尚未生成 ID 或網路問題。");
             });
         }
 
-        window.addTransactionToCloud = async (newTx) => {
-            syncStatus.innerText = "儲存中...";
-            try {
-                newTx.dateTimestamp = Date.now(); 
-                await addDoc(collection(db, "users", currentUser.uid, "transactions"), newTx);
-            } catch (e) {
-                alert("上傳失敗: " + e.message);
-                syncStatus.innerText = "上傳失敗";
-            }
-        };
-
-        window.deleteTransactionCloud = async (id) => {
-            if(confirm('刪除此紀錄？')) {
-                syncStatus.innerText = "刪除中...";
-                await deleteDoc(doc(db, "users", currentUser.uid, "transactions", id));
-            }
-        };
-
+        // === UI & Chart (維持不變) ===
         Chart.register(ChartDataLabels);
         let myChart = null;
 
@@ -207,11 +376,10 @@
             const incomeEl = document.getElementById('display-income');
             const expenseEl = document.getElementById('display-expense');
             const emptyState = document.getElementById('empty-state');
+            const isSelf = currentViewUid === currentUser.uid;
 
             listEl.innerHTML = '';
-            let totalIncome = 0;
-            let totalExpense = 0;
-            let expenseData = {}; 
+            let totalIncome = 0, totalExpense = 0, expenseData = {}; 
 
             if (transactions.length === 0) emptyState.classList.remove('hidden');
             else emptyState.classList.add('hidden');
@@ -227,6 +395,7 @@
                 const isIncome = t.type === 'income';
                 const colorClass = isIncome ? 'text-green-600' : 'text-gray-800';
                 const photoHtml = t.photo ? `<img src="${t.photo}" onclick="openPhotoModal('${t.photo}')" class="w-12 h-12 rounded-lg object-cover border border-gray-200 cursor-pointer ml-3">` : '';
+                const deleteBtn = isSelf ? `<button onclick="deleteTransactionCloud('${t.id}')" class="text-gray-300 hover:text-red-500 ml-3 p-1">×</button>` : '';
 
                 const item = document.createElement('div');
                 item.className = 'bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between';
@@ -241,7 +410,7 @@
                     <div class="flex items-center">
                         <span class="font-bold ${colorClass}">${isIncome ? '+' : '-'} ${Number(t.amount).toLocaleString()}</span>
                         ${photoHtml}
-                        <button onclick="deleteTransactionCloud('${t.id}')" class="text-gray-300 hover:text-red-500 ml-3 p-1">×</button>
+                        ${deleteBtn}
                     </div>
                 `;
                 listEl.appendChild(item);
@@ -250,7 +419,6 @@
             balanceEl.innerText = `$ ${(totalIncome - totalExpense).toLocaleString()}`;
             incomeEl.innerText = `+ ${totalIncome.toLocaleString()}`;
             expenseEl.innerText = `- ${totalExpense.toLocaleString()}`;
-
             renderChart(expenseData, totalExpense);
         }
 
@@ -258,228 +426,56 @@
             const ctx = document.getElementById('expenseChart').getContext('2d');
             const labels = Object.keys(dataObj);
             const values = Object.values(dataObj);
-
-            if (labels.length === 0) {
-                document.getElementById('chart-container').classList.add('hidden');
-                return;
-            }
-            document.getElementById('chart-container').classList.remove('hidden');
-
             if (myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{ data: values, backgroundColor: ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6'], borderWidth: 2, borderColor: '#ffffff' }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false, layout: { padding: 10 },
-                    plugins: { legend: { position: 'right', labels: { boxWidth: 10 } }, datalabels: { color: '#fff', formatter: (val, ctx) => { let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); let pct = (val * 100 / sum); return pct < 5 ? null : pct.toFixed(1) + "%"; } } }
-                }
-            });
+            if (labels.length === 0) { document.getElementById('chart-container').classList.add('hidden'); return; }
+            document.getElementById('chart-container').classList.remove('hidden');
+            myChart = new Chart(ctx, { type: 'doughnut', data: { labels, datasets: [{ data: values, backgroundColor: ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6'], borderWidth: 2, borderColor: '#ffffff' }] }, options: { responsive: true, maintainAspectRatio: false, layout: { padding: 10 }, plugins: { legend: { position: 'right', labels: { boxWidth: 10 } }, datalabels: { color: '#fff', formatter: (val, ctx) => { let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); let pct = (val * 100 / sum); return pct < 5 ? null : pct.toFixed(1) + "%"; } } } } });
         }
 
+        document.getElementById('transaction-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(currentViewUid !== currentUser.uid) return alert("你只能編輯自己的帳本喔！");
+            const title = document.getElementById('inp-title').value;
+            const amount = Number(document.getElementById('inp-amount').value);
+            const type = document.getElementById('inp-type').value;
+            const category = document.getElementById('inp-category').value;
+            if (!title || amount <= 0) return alert('請輸入有效資訊');
+            syncStatus.innerText = "儲存中...";
+            try {
+                await addDoc(collection(db, "users", currentUser.uid, "transactions"), { title, amount, type, category, dateTimestamp: Date.now(), date: new Date().toLocaleDateString(), photo: currentPhotoData });
+                document.getElementById('inp-title').value = ''; document.getElementById('inp-amount').value = ''; clearPhoto();
+            } catch (e) { alert("上傳失敗"); }
+        });
+
+        window.deleteTransactionCloud = async (id) => { if(confirm('刪除此紀錄？')) await deleteDoc(doc(db, "users", currentUser.uid, "transactions", id)); };
+
+        // UI Helpers
+        window.toggleFriendModal = () => document.getElementById('friend-modal').classList.toggle('hidden');
         window.toggleChart = () => document.getElementById('chart-container').classList.toggle('hidden');
         window.openPhotoModal = (src) => { document.getElementById('modal-img').src = src; document.getElementById('photo-modal').classList.remove('hidden'); };
         window.closePhotoModal = () => document.getElementById('photo-modal').classList.add('hidden');
         
         let currentPhotoData = null;
         window.handlePhotoSelect = (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
+            const file = event.target.files[0]; if (!file) return;
             const reader = new FileReader();
             reader.onload = (e) => {
                 const img = new Image();
                 img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 600; 
-                    const scaleSize = MAX_WIDTH / img.width;
-                    const newWidth = (img.width > MAX_WIDTH) ? MAX_WIDTH : img.width;
-                    const newHeight = (img.width > MAX_WIDTH) ? img.height * scaleSize : img.height;
-                    canvas.width = newWidth; canvas.height = newHeight;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, newWidth, newHeight);
-                    currentPhotoData = canvas.toDataURL('image/jpeg', 0.5);
-                    document.getElementById('img-preview').src = currentPhotoData;
-                    document.getElementById('preview-container').classList.remove('hidden');
-                    document.getElementById('btn-camera').classList.add('hidden');
+                    const canvas = document.createElement('canvas'); const MAX_WIDTH = 600; const scaleSize = MAX_WIDTH / img.width; const newWidth = (img.width > MAX_WIDTH) ? MAX_WIDTH : img.width; const newHeight = (img.width > MAX_WIDTH) ? img.height * scaleSize : img.height; canvas.width = newWidth; canvas.height = newHeight; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, newWidth, newHeight); currentPhotoData = canvas.toDataURL('image/jpeg', 0.5); document.getElementById('img-preview').src = currentPhotoData; document.getElementById('preview-container').classList.remove('hidden'); document.getElementById('btn-camera').classList.add('hidden');
                 }
                 img.src = e.target.result;
             }
             reader.readAsDataURL(file);
         };
-
-        window.clearPhoto = () => {
-            document.getElementById('inp-photo').value = '';
-            currentPhotoData = null;
-            document.getElementById('preview-container').classList.add('hidden');
-            document.getElementById('btn-camera').classList.remove('hidden');
-        };
-
-        const form = document.getElementById('transaction-form');
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const title = document.getElementById('inp-title').value;
-            const amount = Number(document.getElementById('inp-amount').value);
-            const type = document.getElementById('inp-type').value;
-            const category = document.getElementById('inp-category').value;
-
-            if (!title || amount <= 0) return alert('請輸入有效資訊');
-
-            window.addTransactionToCloud({
-                title, amount, type, category,
-                date: new Date().toLocaleDateString(),
-                photo: currentPhotoData
-            });
-            
-            document.getElementById('inp-title').value = '';
-            document.getElementById('inp-amount').value = '';
-            window.clearPhoto();
-        });
+        window.clearPhoto = () => { document.getElementById('inp-photo').value = ''; currentPhotoData = null; document.getElementById('preview-container').classList.add('hidden'); document.getElementById('btn-camera').classList.remove('hidden'); };
 
         const categories = { expense: ['餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他'], income: ['薪資', '獎金', '投資', '兼職', '其他'] };
         window.updateCategoryOptions = () => {
-            const type = document.getElementById('inp-type').value;
-            document.getElementById('inp-category').innerHTML = categories[type].map(opt => `<option value="${opt}">${opt}</option>`).join('');
+            const type = document.getElementById('inp-type').value; document.getElementById('inp-category').innerHTML = categories[type].map(opt => `<option value="${opt}">${opt}</option>`).join('');
         };
         window.updateCategoryOptions();
-    </script>
-</body>
-</html>
-                `;
-                listEl.appendChild(item);
-            });
-
-            document.getElementById('display-balance').innerText = `$ ${(totalIncome - totalExpense).toLocaleString()}`;
-            document.getElementById('display-income').innerText = `+ ${totalIncome.toLocaleString()}`;
-            document.getElementById('display-expense').innerText = `- ${totalExpense.toLocaleString()}`;
-
-            renderChart(expenseData, totalExpense);
-
-            // 儲存時捕捉錯誤 (如果圖片太多導致超過容量)
-            try {
-                localStorage.setItem('fma_data_v3', JSON.stringify(transactions));
-            } catch (e) {
-                alert('儲存失敗：空間已滿。建議刪除舊的附圖紀錄，或不要每筆都附圖。');
-            }
-        }
-
-        // === 3. 圖表邏輯 (維持不變) ===
-        function renderChart(dataObj, totalExp) {
-            const ctx = document.getElementById('expenseChart').getContext('2d');
-            const labels = Object.keys(dataObj);
-            const values = Object.values(dataObj);
-
-            if (labels.length === 0) {
-                document.getElementById('expenseChart').style.display = 'none';
-                document.getElementById('chart-placeholder').classList.remove('hidden');
-                document.getElementById('total-expense-label').innerText = '';
-                return;
-            }
-            
-            document.getElementById('expenseChart').style.display = 'block';
-            document.getElementById('chart-placeholder').classList.add('hidden');
-            document.getElementById('total-expense-label').innerText = `$${totalExp.toLocaleString()}`;
-
-            if (myChart) myChart.destroy();
-
-            myChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: values,
-                        backgroundColor: ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6'],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    layout: { padding: 10 },
-                    plugins: {
-                        legend: { position: 'right', labels: { boxWidth: 10, font: {size: 10} } },
-                        datalabels: {
-                            color: '#fff',
-                            font: { weight: 'bold' },
-                            formatter: (val, ctx) => {
-                                let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                let pct = (val * 100 / sum);
-                                return pct < 5 ? null : pct.toFixed(1) + "%";
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // === 4. 新增交易 ===
-        function addTransaction(e) {
-            e.preventDefault();
-            const title = document.getElementById('inp-title').value;
-            const amount = Number(document.getElementById('inp-amount').value);
-            const type = document.getElementById('inp-type').value;
-            const category = document.getElementById('inp-category').value;
-
-            if (!title || amount <= 0) {
-                alert('請輸入有效資訊');
-                return;
-            }
-
-            const newTx = {
-                id: Date.now(),
-                title, amount, type, category,
-                date: new Date().toLocaleDateString(),
-                photo: currentPhotoData // 加入圖片資料
-            };
-
-            transactions.push(newTx);
-            updateUI();
-            
-            // 重置表單
-            document.getElementById('inp-title').value = '';
-            document.getElementById('inp-amount').value = '';
-            clearPhoto();
-        }
-
-        function deleteTransaction(id) {
-            if(confirm('刪除紀錄？')) {
-                transactions = transactions.filter(t => t.id !== id);
-                updateUI();
-            }
-        }
-
-        function clearAll() {
-            if(confirm('清除所有資料？')) {
-                transactions = [];
-                updateUI();
-            }
-        }
-
-        function toggleChart() {
-            document.getElementById('chart-container').classList.toggle('hidden');
-        }
-
-        // 照片 Modal 控制
-        function openPhotoModal(src) {
-            const modal = document.getElementById('photo-modal');
-            document.getElementById('modal-img').src = src;
-            modal.classList.remove('hidden');
-        }
-
-        function closePhotoModal() {
-            document.getElementById('photo-modal').classList.add('hidden');
-        }
-
-        // 啟動
-        updateCategoryOptions();
-        form.addEventListener('submit', addTransaction);
-        updateUI();
 
     </script>
 </body>
 </html>
-
-
-
