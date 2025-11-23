@@ -6,6 +6,8 @@
     <title>FMA - 極簡記帳</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -22,8 +24,8 @@
                 <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold mr-2 shadow-blue-200 shadow-lg">F</div>
                 <h1 class="text-xl font-extrabold tracking-tight text-gray-900">FMA</h1>
             </div>
-            <button onclick="toggleChart()" class="text-sm text-blue-600 font-semibold bg-blue-50 px-3 py-1 rounded-full">
-                📊 切換圖表
+            <button onclick="toggleChart()" class="text-sm text-blue-600 font-semibold bg-blue-50 px-3 py-1 rounded-full hover:bg-blue-100 transition">
+                📊 切換顯示
             </button>
         </header>
 
@@ -48,11 +50,14 @@
             </div>
 
             <div id="chart-container" class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                <h2 class="text-xs font-bold text-gray-400 uppercase mb-3">支出分析</h2>
-                <div class="relative h-48 w-full flex justify-center">
+                <h2 class="text-xs font-bold text-gray-400 uppercase mb-3 flex justify-between">
+                    <span>支出佔比分析</span>
+                    <span class="text-blue-600 font-normal" id="total-expense-label"></span>
+                </h2>
+                <div class="relative h-64 w-full flex justify-center">
                     <canvas id="expenseChart"></canvas>
                 </div>
-                <p id="chart-placeholder" class="text-center text-xs text-gray-400 mt-2 hidden">還沒有支出紀錄，無法顯示圖表</p>
+                <p id="chart-placeholder" class="text-center text-xs text-gray-400 mt-10 hidden">還沒有支出紀錄，無法顯示圖表</p>
             </div>
 
             <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
@@ -69,7 +74,7 @@
                     
                     <div class="flex gap-2">
                         <input type="text" id="inp-title" placeholder="備註 (如: 午餐)" class="w-2/3 bg-gray-50 border border-gray-200 text-gray-900 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                        <input type="number" id="inp-amount" placeholder="$" class="w-1/3 bg-gray-50 border border-gray-200 text-gray-900 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <input type="number" id="inp-amount" placeholder="$" min="1" class="w-1/3 bg-gray-50 border border-gray-200 text-gray-900 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     
                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium text-sm shadow-md shadow-blue-200 transition-colors flex items-center justify-center gap-1">
@@ -94,17 +99,18 @@
     </div>
 
     <script>
+        // === 2. 註冊 ChartDataLabels 外掛 ===
+        Chart.register(ChartDataLabels);
+
         // === 資料設定 ===
         let transactions = JSON.parse(localStorage.getItem('fma_data_v2')) || [];
-        let myChart = null; // 存放圖表實例
+        let myChart = null; 
 
-        // 定義類別選單
         const categories = {
-            expense: ['餐飲', '交通', '購物', '娛樂', '住宿', '醫療', '其他'],
+            expense: ['餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他'],
             income: ['薪資', '獎金', '投資', '兼職', '其他']
         };
 
-        // DOM 元素
         const form = document.getElementById('transaction-form');
         const listEl = document.getElementById('transaction-list');
         const balanceEl = document.getElementById('display-balance');
@@ -115,20 +121,16 @@
 
         // === 核心功能 ===
 
-        // 1. 更新類別下拉選單
         function updateCategoryOptions() {
-            const type = typeSelect.value; // expense or income
+            const type = typeSelect.value;
             const options = categories[type];
             categorySelect.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
         }
 
-        // 2. 渲染主畫面
         function updateUI() {
             listEl.innerHTML = '';
             let totalIncome = 0;
             let totalExpense = 0;
-            
-            // 用來統計圖表資料
             let expenseData = {}; 
 
             if (transactions.length === 0) {
@@ -137,23 +139,18 @@
                 document.getElementById('empty-state').classList.add('hidden');
             }
 
-            // 排序並渲染列表
             transactions.sort((a, b) => b.id - a.id).forEach(t => {
-                // 計算總額
                 if (t.type === 'income') {
                     totalIncome += Number(t.amount);
                 } else {
                     totalExpense += Number(t.amount);
-                    // 統計支出類別 (如果沒有這個類別就初始化為0，有就累加)
                     let cat = t.category || '其他';
                     expenseData[cat] = (expenseData[cat] || 0) + Number(t.amount);
                 }
 
-                // 產生 HTML
                 const isIncome = t.type === 'income';
                 const sign = isIncome ? '+' : '-';
                 const colorClass = isIncome ? 'text-green-600' : 'text-gray-800';
-                // 為了兼容舊資料，如果沒有 category 就顯示 title
                 const displayTitle = t.category ? `${t.category} - ${t.title}` : t.title;
 
                 const item = document.createElement('div');
@@ -172,105 +169,135 @@
                         <span class="font-bold ${colorClass}">
                             ${sign} ${Number(t.amount).toLocaleString()}
                         </span>
-                        <button onclick="deleteTransaction(${t.id})" class="text-gray-300 hover:text-red-500">
-                            ×
-                        </button>
+                        <button onclick="deleteTransaction(${t.id})" class="text-gray-300 hover:text-red-500">×</button>
                     </div>
                 `;
                 listEl.appendChild(item);
             });
 
-            // 更新儀表板數字
             const balance = totalIncome - totalExpense;
             balanceEl.innerText = `$ ${balance.toLocaleString()}`;
             incomeEl.innerText = `+ ${totalIncome.toLocaleString()}`;
             expenseEl.innerText = `- ${totalExpense.toLocaleString()}`;
 
-            // 更新圖表
-            renderChart(expenseData);
+            // 更新圖表 (傳入總支出以便計算百分比)
+            renderChart(expenseData, totalExpense);
 
-            // 儲存資料
             localStorage.setItem('fma_data_v2', JSON.stringify(transactions));
         }
 
-        // 3. 繪製圖表 (使用 Chart.js)
-        function renderChart(dataObj) {
+        // === 3. 更新圖表繪製邏輯 (顯示百分比) ===
+        function renderChart(dataObj, totalExp) {
             const ctx = document.getElementById('expenseChart').getContext('2d');
             const labels = Object.keys(dataObj);
             const dataValues = Object.values(dataObj);
 
-            // 如果沒有支出資料，隱藏 Canvas 顯示提示
             if (labels.length === 0) {
                 document.getElementById('expenseChart').style.display = 'none';
                 document.getElementById('chart-placeholder').classList.remove('hidden');
+                document.getElementById('total-expense-label').innerText = '';
                 return;
             } else {
                 document.getElementById('expenseChart').style.display = 'block';
                 document.getElementById('chart-placeholder').classList.add('hidden');
+                document.getElementById('total-expense-label').innerText = `總支出: $${totalExp.toLocaleString()}`;
             }
 
-            // 銷毀舊圖表 (避免閃爍)
             if (myChart) {
                 myChart.destroy();
             }
 
+            const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6'];
+
             myChart = new Chart(ctx, {
-                type: 'doughnut', // 甜甜圈圖
+                type: 'doughnut',
                 data: {
                     labels: labels,
                     datasets: [{
                         data: dataValues,
-                        backgroundColor: [
-                            '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#6366F1'
-                        ],
-                        borderWidth: 0
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverOffset: 4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: { padding: 10 },
                     plugins: {
                         legend: {
-                            position: 'right', // 圖例在右邊
+                            position: 'right',
                             labels: {
                                 boxWidth: 12,
-                                font: { size: 10 }
+                                usePointStyle: true,
+                                font: { size: 11 }
                             }
+                        },
+                        // === 關鍵：設定百分比標籤 ===
+                        datalabels: {
+                            color: '#fff', // 文字白色
+                            font: {
+                                weight: 'bold',
+                                size: 12
+                            },
+                            formatter: (value, ctx) => {
+                                let sum = 0;
+                                let dataArr = ctx.chart.data.datasets[0].data;
+                                dataArr.map(data => { sum += data; }); // 計算總和
+                                let percentage = (value * 100 / sum);  // 計算百分比
+                                
+                                // 如果佔比小於 5%，就不顯示文字，避免太擠
+                                if (percentage < 5) return null; 
+                                return percentage.toFixed(1) + "%";
+                            },
+                            anchor: 'end',
+                            align: 'start',
+                            offset: -8,
                         }
                     }
                 }
             });
         }
 
-        // 4. 新增交易
         function addTransaction(e) {
             e.preventDefault();
             const title = document.getElementById('inp-title').value;
-            const amount = document.getElementById('inp-amount').value;
+            const amountInput = document.getElementById('inp-amount').value;
             const type = document.getElementById('inp-type').value;
             const category = document.getElementById('inp-category').value;
 
-            if (!title || !amount) return alert('請輸入完整資訊');
+            // 轉成數字並驗證
+            const amount = Number(amountInput);
+
+            if (!title || amountInput === '') {
+                alert('請輸入完整資訊');
+                return;
+            }
+            
+            // 防止輸入負數
+            if (amount <= 0) {
+                alert('金額必須大於 0');
+                return;
+            }
 
             const newTx = {
                 id: Date.now(),
                 title: title,
-                amount: Number(amount),
+                amount: amount,
                 type: type,
-                category: category, // 新增分類欄位
+                category: category,
                 date: new Date().toLocaleDateString()
             };
 
             transactions.push(newTx);
             updateUI();
 
-            // 重置表單
             document.getElementById('inp-title').value = '';
             document.getElementById('inp-amount').value = '';
             document.getElementById('inp-title').focus();
         }
 
-        // 5. 刪除與清除
         function deleteTransaction(id) {
             if(confirm('刪除此筆紀錄？')) {
                 transactions = transactions.filter(t => t.id !== id);
@@ -290,12 +317,10 @@
             chartDiv.classList.toggle('hidden');
         }
 
-        // 初始化
-        updateCategoryOptions(); // 先產生下拉選單
+        updateCategoryOptions();
         form.addEventListener('submit', addTransaction);
         updateUI();
 
     </script>
 </body>
 </html>
-
