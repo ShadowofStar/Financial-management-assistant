@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FMA - ID 好友版</title>
+    <title>柴管家 - ID 好友版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -21,7 +21,7 @@
 
     <div id="login-screen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-6 text-center fade-in">
         <div class="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-4xl font-bold shadow-xl mb-6">F</div>
-        <h1 class="text-3xl font-extrabold text-gray-900 mb-2">FMA 社群版</h1>
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2">柴管家 </h1>
         <p class="text-gray-500 mb-10">專屬 ID，輕鬆加好友</p>
         <button id="btn-google-login" class="w-full max-w-sm bg-white border border-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-xl shadow-sm hover:bg-gray-50 transition flex items-center justify-center gap-3">
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="Google">
@@ -92,9 +92,9 @@
                         <input type="number" id="inp-amount" placeholder="$" min="1" class="w-24 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm" required>
                     </div>
                     <div class="flex items-center gap-2">
-                        <input type="file" id="inp-photo" accept="image/*" capture="environment" onchange="handlePhotoSelect(event)">
-                        <label for="inp-photo" id="btn-camera" class="flex-1 cursor-pointer bg-gray-100 text-gray-500 py-2.5 rounded-lg flex items-center justify-center gap-2 border border-dashed border-gray-300">
-                            📷 <span id="camera-text" class="text-sm">拍收據</span>
+                        <input type="file" id="inp-photo" accept="image/*" onchange="handlePhotoSelect(event)">
+                        <label for="inp-photo" id="btn-camera" class="flex-1 cursor-pointer bg-gray-100 text-gray-500 py-2.5 rounded-lg flex items-center justify-center gap-2 border border-dashed border-gray-300 hover:bg-gray-200 transition-colors">
+                            📷 <span id="camera-text" class="text-sm">拍照 / 相簿</span>
                         </label>
                         <div id="preview-container" class="hidden relative w-12 h-10">
                             <img id="img-preview" class="w-full h-full object-cover rounded-md">
@@ -144,7 +144,7 @@
         import { getFirestore, collection, addDoc, setDoc, deleteDoc, doc, getDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // ============================================
-        // 🔥 這裡已經填好你的金鑰囉！ 🔥
+        // 🔥 已填入你的金鑰 🔥
         // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyCQRVE28OmopT1v6hybciDaigW4-9GaVzY",
@@ -192,7 +192,6 @@
                 currentUser = user;
                 currentViewUid = user.uid;
                 
-                // 1. 確保用戶有 6 位數 ID
                 await ensureUserHasId(user);
 
                 loginScreen.classList.add('hidden');
@@ -211,89 +210,55 @@
             }
         });
 
-        // === 🚀 核心邏輯：生成與檢查 ID ===
+        // ID 生成
         async function ensureUserHasId(user) {
-            // 先檢查該用戶資料庫是否有 ID
             const userRef = doc(db, "users", user.uid);
             const userSnap = await getDoc(userRef);
             
             if (userSnap.exists() && userSnap.data().shortId) {
-                // 已經有 ID 了
                 myShortId = userSnap.data().shortId;
             } else {
-                // 沒有 ID，開始生成 (防重複機制)
                 let isUnique = false;
                 let newId = "";
-                
                 while (!isUnique) {
-                    // 生成 100000 ~ 999999 隨機數
                     newId = Math.floor(100000 + Math.random() * 900000).toString();
-                    
-                    // 檢查 public_codes 是否有人用過
                     const checkSnap = await getDoc(doc(db, "public_codes", newId));
-                    if (!checkSnap.exists()) {
-                        isUnique = true;
-                    }
+                    if (!checkSnap.exists()) isUnique = true;
                 }
-
-                // 註冊 ID 到 public_codes (給別人搜尋用)
-                await setDoc(doc(db, "public_codes", newId), {
-                    uid: user.uid,
-                    email: user.email,
-                    name: user.displayName || "User"
-                });
-
-                // 存回自己的資料 (給自己看)
+                await setDoc(doc(db, "public_codes", newId), { uid: user.uid, email: user.email, name: user.displayName || "User" });
                 await setDoc(userRef, { shortId: newId }, { merge: true });
                 myShortId = newId;
             }
-
-            // 更新 UI 顯示 ID
             myShortIdEl.innerText = `ID: ${myShortId}`;
             modalMyIdEl.innerText = myShortId;
-            
-            // 點擊複製功能
-            modalMyIdEl.onclick = () => {
-                navigator.clipboard.writeText(myShortId);
-                alert("ID 已複製！");
-            };
+            modalMyIdEl.onclick = () => { navigator.clipboard.writeText(myShortId); alert("ID 已複製！"); };
         }
 
-        // === 好友系統 (用 ID 搜尋) ===
+        // 好友系統
         window.addFriend = async () => {
             const inputId = document.getElementById('friend-id-input').value.trim();
             if(inputId.length !== 6) return alert("請輸入 6 位數 ID");
             if(inputId === myShortId) return alert("不能加自己為好友 XD");
 
             try {
-                // 1. 去 public_codes 找這個 ID 對應的 UID
                 const targetDoc = await getDoc(doc(db, "public_codes", inputId));
-                
                 if (targetDoc.exists()) {
                     const targetData = targetDoc.data();
-                    // 2. 加到我的好友列表
                     await setDoc(doc(db, "users", currentUser.uid, "friends", targetData.uid), {
-                        uid: targetData.uid,
-                        shortId: inputId, 
-                        name: targetData.name,
-                        email: targetData.email,
-                        addedAt: Date.now()
+                        uid: targetData.uid, shortId: inputId, name: targetData.name, email: targetData.email, addedAt: Date.now()
                     });
                     alert(`成功加入 ${targetData.name} !`);
                     document.getElementById('friend-id-input').value = "";
                 } else {
                     alert("找不到此 ID，請確認號碼是否正確。");
                 }
-            } catch (e) {
-                alert("加入失敗：" + e.message);
-            }
+            } catch (e) { alert("加入失敗：" + e.message); }
         };
 
         function loadFriends() {
             const q = query(collection(db, "users", currentUser.uid, "friends"));
             friendsUnsubscribe = onSnapshot(q, (snapshot) => {
                 friendListContainer.innerHTML = '';
-                
                 const selfDiv = document.createElement('div');
                 selfDiv.className = `p-3 rounded-lg border cursor-pointer flex justify-between items-center ${currentViewUid === currentUser.uid ? 'friend-active' : 'border-gray-100 hover:bg-gray-50'}`;
                 selfDiv.innerHTML = `<span class="font-bold">👤 我的帳本</span>`;
@@ -311,9 +276,7 @@
                         </div>
                         <button onclick="deleteFriend('${f.uid}', event)" class="text-gray-300 hover:text-red-500 px-2">🗑️</button>
                     `;
-                    div.onclick = (e) => {
-                        if(e.target.tagName !== 'BUTTON') switchView(f.uid, f.name);
-                    };
+                    div.onclick = (e) => { if(e.target.tagName !== 'BUTTON') switchView(f.uid, f.name); };
                     friendListContainer.appendChild(div);
                 });
             });
@@ -352,9 +315,7 @@
         function loadDataRealtime(targetUid) {
             if(unsubscribe) unsubscribe();
             syncStatus.innerText = "讀取中...";
-            
             const q = query(collection(db, "users", targetUid, "transactions"), orderBy("dateTimestamp", "desc"));
-            
             unsubscribe = onSnapshot(q, (snapshot) => {
                 transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 updateUI();
@@ -366,7 +327,7 @@
             });
         }
 
-        // === UI & Chart (維持不變) ===
+        // Chart & UI
         Chart.register(ChartDataLabels);
         let myChart = null;
 
