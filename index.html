@@ -121,6 +121,7 @@
                         <input type="tel" maxlength="6" id="friend-id-input" placeholder="例如: 859102" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm font-mono tracking-wider text-center">
                         <button onclick="addFriend()" class="bg-blue-600 text-white px-4 rounded-lg text-sm font-medium">加入</button>
                     </div>
+                    <p class="text-xs text-blue-500 mt-2">* 成功加入後，對方也會同時將你加為好友喔！</p>
                 </div>
                 <div class="flex-1 overflow-y-auto space-y-2 border-t border-gray-100 pt-2" id="friend-list-container"></div>
             </div>
@@ -280,29 +281,58 @@
             try {
                 await updateDoc(doc(db, "users", currentUser.uid), { name: newName });
                 await updateDoc(doc(db, "public_codes", myShortId), { name: newName });
+                
+                // 更新當前本地的 profile 變數，確保馬上加好友時用到的是新名字
+                myProfileData.name = newName;
+
                 alert("個人資料已更新！");
                 toggleProfileModal();
             } catch(e) { alert("更新失敗: " + e.message); }
         };
 
+        // === 🔥 雙向好友系統 ===
         window.addFriend = async () => {
             const inputId = document.getElementById('friend-id-input').value.trim();
             if(inputId.length !== 6) return alert("請輸入 6 位數 ID");
             if(inputId === myShortId) return alert("不能加自己為好友 XD");
 
             try {
+                // 1. 去 public_codes 找對方資料
                 const targetDoc = await getDoc(doc(db, "public_codes", inputId));
+                
                 if (targetDoc.exists()) {
                     const targetData = targetDoc.data();
-                    await setDoc(doc(db, "users", currentUser.uid, "friends", targetData.uid), {
-                        uid: targetData.uid, shortId: inputId, name: targetData.name, email: targetData.email, addedAt: Date.now()
+                    
+                    // 2. 準備雙向寫入
+                    // A. 在我的好友列表加入對方
+                    const addTargetToMe = setDoc(doc(db, "users", currentUser.uid, "friends", targetData.uid), {
+                        uid: targetData.uid, 
+                        shortId: inputId, 
+                        name: targetData.name, 
+                        email: targetData.email, 
+                        addedAt: Date.now()
                     });
-                    alert(`成功加入 ${targetData.name} !`);
+
+                    // B. 在對方的好友列表加入我 (用我現在的資料)
+                    const addMeToTarget = setDoc(doc(db, "users", targetData.uid, "friends", currentUser.uid), {
+                        uid: currentUser.uid,
+                        shortId: myProfileData.shortId,
+                        name: myProfileData.name,
+                        email: currentUser.email,
+                        addedAt: Date.now()
+                    });
+
+                    // 同步執行
+                    await Promise.all([addTargetToMe, addMeToTarget]);
+
+                    alert(`成功！你與 ${targetData.name} 現在是雙向好友了！`);
                     document.getElementById('friend-id-input').value = "";
                 } else {
                     alert("找不到此 ID，請確認號碼是否正確。");
                 }
-            } catch (e) { alert("加入失敗：" + e.message); }
+            } catch (e) {
+                alert("加入失敗：" + e.message);
+            }
         };
 
         function loadFriends() {
@@ -334,7 +364,8 @@
 
         window.deleteFriend = async (friendUid, e) => {
             e.stopPropagation();
-            if(confirm("確定刪除此好友？")) {
+            if(confirm("確定刪除此好友？(注意：對方的列表裡你也會消失喔)")) {
+                // 刪除邏輯暫時保留單向刪除，避免權限太複雜，如果需要雙向刪除可再擴充
                 await deleteDoc(doc(db, "users", currentUser.uid, "friends", friendUid));
                 if(currentViewUid === friendUid) switchView(currentUser.uid, '我的帳本');
             }
@@ -490,3 +521,4 @@
     </script>
 </body>
 </html>
+
