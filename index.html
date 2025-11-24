@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 社群記帳</title>
+    <title>柴管家 - 全方位篩選版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -13,10 +13,11 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        #inp-photo, #inp-profile-photo { display: none; }
+        #inp-photo { display: none; }
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .friend-active { border-color: #2563EB; background-color: #EFF6FF; }
+        /* 隱藏未選中的篩選器 */
         .filter-hidden { display: none; }
     </style>
 </head>
@@ -65,6 +66,7 @@
                     <option value="year">年</option>
                     <option value="all">全部</option>
                 </select>
+
                 <div class="flex-1">
                     <input type="date" id="filter-day" class="filter-hidden w-full bg-white border border-gray-300 text-gray-700 text-sm rounded-lg px-2.5 py-1.5">
                     <input type="month" id="filter-month" class="w-full bg-white border border-gray-300 text-gray-700 text-sm rounded-lg px-2.5 py-1.5">
@@ -91,11 +93,8 @@
                 </div>
             </div>
 
-            <div id="chart-container" class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                <div class="relative h-64 w-full flex justify-center items-center">
-                    <canvas id="expenseChart"></canvas>
-                    <p id="chart-placeholder" class="hidden text-gray-400 text-sm font-medium">🐶 此區間尚無支出數據</p>
-                </div>
+            <div id="chart-container" class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 hidden">
+                <div class="relative h-64 w-full flex justify-center"><canvas id="expenseChart"></canvas></div>
             </div>
             
             <div class="flex justify-end">
@@ -107,19 +106,23 @@
                     <h2 class="text-xs font-bold text-gray-400 uppercase" id="form-title">新增紀錄</h2>
                     <button id="btn-cancel-edit" onclick="resetForm()" class="hidden text-xs text-red-500 hover:underline">取消修改</button>
                 </div>
+                
                 <form id="transaction-form" class="flex flex-col gap-3">
                     <div class="flex gap-2">
                         <input type="date" id="inp-date" class="w-1/3 bg-gray-50 border border-gray-200 rounded-lg px-2 py-2.5 text-sm text-gray-600">
                         <select id="inp-type" onchange="updateCategoryOptions()" class="w-1/3 bg-gray-50 border border-gray-200 rounded-lg px-2 py-2.5 text-sm"><option value="expense">支出</option><option value="income">收入</option></select>
                         <select id="inp-category" class="w-1/3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-sm"></select>
                     </div>
+                    
                     <div class="flex gap-2">
                         <button type="button" onclick="addCustomCategory()" class="bg-blue-50 text-blue-600 border border-blue-100 rounded-lg px-3 text-sm font-bold hover:bg-blue-100 whitespace-nowrap">+ 分類</button>
                         <input type="text" id="inp-title" placeholder="項目 (選填)" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm">
                     </div>
+
                     <div class="flex gap-2">
                         <input type="number" id="inp-amount" placeholder="金額 $" min="1" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm" required>
                     </div>
+
                     <div class="flex items-center gap-2">
                         <input type="file" id="inp-photo" accept="image/*" onchange="handlePhotoSelect(event)">
                         <label for="inp-photo" id="btn-camera" class="flex-1 cursor-pointer bg-gray-100 text-gray-500 py-2.5 rounded-lg flex items-center justify-center gap-2 border border-dashed border-gray-300 hover:bg-gray-200 transition-colors">
@@ -135,7 +138,7 @@
             </div>
 
             <div id="transaction-list" class="space-y-1 pb-10"></div>
-            <div id="empty-state" class="hidden py-10 text-center text-gray-400 text-sm">此區間暫無紀錄</div>
+            <div id="empty-state" class="hidden py-10 text-center text-gray-400 text-sm">暫無紀錄</div>
         </main>
         
         <div id="friend-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-end sm:items-center justify-center fade-in">
@@ -176,13 +179,7 @@
             <div class="bg-white w-full max-w-sm rounded-2xl p-6 relative">
                 <button onclick="toggleProfileModal()" class="absolute top-4 right-4 text-gray-400 text-xl">&times;</button>
                 <div class="flex flex-col items-center mb-6">
-                    <div class="relative">
-                        <img id="profile-avatar" src="" class="w-24 h-24 rounded-full border-4 border-blue-50 mb-3 shadow-sm object-cover">
-                        <label for="inp-profile-photo" class="absolute bottom-3 right-0 bg-blue-600 text-white p-1.5 rounded-full shadow-md cursor-pointer hover:bg-blue-700 transition">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        </label>
-                        <input type="file" id="inp-profile-photo" accept="image/*" onchange="handleProfilePhotoSelect(event)">
-                    </div>
+                    <img id="profile-avatar" src="" class="w-20 h-20 rounded-full border-4 border-blue-50 mb-3 shadow-sm">
                     <div class="text-xs text-gray-400 mb-1">我的 ID</div>
                     <div id="profile-short-id" class="font-mono font-bold text-xl text-blue-600 tracking-wider mb-2 select-all">...</div>
                     <div id="profile-email" class="text-xs text-gray-400">...</div>
@@ -232,7 +229,6 @@
         let myProfileData = null;
         let editingId = null; 
         let currentCommentTxId = null;
-        let currentProfilePhotoData = null;
 
         const defaultCategories = { expense: ['餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他'], income: ['薪資', '獎金', '投資', '兼職', '其他'] };
         let userCustomCategories = { expense: [], income: [] };
@@ -261,16 +257,16 @@
         const btnSubmit = document.getElementById('btn-submit');
         const btnCancelEdit = document.getElementById('btn-cancel-edit');
         const formTitle = document.getElementById('form-title');
-        const monthPicker = document.getElementById('month-picker');
         const commentModal = document.getElementById('comment-modal');
         const commentsList = document.getElementById('comments-list');
         const commentInput = document.getElementById('comment-input');
+
+        // Filter Elements
         const filterType = document.getElementById('filter-type');
         const filterDay = document.getElementById('filter-day');
         const filterMonth = document.getElementById('filter-month');
         const filterYear = document.getElementById('filter-year');
         const filterAll = document.getElementById('filter-all');
-        const chartContainer = document.getElementById('chart-container');
 
         const today = new Date();
         inpDate.valueAsDate = today;
@@ -309,13 +305,11 @@
             const userRef = doc(db, "users", user.uid);
             const userSnap = await getDoc(userRef);
             let userName = user.displayName || "User";
-            let userPhoto = user.photoURL;
             if (userSnap.exists()) {
                 const data = userSnap.data();
                 myShortId = data.shortId;
                 if(data.name) userName = data.name;
-                if(data.photo) userPhoto = data.photo;
-                myProfileData = { ...data, photo: userPhoto };
+                myProfileData = data;
             } else {
                 let isUnique = false;
                 let newId = "";
@@ -324,14 +318,14 @@
                     const checkSnap = await getDoc(doc(db, "public_codes", newId));
                     if (!checkSnap.exists()) isUnique = true;
                 }
-                myProfileData = { shortId: newId, name: userName, email: user.email, photo: userPhoto };
-                await setDoc(doc(db, "public_codes", newId), { uid: user.uid, email: user.email, name: userName, photo: userPhoto });
-                await setDoc(userRef, { shortId: newId, name: userName, email: user.email, photo: userPhoto }, { merge: true });
+                myProfileData = { shortId: newId, name: userName, email: user.email };
+                await setDoc(doc(db, "public_codes", newId), { uid: user.uid, email: user.email, name: userName });
+                await setDoc(userRef, { shortId: newId, name: userName, email: user.email }, { merge: true });
                 myShortId = newId;
             }
             myShortIdEl.innerText = `ID: ${myShortId}`;
             profileNameInput.value = userName;
-            profileAvatar.src = userPhoto;
+            profileAvatar.src = user.photoURL;
             profileShortId.innerText = myShortId;
             profileEmail.innerText = user.email;
         }
@@ -369,31 +363,46 @@
             inpCategory.innerHTML = allCats.map(opt => `<option value="${opt}">${opt}</option>`).join('');
         };
 
+        // === 🚀 全方位篩選邏輯 ===
         window.changeFilterMode = () => {
             const mode = filterType.value;
+            // 隱藏所有輸入框
             filterDay.classList.add('filter-hidden');
             filterMonth.classList.add('filter-hidden');
             filterYear.classList.add('filter-hidden');
             filterAll.classList.add('filter-hidden');
+
+            // 顯示對應的輸入框
             if(mode === 'day') filterDay.classList.remove('filter-hidden');
             else if(mode === 'month') filterMonth.classList.remove('filter-hidden');
             else if(mode === 'year') {
                 filterYear.classList.remove('filter-hidden');
-                populateYearSelect(); 
+                populateYearSelect(); // 更新年份選項
             }
             else if(mode === 'all') filterAll.classList.remove('filter-hidden');
-            updateUI(); 
+
+            updateUI(); // 重新渲染
         };
 
         function populateYearSelect() {
+            // 找出資料中所有的年份，加上今年
             const years = new Set([new Date().getFullYear()]);
-            transactions.forEach(t => { years.add(new Date(t.dateTimestamp).getFullYear()); });
+            transactions.forEach(t => {
+                years.add(new Date(t.dateTimestamp).getFullYear());
+            });
+            
+            // 排序 (新到舊)
             const sortedYears = Array.from(years).sort((a, b) => b - a);
+            
+            // 如果已經選了，保持選取
             const currentVal = filterYear.value;
             filterYear.innerHTML = sortedYears.map(y => `<option value="${y}">${y} 年</option>`).join('');
-            if (currentVal && sortedYears.includes(Number(currentVal))) { filterYear.value = currentVal; }
+            if (currentVal && sortedYears.includes(Number(currentVal))) {
+                filterYear.value = currentVal;
+            }
         }
 
+        // 監聽所有篩選器的變動
         filterDay.addEventListener('change', updateUI);
         filterMonth.addEventListener('change', updateUI);
         filterYear.addEventListener('change', updateUI);
@@ -462,45 +471,14 @@
             } catch (e) { alert("操作失敗: " + e.message); }
         });
 
-        window.toggleProfileModal = () => {
-            const modal = document.getElementById('profile-modal');
-            modal.classList.toggle('hidden');
-            currentProfilePhotoData = null; 
-        };
-
-        window.handleProfilePhotoSelect = (event) => {
-            const file = event.target.files[0]; 
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas'); 
-                    const MAX_WIDTH = 300; 
-                    const scaleSize = MAX_WIDTH / img.width; 
-                    const newWidth = (img.width > MAX_WIDTH) ? MAX_WIDTH : img.width; 
-                    const newHeight = (img.width > MAX_WIDTH) ? img.height * scaleSize : img.height; 
-                    canvas.width = newWidth; canvas.height = newHeight; 
-                    const ctx = canvas.getContext('2d'); 
-                    ctx.drawImage(img, 0, 0, newWidth, newHeight); 
-                    currentProfilePhotoData = canvas.toDataURL('image/jpeg', 0.5); 
-                    profileAvatar.src = currentProfilePhotoData;
-                }
-                img.src = e.target.result;
-            }
-            reader.readAsDataURL(file);
-        };
-
+        window.toggleProfileModal = () => document.getElementById('profile-modal').classList.toggle('hidden');
         window.saveProfile = async () => {
             const newName = profileNameInput.value.trim();
             if(!newName) return alert("請輸入名稱");
             try {
-                const updateData = { name: newName };
-                if (currentProfilePhotoData) { updateData.photo = currentProfilePhotoData; }
-                await updateDoc(doc(db, "users", currentUser.uid), updateData);
-                await updateDoc(doc(db, "public_codes", myShortId), updateData);
+                await updateDoc(doc(db, "users", currentUser.uid), { name: newName });
+                await updateDoc(doc(db, "public_codes", myShortId), { name: newName });
                 myProfileData.name = newName;
-                if (currentProfilePhotoData) myProfileData.photo = currentProfilePhotoData;
                 alert("個人資料已更新！");
                 toggleProfileModal();
             } catch(e) { alert("更新失敗: " + e.message); }
@@ -584,6 +562,7 @@
             const q = query(collection(db, "users", targetUid, "transactions"), orderBy("dateTimestamp", "desc"));
             unsubscribe = onSnapshot(q, (snapshot) => {
                 transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // 資料載入後，更新年份選項（以防有新年份資料）
                 if(filterType.value === 'year') populateYearSelect();
                 updateUI();
                 syncStatus.innerText = "已同步";
@@ -641,11 +620,6 @@
             } catch(e) { alert("留言失敗: " + e.message); }
         };
 
-        window.toggleChart = () => {
-            const container = document.getElementById('chart-container');
-            container.classList.toggle('hidden');
-        };
-
         Chart.register(ChartDataLabels);
         let myChart = null;
 
@@ -656,8 +630,10 @@
             const expenseEl = document.getElementById('display-expense');
             const emptyState = document.getElementById('empty-state');
             const isSelf = currentViewUid === currentUser.uid;
+            
             const mode = filterType.value;
             
+            // 更新儀表板標題
             if(mode === 'day') dashboardTitle.innerText = '本日結餘';
             else if(mode === 'month') dashboardTitle.innerText = '本月結餘';
             else if(mode === 'year') dashboardTitle.innerText = '本年結餘';
@@ -668,10 +644,11 @@
                 const yyyy = date.getFullYear();
                 const mm = String(date.getMonth() + 1).padStart(2, '0');
                 const dd = String(date.getDate()).padStart(2, '0');
+                
                 if (mode === 'day') return `${yyyy}-${mm}-${dd}` === filterDay.value;
                 if (mode === 'month') return `${yyyy}-${mm}` === filterMonth.value;
                 if (mode === 'year') return `${yyyy}` === filterYear.value;
-                return true; 
+                return true; // All
             });
 
             listEl.innerHTML = '';
@@ -759,27 +736,17 @@
             const ctx = document.getElementById('expenseChart').getContext('2d');
             const labels = Object.keys(dataObj);
             const values = Object.values(dataObj);
-            
             if (myChart) myChart.destroy();
-            
-            // 🔥 修正重點：如果有資料，顯示圖表；沒資料，顯示提示文字。
-            if (labels.length === 0) { 
-                document.getElementById('expenseChart').style.display = 'none';
-                document.getElementById('chart-placeholder').classList.remove('hidden');
-            } else {
-                document.getElementById('expenseChart').style.display = 'block';
-                document.getElementById('chart-placeholder').classList.add('hidden');
-                
-                myChart = new Chart(ctx, { type: 'doughnut', data: { labels, datasets: [{ data: values, backgroundColor: ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6'], borderWidth: 2, borderColor: '#ffffff' }] }, options: { responsive: true, maintainAspectRatio: false, layout: { padding: 10 }, plugins: { legend: { position: 'right', labels: { boxWidth: 10 } }, datalabels: { color: '#fff', formatter: (val, ctx) => { let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); let pct = (val * 100 / sum); return pct < 5 ? null : pct.toFixed(1) + "%"; } } } } });
-            }
+            if (labels.length === 0) { document.getElementById('chart-container').classList.add('hidden'); return; }
+            document.getElementById('chart-container').classList.remove('hidden');
+            myChart = new Chart(ctx, { type: 'doughnut', data: { labels, datasets: [{ data: values, backgroundColor: ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6'], borderWidth: 2, borderColor: '#ffffff' }] }, options: { responsive: true, maintainAspectRatio: false, layout: { padding: 10 }, plugins: { legend: { position: 'right', labels: { boxWidth: 10 } }, datalabels: { color: '#fff', formatter: (val, ctx) => { let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); let pct = (val * 100 / sum); return pct < 5 ? null : pct.toFixed(1) + "%"; } } } } });
         }
 
         window.deleteTransactionCloud = async (id) => { if(confirm('刪除此紀錄？')) await deleteDoc(doc(db, "users", currentUser.uid, "transactions", id)); };
 
         // UI Helpers
         window.toggleFriendModal = () => document.getElementById('friend-modal').classList.toggle('hidden');
-        
-        // Open Photo Modal
+        window.toggleChart = () => document.getElementById('chart-container').classList.toggle('hidden');
         window.openPhotoModal = (src) => { document.getElementById('modal-img').src = src; document.getElementById('photo-modal').classList.remove('hidden'); };
         window.closePhotoModal = () => document.getElementById('photo-modal').classList.add('hidden');
         
