@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 月份編輯版</title>
+    <title>柴管家 - 限時留言版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/zh-tw.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -20,7 +22,7 @@
 <body class="bg-gray-50 text-gray-800 min-h-screen">
 
     <div id="login-screen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-6 text-center fade-in">
-        <div class="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-4xl font-bold shadow-xl mb-6">柴</div>
+        <img src="./Shiba Logo.png" class="w-20 h-20 rounded-2xl shadow-xl mb-6 object-cover">
         <h1 class="text-3xl font-extrabold text-gray-900 mb-2">歡迎使用 柴管家</h1>
         <p class="text-gray-500 mb-10">你的雲端財務小幫手</p>
         <button id="btn-google-login" class="w-full max-w-sm bg-white border border-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-xl shadow-sm hover:bg-gray-50 transition flex items-center justify-center gap-3">
@@ -32,7 +34,7 @@
     <div id="app-screen" class="hidden max-w-md mx-auto min-h-screen bg-white shadow-2xl overflow-hidden relative">
         <header class="bg-white px-6 py-4 flex items-center justify-between sticky top-0 z-20 border-b border-gray-100">
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold shadow-blue-200 shadow-lg">柴</div>
+                <img src="./Shiba Logo.png" class="w-8 h-8 rounded-lg shadow-blue-200 shadow-lg object-cover">
                 <h1 class="text-xl font-extrabold text-gray-900">柴管家</h1>
             </div>
             <div class="flex items-center gap-2">
@@ -144,6 +146,25 @@
             </div>
         </div>
 
+        <div id="comment-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end sm:items-center justify-center fade-in">
+            <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 flex flex-col h-[60vh]">
+                <div class="flex justify-between items-center mb-2 border-b border-gray-100 pb-2">
+                    <h2 class="text-lg font-bold">留言板 <span class="text-xs text-gray-400 font-normal ml-2">(24hr 後消失)</span></h2>
+                    <button onclick="closeCommentModal()" class="text-gray-400 text-xl">&times;</button>
+                </div>
+                
+                <div id="comments-list" class="flex-1 overflow-y-auto space-y-3 py-2">
+                    </div>
+
+                <div class="mt-3 pt-3 flex gap-2 border-t border-gray-100">
+                    <input type="text" id="comment-input" placeholder="留言..." class="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-300">
+                    <button onclick="submitComment()" class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-md hover:bg-blue-700 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div id="profile-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center fade-in p-4">
             <div class="bg-white w-full max-w-sm rounded-2xl p-6 relative">
                 <button onclick="toggleProfileModal()" class="absolute top-4 right-4 text-gray-400 text-xl">&times;</button>
@@ -196,11 +217,12 @@
         let friendsUnsubscribe = null;
         let myShortId = null; 
         let myProfileData = null;
-        
-        // 編輯狀態變數
         let editingId = null; 
+        
+        // 留言功能變數
+        let currentCommentTxId = null;
 
-        // 預設分類 + 用戶自訂分類
+        // 預設分類
         const defaultCategories = { expense: ['餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他'], income: ['薪資', '獎金', '投資', '兼職', '其他'] };
         let userCustomCategories = { expense: [], income: [] };
 
@@ -227,16 +249,19 @@
         const inpDate = document.getElementById('inp-date');
         const inpTitle = document.getElementById('inp-title');
         const inpAmount = document.getElementById('inp-amount');
-        const inpPhoto = document.getElementById('inp-photo');
         const btnSubmit = document.getElementById('btn-submit');
         const btnCancelEdit = document.getElementById('btn-cancel-edit');
         const formTitle = document.getElementById('form-title');
         const monthPicker = document.getElementById('month-picker');
+        
+        // Comment Elements
+        const commentModal = document.getElementById('comment-modal');
+        const commentsList = document.getElementById('comments-list');
+        const commentInput = document.getElementById('comment-input');
 
-        // 初始化日期
         const today = new Date();
         inpDate.valueAsDate = today;
-        monthPicker.value = today.toISOString().slice(0, 7); // YYYY-MM
+        monthPicker.value = today.toISOString().slice(0, 7);
 
         document.getElementById('btn-google-login').addEventListener('click', () => {
             signInWithPopup(auth, provider).catch((err) => alert("登入失敗: " + err.message));
@@ -248,13 +273,10 @@
             if (user) {
                 currentUser = user;
                 currentViewUid = user.uid;
-                
                 await ensureUserHasId(user);
                 await loadCustomCategories(user);
-
                 loginScreen.classList.add('hidden');
                 appScreen.classList.remove('hidden');
-                
                 loadDataRealtime(user.uid);
                 loadFriends();
                 updateViewMode();
@@ -273,7 +295,6 @@
             const userRef = doc(db, "users", user.uid);
             const userSnap = await getDoc(userRef);
             let userName = user.displayName || "User";
-
             if (userSnap.exists()) {
                 const data = userSnap.data();
                 myShortId = data.shortId;
@@ -287,7 +308,6 @@
                     const checkSnap = await getDoc(doc(db, "public_codes", newId));
                     if (!checkSnap.exists()) isUnique = true;
                 }
-                
                 myProfileData = { shortId: newId, name: userName, email: user.email };
                 await setDoc(doc(db, "public_codes", newId), { uid: user.uid, email: user.email, name: userName });
                 await setDoc(userRef, { shortId: newId, name: userName, email: user.email }, { merge: true });
@@ -333,41 +353,28 @@
             inpCategory.innerHTML = allCats.map(opt => `<option value="${opt}">${opt}</option>`).join('');
         };
 
-        // === 編輯模式邏輯 ===
         window.editTransaction = (id) => {
             const tx = transactions.find(t => t.id === id);
             if (!tx) return;
-
-            // 填入資料
             editingId = id;
             inpTitle.value = tx.title;
             inpAmount.value = tx.amount;
             inpType.value = tx.type;
-            updateCategoryOptions(); // 更新分類選單
+            updateCategoryOptions(); 
             inpCategory.value = tx.category;
-            
-            // 處理日期 (轉為 YYYY-MM-DD)
             const dateObj = new Date(tx.dateTimestamp);
             inpDate.valueAsDate = dateObj;
-
-            // 處理照片
             currentPhotoData = tx.photo || null;
             if (currentPhotoData) {
                 document.getElementById('img-preview').src = currentPhotoData;
                 document.getElementById('preview-container').classList.remove('hidden');
                 document.getElementById('btn-camera').classList.add('hidden');
-            } else {
-                window.clearPhoto();
-            }
-
-            // UI 變更
+            } else { window.clearPhoto(); }
             btnSubmit.innerText = "確認修改";
             btnSubmit.classList.remove('bg-blue-600', 'hover:bg-blue-700');
             btnSubmit.classList.add('bg-green-600', 'hover:bg-green-700');
             formTitle.innerText = "修改紀錄";
             btnCancelEdit.classList.remove('hidden');
-            
-            // 滾動到上方
             document.getElementById('input-section').scrollIntoView({ behavior: 'smooth' });
         };
 
@@ -377,7 +384,6 @@
             inpAmount.value = '';
             inpDate.valueAsDate = new Date();
             window.clearPhoto();
-            
             btnSubmit.innerText = "新增紀錄";
             btnSubmit.classList.add('bg-blue-600', 'hover:bg-blue-700');
             btnSubmit.classList.remove('bg-green-600', 'hover:bg-green-700');
@@ -385,55 +391,34 @@
             btnCancelEdit.classList.add('hidden');
         };
 
-        // 月份切換監聽
-        monthPicker.addEventListener('change', () => {
-            updateUI(); // 重新渲染
-        });
+        monthPicker.addEventListener('change', () => { updateUI(); });
 
-        // 提交表單 (新增/修改)
         document.getElementById('transaction-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             if(currentViewUid !== currentUser.uid) return alert("你只能編輯自己的帳本喔！");
-            
             const category = inpCategory.value;
             let title = inpTitle.value.trim();
             if (!title) title = category;
             const amount = Number(inpAmount.value);
             const type = inpType.value;
-            
-            // 處理日期
-            const dateValue = inpDate.valueAsDate; // 這是 UTC
+            const dateValue = inpDate.valueAsDate; 
             if (!dateValue) return alert("請選擇日期");
-            
-            // 修正時區問題，確保顯示為當地時間
             const dateTimestamp = dateValue.getTime(); 
             const dateString = dateValue.toLocaleDateString(); 
-
             if (amount <= 0) return alert('請輸入有效金額');
-            
             syncStatus.innerText = editingId ? "修改中..." : "儲存中...";
-            
             try {
-                const txData = { 
-                    title, amount, type, category, 
-                    dateTimestamp: dateTimestamp, 
-                    date: dateString, 
-                    photo: currentPhotoData 
-                };
-
+                const txData = { title, amount, type, category, dateTimestamp: dateTimestamp, date: dateString, photo: currentPhotoData };
                 if (editingId) {
-                    // 修改模式
                     await updateDoc(doc(db, "users", currentUser.uid, "transactions", editingId), txData);
                     window.resetForm();
                 } else {
-                    // 新增模式
                     await addDoc(collection(db, "users", currentUser.uid, "transactions"), txData);
                     window.resetForm();
                 }
             } catch (e) { alert("操作失敗: " + e.message); }
         });
 
-        // Profile & Friend 
         window.toggleProfileModal = () => document.getElementById('profile-modal').classList.toggle('hidden');
         window.saveProfile = async () => {
             const newName = profileNameInput.value.trim();
@@ -500,7 +485,6 @@
             if (currentViewUid === targetUid) return;
             currentViewUid = targetUid;
             currentViewLabel.innerText = targetUid === currentUser.uid ? "我的帳本" : `${name} 的帳本`;
-            // 切換視角時重置表單
             window.resetForm(); 
             updateViewMode();
             loadDataRealtime(targetUid);
@@ -535,7 +519,79 @@
             });
         }
 
-        // Chart & UI
+        // === 🔥 留言系統邏輯 ===
+        window.openCommentModal = (txId) => {
+            currentCommentTxId = txId;
+            commentModal.classList.remove('hidden');
+            renderComments(txId);
+        };
+
+        window.closeCommentModal = () => {
+            commentModal.classList.add('hidden');
+            currentCommentTxId = null;
+        };
+
+        function renderComments(txId) {
+            const tx = transactions.find(t => t.id === txId);
+            commentsList.innerHTML = '';
+            
+            const now = Date.now();
+            // 過濾 24 小時內的留言
+            const validComments = (tx.comments || []).filter(c => now - c.timestamp < 24 * 60 * 60 * 1000);
+
+            if (validComments.length === 0) {
+                commentsList.innerHTML = '<div class="text-center text-gray-400 text-sm mt-10">還沒有人留言...</div>';
+            } else {
+                validComments.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = "bg-gray-50 p-3 rounded-xl text-sm";
+                    // 使用 moment.js 顯示相對時間 (例如: 5分鐘前)
+                    const timeAgo = moment(c.timestamp).fromNow();
+                    div.innerHTML = `
+                        <div class="flex justify-between mb-1">
+                            <span class="font-bold text-blue-600">${c.authorName}</span>
+                            <span class="text-xs text-gray-400">${timeAgo}</span>
+                        </div>
+                        <div class="text-gray-700">${c.text}</div>
+                    `;
+                    commentsList.appendChild(div);
+                });
+            }
+        }
+
+        window.submitComment = async () => {
+            const text = commentInput.value.trim();
+            if (!text || !currentCommentTxId) return;
+
+            try {
+                const txRef = doc(db, "users", currentViewUid, "transactions", currentCommentTxId);
+                const txSnap = await getDoc(txRef);
+                if(txSnap.exists()) {
+                    const txData = txSnap.data();
+                    const now = Date.now();
+                    
+                    // 1. 過濾掉舊的
+                    let comments = (txData.comments || []).filter(c => now - c.timestamp < 24 * 60 * 60 * 1000);
+                    
+                    // 2. 加入新的
+                    comments.push({
+                        text: text,
+                        authorName: myProfileData.name,
+                        authorUid: currentUser.uid,
+                        timestamp: now
+                    });
+
+                    // 3. 寫回資料庫
+                    await updateDoc(txRef, { comments: comments });
+                    
+                    commentInput.value = '';
+                    renderComments(currentCommentTxId); // 更新畫面
+                }
+            } catch(e) {
+                alert("留言失敗: " + e.message);
+            }
+        };
+
         Chart.register(ChartDataLabels);
         let myChart = null;
 
@@ -546,15 +602,10 @@
             const expenseEl = document.getElementById('display-expense');
             const emptyState = document.getElementById('empty-state');
             const isSelf = currentViewUid === currentUser.uid;
-
-            // 1. 取得目前選擇的月份 (格式 YYYY-MM)
             const selectedMonth = monthPicker.value; 
 
-            // 2. 篩選資料 (使用 dateTimestamp 來比較)
             const filteredTransactions = transactions.filter(t => {
-                // 處理時區，轉換為當地時間的 YYYY-MM
                 const date = new Date(t.dateTimestamp);
-                // 手動格式化，避免時區跑掉
                 const yyyy = date.getFullYear();
                 const mm = String(date.getMonth() + 1).padStart(2, '0');
                 return `${yyyy}-${mm}` === selectedMonth;
@@ -577,7 +628,7 @@
                 const colorClass = isIncome ? 'text-green-600' : 'text-gray-800';
                 const photoHtml = t.photo ? `<img src="${t.photo}" onclick="openPhotoModal('${t.photo}')" class="w-12 h-12 rounded-lg object-cover border border-gray-200 cursor-pointer ml-3">` : '';
                 
-                // 按鈕邏輯：本人顯示 (編輯 | 刪除)，好友只顯示空白
+                // 按鈕區域
                 let actionBtns = '';
                 if (isSelf) {
                     actionBtns = `
@@ -586,12 +637,25 @@
                             <button onclick="deleteTransactionCloud('${t.id}')" class="text-gray-400 hover:text-red-500 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                         </div>
                     `;
+                } else {
+                    // 🔥 好友視角：顯示留言按鈕
+                    // 計算有效留言數 (24h 內)
+                    const now = Date.now();
+                    const validCount = (t.comments || []).filter(c => now - c.timestamp < 24 * 60 * 60 * 1000).length;
+                    const badge = validCount > 0 ? `<span class="bg-red-500 text-white text-[10px] px-1.5 rounded-full absolute -top-1 -right-1">${validCount}</span>` : '';
+                    
+                    actionBtns = `
+                        <div class="relative ml-3">
+                            <button onclick="openCommentModal('${t.id}')" class="text-gray-400 hover:text-blue-500 p-2">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                            </button>
+                            ${badge}
+                        </div>
+                    `;
                 }
 
                 const item = document.createElement('div');
                 item.className = 'bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between';
-                
-                // 日期顯示修正
                 const displayDate = new Date(t.dateTimestamp).toLocaleDateString();
 
                 item.innerHTML = `
