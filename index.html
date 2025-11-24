@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 自訂頭像版</title>
+    <title>柴管家 - 社群記帳</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -91,8 +91,11 @@
                 </div>
             </div>
 
-            <div id="chart-container" class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 hidden">
-                <div class="relative h-64 w-full flex justify-center"><canvas id="expenseChart"></canvas></div>
+            <div id="chart-container" class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+                <div class="relative h-64 w-full flex justify-center items-center">
+                    <canvas id="expenseChart"></canvas>
+                    <p id="chart-placeholder" class="hidden text-gray-400 text-sm font-medium">🐶 此區間尚無支出數據</p>
+                </div>
             </div>
             
             <div class="flex justify-end">
@@ -104,23 +107,19 @@
                     <h2 class="text-xs font-bold text-gray-400 uppercase" id="form-title">新增紀錄</h2>
                     <button id="btn-cancel-edit" onclick="resetForm()" class="hidden text-xs text-red-500 hover:underline">取消修改</button>
                 </div>
-                
                 <form id="transaction-form" class="flex flex-col gap-3">
                     <div class="flex gap-2">
                         <input type="date" id="inp-date" class="w-1/3 bg-gray-50 border border-gray-200 rounded-lg px-2 py-2.5 text-sm text-gray-600">
                         <select id="inp-type" onchange="updateCategoryOptions()" class="w-1/3 bg-gray-50 border border-gray-200 rounded-lg px-2 py-2.5 text-sm"><option value="expense">支出</option><option value="income">收入</option></select>
                         <select id="inp-category" class="w-1/3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-sm"></select>
                     </div>
-                    
                     <div class="flex gap-2">
                         <button type="button" onclick="addCustomCategory()" class="bg-blue-50 text-blue-600 border border-blue-100 rounded-lg px-3 text-sm font-bold hover:bg-blue-100 whitespace-nowrap">+ 分類</button>
                         <input type="text" id="inp-title" placeholder="項目 (選填)" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm">
                     </div>
-
                     <div class="flex gap-2">
                         <input type="number" id="inp-amount" placeholder="金額 $" min="1" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm" required>
                     </div>
-
                     <div class="flex items-center gap-2">
                         <input type="file" id="inp-photo" accept="image/*" onchange="handlePhotoSelect(event)">
                         <label for="inp-photo" id="btn-camera" class="flex-1 cursor-pointer bg-gray-100 text-gray-500 py-2.5 rounded-lg flex items-center justify-center gap-2 border border-dashed border-gray-300 hover:bg-gray-200 transition-colors">
@@ -136,7 +135,7 @@
             </div>
 
             <div id="transaction-list" class="space-y-1 pb-10"></div>
-            <div id="empty-state" class="hidden py-10 text-center text-gray-400 text-sm">此月份暫無紀錄</div>
+            <div id="empty-state" class="hidden py-10 text-center text-gray-400 text-sm">此區間暫無紀錄</div>
         </main>
         
         <div id="friend-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-end sm:items-center justify-center fade-in">
@@ -184,7 +183,6 @@
                         </label>
                         <input type="file" id="inp-profile-photo" accept="image/*" onchange="handleProfilePhotoSelect(event)">
                     </div>
-
                     <div class="text-xs text-gray-400 mb-1">我的 ID</div>
                     <div id="profile-short-id" class="font-mono font-bold text-xl text-blue-600 tracking-wider mb-2 select-all">...</div>
                     <div id="profile-email" class="text-xs text-gray-400">...</div>
@@ -234,7 +232,7 @@
         let myProfileData = null;
         let editingId = null; 
         let currentCommentTxId = null;
-        let currentProfilePhotoData = null; // 暫存新頭像
+        let currentProfilePhotoData = null;
 
         const defaultCategories = { expense: ['餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他'], income: ['薪資', '獎金', '投資', '兼職', '其他'] };
         let userCustomCategories = { expense: [], income: [] };
@@ -267,12 +265,12 @@
         const commentModal = document.getElementById('comment-modal');
         const commentsList = document.getElementById('comments-list');
         const commentInput = document.getElementById('comment-input');
-        
         const filterType = document.getElementById('filter-type');
         const filterDay = document.getElementById('filter-day');
         const filterMonth = document.getElementById('filter-month');
         const filterYear = document.getElementById('filter-year');
         const filterAll = document.getElementById('filter-all');
+        const chartContainer = document.getElementById('chart-container');
 
         const today = new Date();
         inpDate.valueAsDate = today;
@@ -311,14 +309,12 @@
             const userRef = doc(db, "users", user.uid);
             const userSnap = await getDoc(userRef);
             let userName = user.displayName || "User";
-            // 預設頭像
             let userPhoto = user.photoURL;
-
             if (userSnap.exists()) {
                 const data = userSnap.data();
                 myShortId = data.shortId;
                 if(data.name) userName = data.name;
-                if(data.photo) userPhoto = data.photo; // 如果有自訂頭像則使用
+                if(data.photo) userPhoto = data.photo;
                 myProfileData = { ...data, photo: userPhoto };
             } else {
                 let isUnique = false;
@@ -373,7 +369,6 @@
             inpCategory.innerHTML = allCats.map(opt => `<option value="${opt}">${opt}</option>`).join('');
         };
 
-        // Filter logic
         window.changeFilterMode = () => {
             const mode = filterType.value;
             filterDay.classList.add('filter-hidden');
@@ -421,373 +416,4 @@
                 document.getElementById('btn-camera').classList.add('hidden');
             } else { window.clearPhoto(); }
             btnSubmit.innerText = "確認修改";
-            btnSubmit.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-            btnSubmit.classList.add('bg-green-600', 'hover:bg-green-700');
-            formTitle.innerText = "修改紀錄";
-            btnCancelEdit.classList.remove('hidden');
-            document.getElementById('input-section').scrollIntoView({ behavior: 'smooth' });
-        };
 
-        window.resetForm = () => {
-            editingId = null;
-            inpTitle.value = '';
-            inpAmount.value = '';
-            inpDate.valueAsDate = new Date();
-            window.clearPhoto();
-            btnSubmit.innerText = "新增紀錄";
-            btnSubmit.classList.add('bg-blue-600', 'hover:bg-blue-700');
-            btnSubmit.classList.remove('bg-green-600', 'hover:bg-green-700');
-            formTitle.innerText = "新增紀錄";
-            btnCancelEdit.classList.add('hidden');
-        };
-
-        document.getElementById('transaction-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if(currentViewUid !== currentUser.uid) return alert("你只能編輯自己的帳本喔！");
-            const category = inpCategory.value;
-            let title = inpTitle.value.trim();
-            if (!title) title = category;
-            const amount = Number(inpAmount.value);
-            const type = inpType.value;
-            const dateValue = inpDate.valueAsDate; 
-            if (!dateValue) return alert("請選擇日期");
-            const dateTimestamp = dateValue.getTime(); 
-            const dateString = dateValue.toLocaleDateString(); 
-            if (amount <= 0) return alert('請輸入有效金額');
-            syncStatus.innerText = editingId ? "修改中..." : "儲存中...";
-            try {
-                const txData = { title, amount, type, category, dateTimestamp: dateTimestamp, date: dateString, photo: currentPhotoData };
-                if (editingId) {
-                    await updateDoc(doc(db, "users", currentUser.uid, "transactions", editingId), txData);
-                    window.resetForm();
-                } else {
-                    await addDoc(collection(db, "users", currentUser.uid, "transactions"), txData);
-                    window.resetForm();
-                }
-            } catch (e) { alert("操作失敗: " + e.message); }
-        });
-
-        // === 🚀 自訂頭像功能 ===
-        window.toggleProfileModal = () => {
-            const modal = document.getElementById('profile-modal');
-            modal.classList.toggle('hidden');
-            // 重置暫存頭像
-            currentProfilePhotoData = null; 
-        };
-
-        window.handleProfilePhotoSelect = (event) => {
-            const file = event.target.files[0]; 
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas'); 
-                    const MAX_WIDTH = 300; // 頭像不需要太大
-                    const scaleSize = MAX_WIDTH / img.width; 
-                    const newWidth = (img.width > MAX_WIDTH) ? MAX_WIDTH : img.width; 
-                    const newHeight = (img.width > MAX_WIDTH) ? img.height * scaleSize : img.height; 
-                    canvas.width = newWidth; canvas.height = newHeight; 
-                    const ctx = canvas.getContext('2d'); 
-                    ctx.drawImage(img, 0, 0, newWidth, newHeight); 
-                    currentProfilePhotoData = canvas.toDataURL('image/jpeg', 0.5); 
-                    // 預覽
-                    profileAvatar.src = currentProfilePhotoData;
-                }
-                img.src = e.target.result;
-            }
-            reader.readAsDataURL(file);
-        };
-
-        window.saveProfile = async () => {
-            const newName = profileNameInput.value.trim();
-            if(!newName) return alert("請輸入名稱");
-            
-            try {
-                const updateData = { name: newName };
-                if (currentProfilePhotoData) {
-                    updateData.photo = currentProfilePhotoData;
-                }
-
-                await updateDoc(doc(db, "users", currentUser.uid), updateData);
-                await updateDoc(doc(db, "public_codes", myShortId), updateData);
-                
-                myProfileData.name = newName;
-                if (currentProfilePhotoData) myProfileData.photo = currentProfilePhotoData;
-
-                alert("個人資料已更新！");
-                toggleProfileModal();
-            } catch(e) { alert("更新失敗: " + e.message); }
-        };
-
-        window.addFriend = async () => {
-            const inputId = document.getElementById('friend-id-input').value.trim();
-            if(inputId.length !== 6) return alert("請輸入 6 位數 ID");
-            if(inputId === myShortId) return alert("不能加自己為好友 XD");
-            try {
-                const targetDoc = await getDoc(doc(db, "public_codes", inputId));
-                if (targetDoc.exists()) {
-                    const targetData = targetDoc.data();
-                    const addTargetToMe = setDoc(doc(db, "users", currentUser.uid, "friends", targetData.uid), {
-                        uid: targetData.uid, shortId: inputId, name: targetData.name, email: targetData.email, addedAt: Date.now()
-                    });
-                    const addMeToTarget = setDoc(doc(db, "users", targetData.uid, "friends", currentUser.uid), {
-                        uid: currentUser.uid, shortId: myProfileData.shortId, name: myProfileData.name, email: currentUser.email, addedAt: Date.now()
-                    });
-                    await Promise.all([addTargetToMe, addMeToTarget]);
-                    alert(`成功！你與 ${targetData.name} 現在是雙向好友了！`);
-                    document.getElementById('friend-id-input').value = "";
-                } else { alert("找不到此 ID，請確認號碼是否正確。"); }
-            } catch (e) { alert("加入失敗：" + e.message); }
-        };
-
-        function loadFriends() {
-            const q = query(collection(db, "users", currentUser.uid, "friends"));
-            friendsUnsubscribe = onSnapshot(q, (snapshot) => {
-                friendListContainer.innerHTML = '';
-                const selfDiv = document.createElement('div');
-                selfDiv.className = `p-3 rounded-lg border cursor-pointer flex justify-between items-center ${currentViewUid === currentUser.uid ? 'friend-active' : 'border-gray-100 hover:bg-gray-50'}`;
-                selfDiv.innerHTML = `<span class="font-bold">👤 我的帳本</span>`;
-                selfDiv.onclick = () => switchView(currentUser.uid, '我的帳本');
-                friendListContainer.appendChild(selfDiv);
-                snapshot.forEach(doc => {
-                    const f = doc.data();
-                    const div = document.createElement('div');
-                    div.className = `p-3 rounded-lg border cursor-pointer flex justify-between items-center ${currentViewUid === f.uid ? 'friend-active' : 'border-gray-100 hover:bg-gray-50'}`;
-                    div.innerHTML = `<div><div class="font-bold text-sm">${f.name}</div><div class="text-xs text-gray-400">ID: ${f.shortId || '...'}</div></div><button onclick="deleteFriend('${f.uid}', event)" class="text-gray-300 hover:text-red-500 px-2">🗑️</button>`;
-                    div.onclick = (e) => { if(e.target.tagName !== 'BUTTON') switchView(f.uid, f.name); };
-                    friendListContainer.appendChild(div);
-                });
-            });
-        }
-
-        window.deleteFriend = async (friendUid, e) => {
-            e.stopPropagation();
-            if(confirm("確定刪除此好友？(注意：對方的列表裡你也會消失喔)")) {
-                await deleteDoc(doc(db, "users", currentUser.uid, "friends", friendUid));
-                if(currentViewUid === friendUid) switchView(currentUser.uid, '我的帳本');
-            }
-        };
-
-        function switchView(targetUid, name) {
-            if (currentViewUid === targetUid) return;
-            currentViewUid = targetUid;
-            currentViewLabel.innerText = targetUid === currentUser.uid ? "我的帳本" : `${name} 的帳本`;
-            window.resetForm(); 
-            updateViewMode();
-            loadDataRealtime(targetUid);
-            toggleFriendModal();
-        }
-
-        function updateViewMode() {
-            const isSelf = currentViewUid === currentUser.uid;
-            if (isSelf) {
-                inputSection.classList.remove('hidden');
-                dashboardCard.classList.remove('from-purple-600', 'to-pink-600');
-                dashboardCard.classList.add('from-blue-600', 'to-indigo-700');
-            } else {
-                inputSection.classList.add('hidden');
-                dashboardCard.classList.remove('from-blue-600', 'to-indigo-700');
-                dashboardCard.classList.add('from-purple-600', 'to-pink-600');
-            }
-        }
-
-        function loadDataRealtime(targetUid) {
-            if(unsubscribe) unsubscribe();
-            syncStatus.innerText = "讀取中...";
-            const q = query(collection(db, "users", targetUid, "transactions"), orderBy("dateTimestamp", "desc"));
-            unsubscribe = onSnapshot(q, (snapshot) => {
-                transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                if(filterType.value === 'year') populateYearSelect();
-                updateUI();
-                syncStatus.innerText = "已同步";
-            }, (error) => {
-                console.error(error);
-                syncStatus.innerText = "權限不足";
-                alert("無法查看此帳本，可能對方尚未生成 ID 或網路問題。");
-            });
-        }
-
-        window.openCommentModal = (txId) => {
-            currentCommentTxId = txId;
-            commentModal.classList.remove('hidden');
-            renderComments(txId);
-        };
-
-        window.closeCommentModal = () => {
-            commentModal.classList.add('hidden');
-            currentCommentTxId = null;
-        };
-
-        function renderComments(txId) {
-            const tx = transactions.find(t => t.id === txId);
-            commentsList.innerHTML = '';
-            const now = Date.now();
-            const validComments = (tx.comments || []).filter(c => now - c.timestamp < 24 * 60 * 60 * 1000);
-            if (validComments.length === 0) {
-                commentsList.innerHTML = '<div class="text-center text-gray-400 text-sm mt-10">還沒有人留言...</div>';
-            } else {
-                validComments.forEach(c => {
-                    const div = document.createElement('div');
-                    div.className = "bg-gray-50 p-3 rounded-xl text-sm";
-                    const timeAgo = moment(c.timestamp).fromNow();
-                    div.innerHTML = `<div class="flex justify-between mb-1"><span class="font-bold text-blue-600">${c.authorName}</span><span class="text-xs text-gray-400">${timeAgo}</span></div><div class="text-gray-700">${c.text}</div>`;
-                    commentsList.appendChild(div);
-                });
-            }
-        }
-
-        window.submitComment = async () => {
-            const text = commentInput.value.trim();
-            if (!text || !currentCommentTxId) return;
-            try {
-                const txRef = doc(db, "users", currentViewUid, "transactions", currentCommentTxId);
-                const txSnap = await getDoc(txRef);
-                if(txSnap.exists()) {
-                    const txData = txSnap.data();
-                    const now = Date.now();
-                    let comments = (txData.comments || []).filter(c => now - c.timestamp < 24 * 60 * 60 * 1000);
-                    comments.push({ text: text, authorName: myProfileData.name, authorUid: currentUser.uid, timestamp: now });
-                    await updateDoc(txRef, { comments: comments });
-                    commentInput.value = '';
-                    renderComments(currentCommentTxId);
-                }
-            } catch(e) { alert("留言失敗: " + e.message); }
-        };
-
-        Chart.register(ChartDataLabels);
-        let myChart = null;
-
-        function updateUI() {
-            const listEl = document.getElementById('transaction-list');
-            const balanceEl = document.getElementById('display-balance');
-            const incomeEl = document.getElementById('display-income');
-            const expenseEl = document.getElementById('display-expense');
-            const emptyState = document.getElementById('empty-state');
-            const isSelf = currentViewUid === currentUser.uid;
-            
-            const mode = filterType.value;
-            
-            if(mode === 'day') dashboardTitle.innerText = '本日結餘';
-            else if(mode === 'month') dashboardTitle.innerText = '本月結餘';
-            else if(mode === 'year') dashboardTitle.innerText = '本年結餘';
-            else dashboardTitle.innerText = '生涯總結餘';
-
-            const filteredTransactions = transactions.filter(t => {
-                const date = new Date(t.dateTimestamp);
-                const yyyy = date.getFullYear();
-                const mm = String(date.getMonth() + 1).padStart(2, '0');
-                const dd = String(date.getDate()).padStart(2, '0');
-                if (mode === 'day') return `${yyyy}-${mm}-${dd}` === filterDay.value;
-                if (mode === 'month') return `${yyyy}-${mm}` === filterMonth.value;
-                if (mode === 'year') return `${yyyy}` === filterYear.value;
-                return true; 
-            });
-
-            listEl.innerHTML = '';
-            let totalIncome = 0, totalExpense = 0, expenseData = {}; 
-
-            if (filteredTransactions.length === 0) emptyState.classList.remove('hidden');
-            else emptyState.classList.add('hidden');
-
-            let lastDate = '';
-            
-            filteredTransactions.forEach(t => {
-                if (t.type === 'income') totalIncome += Number(t.amount);
-                else {
-                    totalExpense += Number(t.amount);
-                    let cat = t.category || '其他';
-                    expenseData[cat] = (expenseData[cat] || 0) + Number(t.amount);
-                }
-
-                const dateObj = new Date(t.dateTimestamp);
-                const dateStr = dateObj.toLocaleDateString('zh-TW');
-                
-                if (dateStr !== lastDate) {
-                    const header = document.createElement('div');
-                    header.className = 'text-xs font-bold text-gray-400 mt-4 mb-2 ml-1';
-                    const todayStr = new Date().toLocaleDateString('zh-TW');
-                    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-                    const yesterdayStr = yesterday.toLocaleDateString('zh-TW');
-                    let displayText = dateStr;
-                    if (dateStr === todayStr) displayText = `今天 · ${dateStr}`;
-                    else if (dateStr === yesterdayStr) displayText = `昨天 · ${dateStr}`;
-                    else {
-                        const dayName = ['日','一','二','三','四','五','六'][dateObj.getDay()];
-                        displayText = `${dateStr} (週${dayName})`;
-                    }
-                    header.innerText = displayText;
-                    listEl.appendChild(header);
-                    lastDate = dateStr;
-                }
-
-                const isIncome = t.type === 'income';
-                const colorClass = isIncome ? 'text-green-600' : 'text-gray-800';
-                const photoHtml = t.photo ? `<img src="${t.photo}" onclick="openPhotoModal('${t.photo}')" class="w-12 h-12 rounded-lg object-cover border border-gray-200 cursor-pointer ml-3">` : '';
-                
-                let actionBtns = '';
-                if (isSelf) {
-                    actionBtns = `
-                        <div class="flex flex-col gap-1 ml-3">
-                            <button onclick="editTransaction('${t.id}')" class="text-gray-400 hover:text-blue-500 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
-                            <button onclick="deleteTransactionCloud('${t.id}')" class="text-gray-400 hover:text-red-500 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-                        </div>
-                    `;
-                } else {
-                    const now = Date.now();
-                    const validCount = (t.comments || []).filter(c => now - c.timestamp < 24 * 60 * 60 * 1000).length;
-                    const badge = validCount > 0 ? `<span class="bg-red-500 text-white text-[10px] px-1.5 rounded-full absolute -top-1 -right-1">${validCount}</span>` : '';
-                    actionBtns = `<div class="relative ml-3"><button onclick="openCommentModal('${t.id}')" class="text-gray-400 hover:text-blue-500 p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg></button>${badge}</div>`;
-                }
-
-                const item = document.createElement('div');
-                item.className = 'bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between';
-                
-                item.innerHTML = `
-                    <div class="flex items-center gap-3 overflow-hidden">
-                        <div class="w-10 h-10 rounded-full ${isIncome ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'} flex items-center justify-center shrink-0 font-bold text-sm">${isIncome ? '入' : '出'}</div>
-                        <div class="min-w-0">
-                            <p class="font-bold text-gray-800 text-sm truncate">${t.category} - ${t.title}</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="font-bold ${colorClass}">${isIncome ? '+' : '-'} ${Number(t.amount).toLocaleString()}</span>
-                        ${photoHtml}
-                        ${actionBtns}
-                    </div>
-                `;
-                listEl.appendChild(item);
-            });
-
-            balanceEl.innerText = `$ ${(totalIncome - totalExpense).toLocaleString()}`;
-            incomeEl.innerText = `+ ${totalIncome.toLocaleString()}`;
-            expenseEl.innerText = `- ${totalExpense.toLocaleString()}`;
-            renderChart(expenseData, totalExpense);
-        }
-
-        window.deleteTransactionCloud = async (id) => { if(confirm('刪除此紀錄？')) await deleteDoc(doc(db, "users", currentUser.uid, "transactions", id)); };
-
-        // UI Helpers
-        window.toggleFriendModal = () => document.getElementById('friend-modal').classList.toggle('hidden');
-        window.toggleChart = () => document.getElementById('chart-container').classList.toggle('hidden');
-        window.openPhotoModal = (src) => { document.getElementById('modal-img').src = src; document.getElementById('photo-modal').classList.remove('hidden'); };
-        window.closePhotoModal = () => document.getElementById('photo-modal').classList.add('hidden');
-        
-        let currentPhotoData = null;
-        window.handlePhotoSelect = (event) => {
-            const file = event.target.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas'); const MAX_WIDTH = 600; const scaleSize = MAX_WIDTH / img.width; const newWidth = (img.width > MAX_WIDTH) ? MAX_WIDTH : img.width; const newHeight = (img.width > MAX_WIDTH) ? img.height * scaleSize : img.height; canvas.width = newWidth; canvas.height = newHeight; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, newWidth, newHeight); currentPhotoData = canvas.toDataURL('image/jpeg', 0.5); document.getElementById('img-preview').src = currentPhotoData; document.getElementById('preview-container').classList.remove('hidden'); document.getElementById('btn-camera').classList.add('hidden');
-                }
-                img.src = e.target.result;
-            }
-            reader.readAsDataURL(file);
-        };
-        window.clearPhoto = () => { document.getElementById('inp-photo').value = ''; currentPhotoData = null; document.getElementById('preview-container').classList.add('hidden'); document.getElementById('btn-camera').classList.remove('hidden'); };
-
-    </script>
-</body>
-</html>
