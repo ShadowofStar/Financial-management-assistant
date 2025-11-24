@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 自訂分類版</title>
+    <title>柴管家 - 月份編輯版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -20,7 +20,7 @@
 <body class="bg-gray-50 text-gray-800 min-h-screen">
 
     <div id="login-screen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-6 text-center fade-in">
-        <img src="./Shiba Logo.png" class="w-20 h-20 rounded-2xl shadow-xl mb-6 object-cover">
+        <div class="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-4xl font-bold shadow-xl mb-6">柴</div>
         <h1 class="text-3xl font-extrabold text-gray-900 mb-2">歡迎使用 柴管家</h1>
         <p class="text-gray-500 mb-10">你的雲端財務小幫手</p>
         <button id="btn-google-login" class="w-full max-w-sm bg-white border border-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-xl shadow-sm hover:bg-gray-50 transition flex items-center justify-center gap-3">
@@ -32,7 +32,7 @@
     <div id="app-screen" class="hidden max-w-md mx-auto min-h-screen bg-white shadow-2xl overflow-hidden relative">
         <header class="bg-white px-6 py-4 flex items-center justify-between sticky top-0 z-20 border-b border-gray-100">
             <div class="flex items-center gap-2">
-                <img src="./Shiba Logo.png" class="w-8 h-8 rounded-lg shadow-blue-200 shadow-lg object-cover">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold shadow-blue-200 shadow-lg">柴</div>
                 <h1 class="text-xl font-extrabold text-gray-900">柴管家</h1>
             </div>
             <div class="flex items-center gap-2">
@@ -54,6 +54,12 @@
         </div>
 
         <main class="p-6 pb-24 space-y-6">
+            
+            <div class="flex justify-between items-center">
+                <h2 class="text-sm font-bold text-gray-500 uppercase tracking-wide">財務概況</h2>
+                <input type="month" id="month-picker" class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-2.5 py-1">
+            </div>
+
             <div id="dashboard-card" class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-2xl p-6 shadow-xl relative overflow-hidden transition-colors duration-500">
                 <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
                 <div class="relative z-10">
@@ -80,20 +86,28 @@
                 <button onclick="toggleChart()" class="text-xs text-blue-500 font-semibold">📊 切換圖表顯示</button>
             </div>
 
-            <div id="input-section" class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                <h2 class="text-xs font-bold text-gray-400 uppercase mb-3">快速記帳</h2>
+            <div id="input-section" class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 border-l-4 border-l-blue-500">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xs font-bold text-gray-400 uppercase" id="form-title">新增紀錄</h2>
+                    <button id="btn-cancel-edit" onclick="resetForm()" class="hidden text-xs text-red-500 hover:underline">取消修改</button>
+                </div>
+                
                 <form id="transaction-form" class="flex flex-col gap-3">
                     <div class="flex gap-2">
-                        <select id="inp-type" onchange="updateCategoryOptions()" class="w-1/4 bg-gray-50 border border-gray-200 rounded-lg px-2 py-2.5 text-sm"><option value="expense">支出</option><option value="income">收入</option></select>
-                        <select id="inp-category" class="w-2/4 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-sm"></select>
-                        <button type="button" onclick="addCustomCategory()" class="w-1/4 bg-blue-50 text-blue-600 border border-blue-100 rounded-lg text-sm font-bold hover:bg-blue-100">
-                            + 分類
-                        </button>
+                        <input type="date" id="inp-date" class="w-1/3 bg-gray-50 border border-gray-200 rounded-lg px-2 py-2.5 text-sm text-gray-600">
+                        <select id="inp-type" onchange="updateCategoryOptions()" class="w-1/3 bg-gray-50 border border-gray-200 rounded-lg px-2 py-2.5 text-sm"><option value="expense">支出</option><option value="income">收入</option></select>
+                        <select id="inp-category" class="w-1/3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-sm"></select>
                     </div>
+                    
                     <div class="flex gap-2">
+                        <button type="button" onclick="addCustomCategory()" class="bg-blue-50 text-blue-600 border border-blue-100 rounded-lg px-3 text-sm font-bold hover:bg-blue-100 whitespace-nowrap">+ 分類</button>
                         <input type="text" id="inp-title" placeholder="項目 (選填)" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm">
-                        <input type="number" id="inp-amount" placeholder="$" min="1" class="w-24 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm" required>
                     </div>
+
+                    <div class="flex gap-2">
+                        <input type="number" id="inp-amount" placeholder="金額 $" min="1" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm" required>
+                    </div>
+
                     <div class="flex items-center gap-2">
                         <input type="file" id="inp-photo" accept="image/*" onchange="handlePhotoSelect(event)">
                         <label for="inp-photo" id="btn-camera" class="flex-1 cursor-pointer bg-gray-100 text-gray-500 py-2.5 rounded-lg flex items-center justify-center gap-2 border border-dashed border-gray-300 hover:bg-gray-200 transition-colors">
@@ -109,7 +123,7 @@
             </div>
 
             <div id="transaction-list" class="space-y-3 pb-10"></div>
-            <div id="empty-state" class="hidden py-10 text-center text-gray-400 text-sm">暫無紀錄</div>
+            <div id="empty-state" class="hidden py-10 text-center text-gray-400 text-sm">此月份暫無紀錄</div>
         </main>
         
         <div id="friend-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-end sm:items-center justify-center fade-in">
@@ -183,7 +197,10 @@
         let myShortId = null; 
         let myProfileData = null;
         
-        // 預設分類 + 用戶自訂分類容器
+        // 編輯狀態變數
+        let editingId = null; 
+
+        // 預設分類 + 用戶自訂分類
         const defaultCategories = { expense: ['餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他'], income: ['薪資', '獎金', '投資', '兼職', '其他'] };
         let userCustomCategories = { expense: [], income: [] };
 
@@ -203,8 +220,23 @@
         const profileShortId = document.getElementById('profile-short-id');
         const profileEmail = document.getElementById('profile-email');
         const profileNameInput = document.getElementById('profile-name-input');
+        
+        // Form Elements
         const inpType = document.getElementById('inp-type');
         const inpCategory = document.getElementById('inp-category');
+        const inpDate = document.getElementById('inp-date');
+        const inpTitle = document.getElementById('inp-title');
+        const inpAmount = document.getElementById('inp-amount');
+        const inpPhoto = document.getElementById('inp-photo');
+        const btnSubmit = document.getElementById('btn-submit');
+        const btnCancelEdit = document.getElementById('btn-cancel-edit');
+        const formTitle = document.getElementById('form-title');
+        const monthPicker = document.getElementById('month-picker');
+
+        // 初始化日期
+        const today = new Date();
+        inpDate.valueAsDate = today;
+        monthPicker.value = today.toISOString().slice(0, 7); // YYYY-MM
 
         document.getElementById('btn-google-login').addEventListener('click', () => {
             signInWithPopup(auth, provider).catch((err) => alert("登入失敗: " + err.message));
@@ -218,7 +250,6 @@
                 currentViewUid = user.uid;
                 
                 await ensureUserHasId(user);
-                // 載入用戶自訂分類
                 await loadCustomCategories(user);
 
                 loginScreen.classList.add('hidden');
@@ -230,7 +261,7 @@
             } else {
                 currentUser = null;
                 myShortId = null;
-                userCustomCategories = { expense: [], income: [] }; // 重置
+                userCustomCategories = { expense: [], income: [] }; 
                 loginScreen.classList.remove('hidden');
                 appScreen.classList.add('hidden');
                 if(unsubscribe) unsubscribe();
@@ -262,7 +293,6 @@
                 await setDoc(userRef, { shortId: newId, name: userName, email: user.email }, { merge: true });
                 myShortId = newId;
             }
-            
             myShortIdEl.innerText = `ID: ${myShortId}`;
             profileNameInput.value = userName;
             profileAvatar.src = user.photoURL;
@@ -270,14 +300,11 @@
             profileEmail.innerText = user.email;
         }
 
-        // === 🔥 自訂分類邏輯 ===
         async function loadCustomCategories(user) {
             const userSnap = await getDoc(doc(db, "users", user.uid));
             if (userSnap.exists()) {
                 const data = userSnap.data();
-                if(data.customCategories) {
-                    userCustomCategories = data.customCategories;
-                }
+                if(data.customCategories) { userCustomCategories = data.customCategories; }
             }
             updateCategoryOptions();
         }
@@ -285,45 +312,128 @@
         window.addCustomCategory = async () => {
             const type = inpType.value;
             const newCatName = prompt(`請輸入新的「${type === 'expense' ? '支出' : '收入'}」分類名稱：`);
-            
             if (newCatName && newCatName.trim() !== "") {
                 const name = newCatName.trim();
-                
-                // 初始化陣列 (如果還沒有)
                 if (!userCustomCategories[type]) userCustomCategories[type] = [];
-                
-                // 檢查是否重複
                 if (defaultCategories[type].includes(name) || userCustomCategories[type].includes(name)) {
-                    alert("此分類已經存在囉！");
-                    return;
+                    alert("此分類已經存在囉！"); return;
                 }
-
-                // 加入並儲存
                 userCustomCategories[type].push(name);
-                
-                // 更新 UI
                 updateCategoryOptions();
-                inpCategory.value = name; // 自動選中新分類
-
-                // 存到雲端
+                inpCategory.value = name; 
                 try {
-                    await setDoc(doc(db, "users", currentUser.uid), {
-                        customCategories: userCustomCategories
-                    }, { merge: true });
-                } catch(e) {
-                    console.error("分類儲存失敗", e);
-                }
+                    await setDoc(doc(db, "users", currentUser.uid), { customCategories: userCustomCategories }, { merge: true });
+                } catch(e) { console.error("分類儲存失敗", e); }
             }
         };
 
         window.updateCategoryOptions = () => {
             const type = inpType.value;
-            // 合併預設分類 + 自訂分類
             const allCats = [...defaultCategories[type], ...(userCustomCategories[type] || [])];
             inpCategory.innerHTML = allCats.map(opt => `<option value="${opt}">${opt}</option>`).join('');
         };
 
-        // Profile & Friend logic
+        // === 編輯模式邏輯 ===
+        window.editTransaction = (id) => {
+            const tx = transactions.find(t => t.id === id);
+            if (!tx) return;
+
+            // 填入資料
+            editingId = id;
+            inpTitle.value = tx.title;
+            inpAmount.value = tx.amount;
+            inpType.value = tx.type;
+            updateCategoryOptions(); // 更新分類選單
+            inpCategory.value = tx.category;
+            
+            // 處理日期 (轉為 YYYY-MM-DD)
+            const dateObj = new Date(tx.dateTimestamp);
+            inpDate.valueAsDate = dateObj;
+
+            // 處理照片
+            currentPhotoData = tx.photo || null;
+            if (currentPhotoData) {
+                document.getElementById('img-preview').src = currentPhotoData;
+                document.getElementById('preview-container').classList.remove('hidden');
+                document.getElementById('btn-camera').classList.add('hidden');
+            } else {
+                window.clearPhoto();
+            }
+
+            // UI 變更
+            btnSubmit.innerText = "確認修改";
+            btnSubmit.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            btnSubmit.classList.add('bg-green-600', 'hover:bg-green-700');
+            formTitle.innerText = "修改紀錄";
+            btnCancelEdit.classList.remove('hidden');
+            
+            // 滾動到上方
+            document.getElementById('input-section').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.resetForm = () => {
+            editingId = null;
+            inpTitle.value = '';
+            inpAmount.value = '';
+            inpDate.valueAsDate = new Date();
+            window.clearPhoto();
+            
+            btnSubmit.innerText = "新增紀錄";
+            btnSubmit.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            btnSubmit.classList.remove('bg-green-600', 'hover:bg-green-700');
+            formTitle.innerText = "新增紀錄";
+            btnCancelEdit.classList.add('hidden');
+        };
+
+        // 月份切換監聽
+        monthPicker.addEventListener('change', () => {
+            updateUI(); // 重新渲染
+        });
+
+        // 提交表單 (新增/修改)
+        document.getElementById('transaction-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(currentViewUid !== currentUser.uid) return alert("你只能編輯自己的帳本喔！");
+            
+            const category = inpCategory.value;
+            let title = inpTitle.value.trim();
+            if (!title) title = category;
+            const amount = Number(inpAmount.value);
+            const type = inpType.value;
+            
+            // 處理日期
+            const dateValue = inpDate.valueAsDate; // 這是 UTC
+            if (!dateValue) return alert("請選擇日期");
+            
+            // 修正時區問題，確保顯示為當地時間
+            const dateTimestamp = dateValue.getTime(); 
+            const dateString = dateValue.toLocaleDateString(); 
+
+            if (amount <= 0) return alert('請輸入有效金額');
+            
+            syncStatus.innerText = editingId ? "修改中..." : "儲存中...";
+            
+            try {
+                const txData = { 
+                    title, amount, type, category, 
+                    dateTimestamp: dateTimestamp, 
+                    date: dateString, 
+                    photo: currentPhotoData 
+                };
+
+                if (editingId) {
+                    // 修改模式
+                    await updateDoc(doc(db, "users", currentUser.uid, "transactions", editingId), txData);
+                    window.resetForm();
+                } else {
+                    // 新增模式
+                    await addDoc(collection(db, "users", currentUser.uid, "transactions"), txData);
+                    window.resetForm();
+                }
+            } catch (e) { alert("操作失敗: " + e.message); }
+        });
+
+        // Profile & Friend 
         window.toggleProfileModal = () => document.getElementById('profile-modal').classList.toggle('hidden');
         window.saveProfile = async () => {
             const newName = profileNameInput.value.trim();
@@ -390,6 +500,8 @@
             if (currentViewUid === targetUid) return;
             currentViewUid = targetUid;
             currentViewLabel.innerText = targetUid === currentUser.uid ? "我的帳本" : `${name} 的帳本`;
+            // 切換視角時重置表單
+            window.resetForm(); 
             updateViewMode();
             loadDataRealtime(targetUid);
             toggleFriendModal();
@@ -435,13 +547,26 @@
             const emptyState = document.getElementById('empty-state');
             const isSelf = currentViewUid === currentUser.uid;
 
+            // 1. 取得目前選擇的月份 (格式 YYYY-MM)
+            const selectedMonth = monthPicker.value; 
+
+            // 2. 篩選資料 (使用 dateTimestamp 來比較)
+            const filteredTransactions = transactions.filter(t => {
+                // 處理時區，轉換為當地時間的 YYYY-MM
+                const date = new Date(t.dateTimestamp);
+                // 手動格式化，避免時區跑掉
+                const yyyy = date.getFullYear();
+                const mm = String(date.getMonth() + 1).padStart(2, '0');
+                return `${yyyy}-${mm}` === selectedMonth;
+            });
+
             listEl.innerHTML = '';
             let totalIncome = 0, totalExpense = 0, expenseData = {}; 
 
-            if (transactions.length === 0) emptyState.classList.remove('hidden');
+            if (filteredTransactions.length === 0) emptyState.classList.remove('hidden');
             else emptyState.classList.add('hidden');
 
-            transactions.forEach(t => {
+            filteredTransactions.forEach(t => {
                 if (t.type === 'income') totalIncome += Number(t.amount);
                 else {
                     totalExpense += Number(t.amount);
@@ -451,25 +576,41 @@
                 const isIncome = t.type === 'income';
                 const colorClass = isIncome ? 'text-green-600' : 'text-gray-800';
                 const photoHtml = t.photo ? `<img src="${t.photo}" onclick="openPhotoModal('${t.photo}')" class="w-12 h-12 rounded-lg object-cover border border-gray-200 cursor-pointer ml-3">` : '';
-                const deleteBtn = isSelf ? `<button onclick="deleteTransactionCloud('${t.id}')" class="text-gray-300 hover:text-red-500 ml-3 p-1">×</button>` : '';
+                
+                // 按鈕邏輯：本人顯示 (編輯 | 刪除)，好友只顯示空白
+                let actionBtns = '';
+                if (isSelf) {
+                    actionBtns = `
+                        <div class="flex flex-col gap-1 ml-3">
+                            <button onclick="editTransaction('${t.id}')" class="text-gray-400 hover:text-blue-500 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
+                            <button onclick="deleteTransactionCloud('${t.id}')" class="text-gray-400 hover:text-red-500 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                        </div>
+                    `;
+                }
+
                 const item = document.createElement('div');
                 item.className = 'bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between';
+                
+                // 日期顯示修正
+                const displayDate = new Date(t.dateTimestamp).toLocaleDateString();
+
                 item.innerHTML = `
                     <div class="flex items-center gap-3 overflow-hidden">
                         <div class="w-10 h-10 rounded-full ${isIncome ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'} flex items-center justify-center shrink-0 font-bold text-sm">${isIncome ? '入' : '出'}</div>
                         <div class="min-w-0">
                             <p class="font-bold text-gray-800 text-sm truncate">${t.category} - ${t.title}</p>
-                            <p class="text-xs text-gray-400">${t.date}</p>
+                            <p class="text-xs text-gray-400">${displayDate}</p>
                         </div>
                     </div>
                     <div class="flex items-center">
                         <span class="font-bold ${colorClass}">${isIncome ? '+' : '-'} ${Number(t.amount).toLocaleString()}</span>
                         ${photoHtml}
-                        ${deleteBtn}
+                        ${actionBtns}
                     </div>
                 `;
                 listEl.appendChild(item);
             });
+
             balanceEl.innerText = `$ ${(totalIncome - totalExpense).toLocaleString()}`;
             incomeEl.innerText = `+ ${totalIncome.toLocaleString()}`;
             expenseEl.innerText = `- ${totalExpense.toLocaleString()}`;
@@ -485,27 +626,6 @@
             document.getElementById('chart-container').classList.remove('hidden');
             myChart = new Chart(ctx, { type: 'doughnut', data: { labels, datasets: [{ data: values, backgroundColor: ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6'], borderWidth: 2, borderColor: '#ffffff' }] }, options: { responsive: true, maintainAspectRatio: false, layout: { padding: 10 }, plugins: { legend: { position: 'right', labels: { boxWidth: 10 } }, datalabels: { color: '#fff', formatter: (val, ctx) => { let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); let pct = (val * 100 / sum); return pct < 5 ? null : pct.toFixed(1) + "%"; } } } } });
         }
-
-        document.getElementById('transaction-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if(currentViewUid !== currentUser.uid) return alert("你只能編輯自己的帳本喔！");
-            
-            // 🔥 標題如果是空的，自動填入分類名稱
-            const category = document.getElementById('inp-category').value;
-            let title = document.getElementById('inp-title').value.trim();
-            if (!title) title = category;
-
-            const amount = Number(document.getElementById('inp-amount').value);
-            const type = document.getElementById('inp-type').value;
-
-            if (amount <= 0) return alert('請輸入有效金額');
-            
-            syncStatus.innerText = "儲存中...";
-            try {
-                await addDoc(collection(db, "users", currentUser.uid, "transactions"), { title, amount, type, category, dateTimestamp: Date.now(), date: new Date().toLocaleDateString(), photo: currentPhotoData });
-                document.getElementById('inp-title').value = ''; document.getElementById('inp-amount').value = ''; clearPhoto();
-            } catch (e) { alert("上傳失敗"); }
-        });
 
         window.deleteTransactionCloud = async (id) => { if(confirm('刪除此紀錄？')) await deleteDoc(doc(db, "users", currentUser.uid, "transactions", id)); };
 
@@ -533,4 +653,5 @@
     </script>
 </body>
 </html>
+
 
