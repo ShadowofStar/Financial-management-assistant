@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - ID 好友版</title>
+    <title>柴管家 - 社群記帳</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -20,9 +20,9 @@
 <body class="bg-gray-50 text-gray-800 min-h-screen">
 
     <div id="login-screen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-6 text-center fade-in">
-        <div class="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-4xl font-bold shadow-xl mb-6">F</div>
-        <h1 class="text-3xl font-extrabold text-gray-900 mb-2">柴管家 </h1>
-        <p class="text-gray-500 mb-10">專屬 ID，輕鬆加好友</p>
+        <div class="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-4xl font-bold shadow-xl mb-6">柴</div>
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2">歡迎使用 柴管家</h1>
+        <p class="text-gray-500 mb-10">你的雲端財務小幫手</p>
         <button id="btn-google-login" class="w-full max-w-sm bg-white border border-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-xl shadow-sm hover:bg-gray-50 transition flex items-center justify-center gap-3">
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="Google">
             使用 Google 帳號登入
@@ -32,15 +32,15 @@
     <div id="app-screen" class="hidden max-w-md mx-auto min-h-screen bg-white shadow-2xl overflow-hidden relative">
         <header class="bg-white px-6 py-4 flex items-center justify-between sticky top-0 z-20 border-b border-gray-100">
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold shadow-blue-200 shadow-lg">F</div>
-                <h1 class="text-xl font-extrabold text-gray-900">FMA</h1>
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold shadow-blue-200 shadow-lg">柴</div>
+                <h1 class="text-xl font-extrabold text-gray-900">柴管家</h1>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="toggleFriendModal()" class="text-sm text-gray-600 font-semibold bg-gray-100 px-3 py-1 rounded-full flex items-center gap-1">
-                    👥 好友
+            <div class="flex items-center gap-2">
+                <button onclick="toggleFriendModal()" class="text-sm text-gray-600 font-semibold bg-gray-100 px-3 py-1.5 rounded-full flex items-center gap-1">
+                    👥 <span class="hidden sm:inline">好友</span>
                 </button>
-                <button onclick="logout()" class="text-gray-400 hover:text-red-500">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                <button onclick="toggleProfileModal()" class="text-sm text-gray-600 font-semibold bg-gray-100 px-3 py-1.5 rounded-full flex items-center gap-1">
+                    👤 <span class="hidden sm:inline">我的</span>
                 </button>
             </div>
         </header>
@@ -115,7 +115,6 @@
                     <h2 class="text-lg font-bold">好友列表</h2>
                     <button onclick="toggleFriendModal()" class="text-gray-400 text-xl">&times;</button>
                 </div>
-                
                 <div class="mb-2">
                     <label class="text-xs text-gray-500 block mb-1">輸入對方的 6 位數 ID</label>
                     <div class="flex gap-2">
@@ -123,13 +122,35 @@
                         <button onclick="addFriend()" class="bg-blue-600 text-white px-4 rounded-lg text-sm font-medium">加入</button>
                     </div>
                 </div>
+                <div class="flex-1 overflow-y-auto space-y-2 border-t border-gray-100 pt-2" id="friend-list-container"></div>
+            </div>
+        </div>
+
+        <div id="profile-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center fade-in p-4">
+            <div class="bg-white w-full max-w-sm rounded-2xl p-6 relative">
+                <button onclick="toggleProfileModal()" class="absolute top-4 right-4 text-gray-400 text-xl">&times;</button>
                 
-                <div class="text-center mb-4">
-                    <p class="text-xs text-gray-400">我的 ID: <span id="modal-my-id" class="text-blue-600 font-bold font-mono">載入中...</span> (點擊複製)</p>
+                <div class="flex flex-col items-center mb-6">
+                    <img id="profile-avatar" src="" class="w-20 h-20 rounded-full border-4 border-blue-50 mb-3 shadow-sm">
+                    <div class="text-xs text-gray-400 mb-1">我的 ID</div>
+                    <div id="profile-short-id" class="font-mono font-bold text-xl text-blue-600 tracking-wider mb-2 select-all">...</div>
+                    <div id="profile-email" class="text-xs text-gray-400">...</div>
                 </div>
 
-                <div class="flex-1 overflow-y-auto space-y-2 border-t border-gray-100 pt-2" id="friend-list-container">
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase block mb-2">顯示名稱 (暱稱)</label>
+                        <input type="text" id="profile-name-input" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
+                    
+                    <button onclick="saveProfile()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl shadow-md transition-colors">
+                        儲存變更
+                    </button>
+                    
+                    <button onclick="logout()" class="w-full bg-white border border-red-100 text-red-500 font-medium py-3 rounded-xl hover:bg-red-50 transition-colors">
+                        登出帳號
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -141,7 +162,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, setDoc, deleteDoc, doc, getDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, setDoc, deleteDoc, updateDoc, doc, getDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // ============================================
         // 🔥 已填入你的金鑰 🔥
@@ -167,6 +188,7 @@
         let unsubscribe = null;
         let friendsUnsubscribe = null;
         let myShortId = null; 
+        let myProfileData = null;
 
         // DOM
         const loginScreen = document.getElementById('login-screen');
@@ -176,11 +198,15 @@
         const dashboardCard = document.getElementById('dashboard-card');
         const inputSection = document.getElementById('input-section');
         const friendModal = document.getElementById('friend-modal');
+        const profileModal = document.getElementById('profile-modal');
         const friendListContainer = document.getElementById('friend-list-container');
         const syncStatus = document.getElementById('sync-status');
-        const modalMyIdEl = document.getElementById('modal-my-id');
+        
+        const profileAvatar = document.getElementById('profile-avatar');
+        const profileShortId = document.getElementById('profile-short-id');
+        const profileEmail = document.getElementById('profile-email');
+        const profileNameInput = document.getElementById('profile-name-input');
 
-        // 登入
         document.getElementById('btn-google-login').addEventListener('click', () => {
             signInWithPopup(auth, provider).catch((err) => alert("登入失敗: " + err.message));
         });
@@ -210,13 +236,16 @@
             }
         });
 
-        // ID 生成
         async function ensureUserHasId(user) {
             const userRef = doc(db, "users", user.uid);
             const userSnap = await getDoc(userRef);
-            
-            if (userSnap.exists() && userSnap.data().shortId) {
-                myShortId = userSnap.data().shortId;
+            let userName = user.displayName || "User";
+
+            if (userSnap.exists()) {
+                const data = userSnap.data();
+                myShortId = data.shortId;
+                if(data.name) userName = data.name;
+                myProfileData = data;
             } else {
                 let isUnique = false;
                 let newId = "";
@@ -225,16 +254,37 @@
                     const checkSnap = await getDoc(doc(db, "public_codes", newId));
                     if (!checkSnap.exists()) isUnique = true;
                 }
-                await setDoc(doc(db, "public_codes", newId), { uid: user.uid, email: user.email, name: user.displayName || "User" });
-                await setDoc(userRef, { shortId: newId }, { merge: true });
+                
+                myProfileData = { shortId: newId, name: userName, email: user.email };
+                await setDoc(doc(db, "public_codes", newId), { uid: user.uid, email: user.email, name: userName });
+                await setDoc(userRef, { shortId: newId, name: userName, email: user.email }, { merge: true });
                 myShortId = newId;
             }
+            
             myShortIdEl.innerText = `ID: ${myShortId}`;
-            modalMyIdEl.innerText = myShortId;
-            modalMyIdEl.onclick = () => { navigator.clipboard.writeText(myShortId); alert("ID 已複製！"); };
+            profileNameInput.value = userName;
+            profileAvatar.src = user.photoURL;
+            profileShortId.innerText = myShortId;
+            profileEmail.innerText = user.email;
         }
 
-        // 好友系統
+        window.toggleProfileModal = () => {
+            const modal = document.getElementById('profile-modal');
+            modal.classList.toggle('hidden');
+        };
+
+        window.saveProfile = async () => {
+            const newName = profileNameInput.value.trim();
+            if(!newName) return alert("請輸入名稱");
+
+            try {
+                await updateDoc(doc(db, "users", currentUser.uid), { name: newName });
+                await updateDoc(doc(db, "public_codes", myShortId), { name: newName });
+                alert("個人資料已更新！");
+                toggleProfileModal();
+            } catch(e) { alert("更新失敗: " + e.message); }
+        };
+
         window.addFriend = async () => {
             const inputId = document.getElementById('friend-id-input').value.trim();
             if(inputId.length !== 6) return alert("請輸入 6 位數 ID");
