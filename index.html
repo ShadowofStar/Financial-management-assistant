@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 登入修復版</title>
+    <title>柴管家 - iOS修復版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -30,16 +30,16 @@
 
     <div id="login-screen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-6 text-center fade-in">
         <img src="./Shiba Logo.png" class="w-24 h-24 rounded-3xl shadow-2xl mb-8 object-cover">
-        <h1 class="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">柴管家 v10.4</h1>
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">柴管家 v10.5</h1>
         <p class="text-gray-500 mb-12">多帳戶管理 · 社群記帳</p>
         
         <div id="login-error-msg" class="hidden bg-red-50 text-red-500 text-xs p-3 rounded-xl mb-4 text-left border border-red-100"></div>
 
         <button id="btn-google-login" class="w-full max-w-sm bg-white border border-gray-200 text-gray-700 font-bold py-3.5 px-6 rounded-2xl shadow-sm hover:bg-gray-50 transition flex items-center justify-center gap-3">
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="Google">
-            使用 Google 帳號登入
+            <span id="login-btn-text">使用 Google 帳號登入</span>
         </button>
-        <p class="text-xs text-gray-300 mt-4">iPhone 用戶請勿使用無痕模式</p>
+        <p class="text-xs text-gray-400 mt-4">iPhone 用戶將自動使用跳轉登入</p>
     </div>
 
     <div id="app-screen" class="hidden w-full max-w-md mx-auto bg-white min-h-screen shadow-2xl relative flex flex-col">
@@ -118,10 +118,12 @@
                         <div class="flex gap-2 pt-2">
                             <input type="file" id="inp-photo" accept="image/*" onchange="App.handlePhotoSelect(event)">
                             <label for="inp-photo" id="btn-camera" class="w-12 h-12 flex-shrink-0 cursor-pointer bg-gray-100 text-gray-400 rounded-xl flex items-center justify-center hover:bg-gray-200 transition">📷</label>
+                            
                             <div id="preview-container" class="hidden relative w-12 h-12">
                                 <img id="img-preview" class="w-full h-full object-cover rounded-xl border border-gray-200">
                                 <button type="button" onclick="App.clearPhoto()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow-md">×</button>
                             </div>
+
                             <button type="submit" id="btn-submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-200 transition">記一筆</button>
                         </div>
                     </form>
@@ -133,7 +135,7 @@
 
             <div id="page-chart" class="page-content space-y-6">
                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex items-center justify-center h-64 text-gray-400">
-                    更多統計功能開發中...
+                    進階統計功能開發中...
                 </div>
             </div>
 
@@ -203,7 +205,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        // 🔥 引入 signInWithRedirect & getRedirectResult
+        import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, setDoc, deleteDoc, updateDoc, doc, getDoc, onSnapshot, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // ================= 配置區 =================
@@ -238,24 +241,53 @@
         const defaultCategories = { expense: ['餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他'], income: ['薪資', '獎金', '投資', '兼職', '其他'] };
         let userCustomCategories = { expense: [], income: [] };
 
-        // 登入邏輯修正：加入 setPersistence
-        document.getElementById('btn-google-login').addEventListener('click', async () => {
+        // 🔥🔥🔥 登入邏輯修復 (核心) 🔥🔥🔥
+        const loginBtn = document.getElementById('btn-google-login');
+        
+        // 1. 檢查是否為 redirect 回來的 (解決 iOS 重整後失去狀態問題)
+        getRedirectResult(auth).then((result) => {
+            if (result) {
+                // 登入成功，onAuthStateChanged 會處理後續
+                console.log("Redirect login success");
+            }
+        }).catch((error) => {
+            console.error("Redirect Error:", error);
+            showLoginError(error);
+        });
+
+        // 2. 登入按鈕點擊事件
+        loginBtn.addEventListener('click', async () => {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
             try {
-                // 強制設定持久性為 LOCAL，嘗試解決 iOS 失憶問題
+                // 設定持久性 (重要!)
                 await setPersistence(auth, browserLocalPersistence);
-                await signInWithPopup(auth, provider);
-            } catch (error) {
-                console.error("登入錯誤:", error);
-                const errorDiv = document.getElementById('login-error-msg');
-                errorDiv.classList.remove('hidden');
-                
-                if (error.code === 'auth/web-storage-unsupported' || error.message.includes("missing initial state")) {
-                    errorDiv.innerHTML = "⚠️ <strong>登入被阻擋</strong><br>Chrome 用戶請檢查：<br>1. 關閉「無痕模式」<br>2. iPhone 設定 -> Chrome -> 開啟「允許跨網站追蹤」<br>3. 不要使用 LINE 內建瀏覽器";
+
+                if (isMobile) {
+                    // 📱 手機版：使用 Redirect (跳轉頁面)
+                    document.getElementById('login-btn-text').innerText = "跳轉至 Google 登入...";
+                    await signInWithRedirect(auth, provider);
                 } else {
-                    errorDiv.innerText = "登入失敗: " + error.message;
+                    // 💻 電腦版：使用 Popup (彈出視窗)
+                    await signInWithPopup(auth, provider);
                 }
+            } catch (error) {
+                console.error("Login Trigger Error:", error);
+                showLoginError(error);
             }
         });
+
+        function showLoginError(error) {
+            const errorDiv = document.getElementById('login-error-msg');
+            errorDiv.classList.remove('hidden');
+            document.getElementById('login-btn-text').innerText = "使用 Google 帳號登入";
+            
+            if (error.code === 'auth/web-storage-unsupported' || error.message.includes("missing initial state") || error.code === 'auth/popup-blocked') {
+                errorDiv.innerHTML = "⚠️ <strong>登入受阻</strong><br>1. iPhone 請關閉「無痕模式」。<br>2. 請點擊右上/右下角「在瀏覽器開啟」。<br>3. 請勿使用 LINE/FB 內建瀏覽器。";
+            } else {
+                errorDiv.innerText = "登入錯誤: " + error.message;
+            }
+        }
 
         window.logout = () => { if(confirm('確定要登出嗎？')) signOut(auth); };
 
@@ -273,6 +305,7 @@
             }
         });
 
+        // ================= UI & App Logic (保持 v10.4 相同) =================
         window.UI = {
             switchPage: (pageId) => {
                 document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
@@ -510,7 +543,7 @@
                 document.getElementById('display-balance').innerText = `$ ${(totalIncome - totalExpense).toLocaleString()}`;
                 document.getElementById('display-income').innerText = `+ ${totalIncome.toLocaleString()}`;
                 document.getElementById('display-expense').innerText = `- ${totalExpense.toLocaleString()}`;
-                App.renderChart(expenseData);
+                UI.renderChart(expenseData);
             },
             renderChart: (dataObj) => {
                 const ctx = document.getElementById('expenseChart').getContext('2d');
@@ -565,26 +598,29 @@
             loadFriends: () => {
                 onSnapshot(query(collection(db,"users",currentUser.uid,"friends")), (snap) => {
                     const c = document.getElementById('friend-list-container'); c.innerHTML='';
+                    // Self
                     const myDiv = document.createElement('div');
                     myDiv.className = `p-3 rounded-2xl border cursor-pointer flex items-center gap-3 ${currentViewUid===currentUser.uid?'bg-blue-50 border-blue-200':'bg-white border-gray-100'}`;
                     myDiv.innerHTML = `<img src="${myProfileData?.photo||'./Shiba Logo.png'}" class="w-10 h-10 rounded-full bg-gray-200 object-cover"><span class="font-bold">👤 我的帳本</span>`;
                     myDiv.onclick = () => App.switchView(currentUser.uid, '我的帳本');
                     c.appendChild(myDiv);
+                    // Friends
                     snap.forEach(d=>{ const f=d.data(); const div=document.createElement('div'); div.className=`p-3 rounded-2xl border cursor-pointer flex justify-between items-center ${currentViewUid===f.uid?'bg-blue-50 border-blue-200':'bg-white border-gray-100'}`; div.innerHTML=`<div class="flex items-center gap-3"><img src="${f.photo||'./Shiba Logo.png'}" class="w-10 h-10 rounded-full bg-gray-200 object-cover"><div><div class="font-bold text-sm">${f.name}</div></div></div>`; div.onclick=()=>{App.switchView(f.uid,f.name)}; c.appendChild(div); });
                 });
             },
             switchView: (uid, name) => {
                 currentViewUid = uid;
+                document.getElementById('current-view-label').innerText = name;
                 App.loadDataRealtime(uid);
                 UI.switchPage('ledger');
             },
+            
             openCommentModal: (id) => { currentCommentTxId=id; document.getElementById('comment-modal').classList.remove('hidden'); App.renderComments(id); },
             closeCommentModal: () => { document.getElementById('comment-modal').classList.add('hidden'); currentCommentTxId=null; },
             submitComment: async () => { const t=document.getElementById('comment-input').value.trim(); if(!t)return; const ref=doc(db,"users",currentViewUid,"transactions",currentCommentTxId); const snap=await getDoc(ref); if(snap.exists()){ const d=snap.data(); const cs=(d.comments||[]).filter(c=>Date.now()-c.timestamp<86400000); cs.push({text:t,authorName:myProfileData.name,timestamp:Date.now()}); await updateDoc(ref,{comments:cs}); document.getElementById('comment-input').value=''; App.renderComments(currentCommentTxId); } },
             renderComments: (id) => { const tx=transactions.find(t=>t.id===id); const cDiv=document.getElementById('comments-list'); cDiv.innerHTML=''; const cs=(tx.comments||[]).filter(c=>Date.now()-c.timestamp<86400000); if(!cs.length)cDiv.innerHTML='<div class="text-center text-gray-400 mt-10">無留言</div>'; else cs.forEach(c=>{ const d=document.createElement('div'); d.className="bg-gray-50 p-3 rounded-xl text-sm"; d.innerHTML=`<div class="flex justify-between font-bold text-blue-600"><span>${c.authorName}</span><span class="text-gray-300 font-normal text-xs">${moment(c.timestamp).fromNow()}</span></div><div class="text-gray-700 mt-1">${c.text}</div>`; cDiv.appendChild(d); }); }
         };
 
-        document.getElementById('btn-submit').onclick = App.submitTransaction;
         document.getElementById('filter-day').onchange = App.updateUI;
         document.getElementById('filter-month').onchange = App.updateUI;
         document.getElementById('filter-year').onchange = App.updateUI;
