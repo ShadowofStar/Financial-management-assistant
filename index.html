@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 v10.3 - 登入修復版</title>
+    <title>柴管家 - 登入修復版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -22,29 +22,27 @@
         .page-content.active { display: block; animation: fadeIn 0.3s ease-out; }
         .nav-item.active { color: #2563EB; }
         .nav-item.active svg { fill: currentColor; }
+        .toggle-checkbox:checked { right: 0; border-color: #2563EB; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #2563EB; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
     <div id="login-screen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-6 text-center fade-in">
         <img src="./Shiba Logo.png" class="w-24 h-24 rounded-3xl shadow-2xl mb-8 object-cover">
-        <h1 class="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">柴管家 v10.3</h1>
-        <p class="text-gray-500 mb-6">安全 · 快速 · 社群記帳</p>
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">柴管家 v10.4</h1>
+        <p class="text-gray-500 mb-12">多帳戶管理 · 社群記帳</p>
         
-        <div class="bg-yellow-50 text-yellow-800 text-xs px-4 py-2 rounded-lg mb-8 max-w-xs text-left">
-            <strong>💡 無法登入？</strong><br>
-            iPhone 請點擊右下角 <span class="text-xl leading-3">🧭</span> 選「在 Safari 開啟」。<br>
-            請勿使用 LINE/IG 內建瀏覽器。
-        </div>
+        <div id="login-error-msg" class="hidden bg-red-50 text-red-500 text-xs p-3 rounded-xl mb-4 text-left border border-red-100"></div>
 
         <button id="btn-google-login" class="w-full max-w-sm bg-white border border-gray-200 text-gray-700 font-bold py-3.5 px-6 rounded-2xl shadow-sm hover:bg-gray-50 transition flex items-center justify-center gap-3">
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="Google">
             使用 Google 帳號登入
         </button>
+        <p class="text-xs text-gray-300 mt-4">iPhone 用戶請勿使用無痕模式</p>
     </div>
 
     <div id="app-screen" class="hidden w-full max-w-md mx-auto bg-white min-h-screen shadow-2xl relative flex flex-col">
-        
         <header class="bg-white/90 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-30 border-b border-gray-100">
             <div class="flex items-center gap-2">
                 <img src="./Shiba Logo.png" class="w-8 h-8 rounded-lg shadow-sm object-cover">
@@ -56,7 +54,6 @@
         </header>
 
         <main class="flex-1 overflow-y-auto bg-gray-50 p-4">
-
             <div id="page-ledger" class="page-content active space-y-5">
                 <div class="bg-white p-2 rounded-2xl border border-gray-100 shadow-sm flex gap-2 items-center">
                     <select id="filter-type" onchange="App.changeFilterMode()" class="bg-gray-50 border-none text-gray-700 text-sm rounded-xl font-bold focus:ring-0 block p-2 w-20">
@@ -80,6 +77,22 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div><span class="text-xs text-gray-400 block mb-1">收入</span><div class="font-semibold text-lg text-green-400" id="display-income">0</div></div>
                             <div><span class="text-xs text-gray-400 block mb-1">支出</span><div class="font-semibold text-lg text-red-400" id="display-expense">0</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-end gap-2 mb-2 px-1">
+                        <span class="text-xs text-gray-400 font-bold">顯示圖表</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="chart-toggle-checkbox" class="sr-only peer" checked onchange="UI.toggleChart()">
+                            <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                    <div id="chart-container" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 transition-all duration-300">
+                        <div class="relative h-64 w-full flex justify-center items-center">
+                            <canvas id="expenseChart"></canvas>
+                            <p id="chart-placeholder" class="hidden text-gray-400 text-sm">🐶 此區間尚無數據</p>
                         </div>
                     </div>
                 </div>
@@ -115,16 +128,12 @@
                 </div>
 
                 <div id="transaction-list" class="space-y-2 pb-20"></div>
-                <div id="empty-state" class="hidden py-10 text-center text-gray-400 text-sm">此區間無紀錄，快記一筆吧！</div>
+                <div id="empty-state" class="hidden py-10 text-center text-gray-400 text-sm">此區間無紀錄</div>
             </div>
 
             <div id="page-chart" class="page-content space-y-6">
-                <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-                    <h2 class="text-lg font-bold text-gray-800 mb-4">支出分析</h2>
-                    <div class="relative h-72 w-full flex justify-center items-center">
-                        <canvas id="expenseChart"></canvas>
-                        <p id="chart-placeholder" class="hidden text-gray-400 text-sm">尚無數據</p>
-                    </div>
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex items-center justify-center h-64 text-gray-400">
+                    更多統計功能開發中...
                 </div>
             </div>
 
@@ -140,7 +149,9 @@
                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col items-center">
                     <div class="relative">
                         <img id="profile-avatar" src="" class="w-24 h-24 rounded-full border-4 border-blue-50 mb-3 shadow-sm object-cover">
-                        <label for="inp-profile-photo" class="absolute bottom-1 right-0 bg-blue-600 text-white p-2 rounded-full shadow-lg cursor-pointer hover:bg-blue-700 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></label>
+                        <label for="inp-profile-photo" class="absolute bottom-1 right-0 bg-blue-600 text-white p-2 rounded-full shadow-lg cursor-pointer hover:bg-blue-700 transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        </label>
                         <input type="file" id="inp-profile-photo" accept="image/*" onchange="App.handleProfilePhotoSelect(event)">
                     </div>
                     <div class="w-full flex gap-2 justify-center items-center mb-4">
@@ -150,11 +161,14 @@
                     <div class="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full tracking-wider font-mono select-all" id="profile-short-id-display">...</div>
                 </div>
                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-800 mb-4 flex justify-between items-center">好友列表 <button onclick="App.addFriendPrompt()" class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-full">加入好友</button></h3>
+                    <h3 class="font-bold text-gray-800 mb-4 flex justify-between items-center">
+                        好友列表
+                        <button onclick="App.addFriendPrompt()" class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-full">加入好友</button>
+                    </h3>
                     <div id="friend-list-container" class="space-y-3"></div>
                 </div>
                 <div class="bg-white rounded-3xl p-2 shadow-sm border border-gray-100">
-                    <button onclick="App.addCustomCategory()" class="w-full text-left px-6 py-4 text-gray-700 font-medium hover:bg-gray-50 rounded-2xl flex justify-between">新增自訂分類 <span>+</span></button>
+                    <button onclick="addCustomCategory()" class="w-full text-left px-6 py-4 text-gray-700 font-medium hover:bg-gray-50 rounded-2xl flex justify-between">新增自訂分類 <span>+</span></button>
                     <div class="border-t border-gray-50 my-1"></div>
                     <button onclick="window.logout()" class="w-full text-left px-6 py-4 text-red-500 font-medium hover:bg-red-50 rounded-2xl flex justify-between">登出帳號 <span>→</span></button>
                 </div>
@@ -162,22 +176,10 @@
         </main>
 
         <footer class="bg-white border-t border-gray-100 px-6 py-3 flex justify-between items-center sticky bottom-0 z-40 pb-safe">
-            <button onclick="UI.switchPage('ledger')" class="nav-item active flex flex-col items-center gap-1 text-gray-400 w-16">
-                <svg class="w-6 h-6 transition-transform active:scale-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                <span class="text-[10px] font-bold">記帳</span>
-            </button>
-            <button onclick="UI.switchPage('chart')" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16">
-                <svg class="w-6 h-6 transition-transform active:scale-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
-                <span class="text-[10px] font-bold">統計</span>
-            </button>
-            <button onclick="UI.switchPage('accounts')" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16">
-                <svg class="w-6 h-6 transition-transform active:scale-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                <span class="text-[10px] font-bold">帳戶</span>
-            </button>
-            <button onclick="UI.switchPage('settings')" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16">
-                <svg class="w-6 h-6 transition-transform active:scale-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <span class="text-[10px] font-bold">設定</span>
-            </button>
+            <button onclick="UI.switchPage('ledger')" class="nav-item active flex flex-col items-center gap-1 text-gray-400 w-16"><svg class="w-6 h-6 transition-transform active:scale-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg><span class="text-[10px] font-bold">記帳</span></button>
+            <button onclick="UI.switchPage('chart')" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16"><svg class="w-6 h-6 transition-transform active:scale-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg><span class="text-[10px] font-bold">統計</span></button>
+            <button onclick="UI.switchPage('accounts')" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16"><svg class="w-6 h-6 transition-transform active:scale-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg><span class="text-[10px] font-bold">帳戶</span></button>
+            <button onclick="UI.switchPage('settings')" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16"><svg class="w-6 h-6 transition-transform active:scale-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg><span class="text-[10px] font-bold">設定</span></button>
         </footer>
 
         <div id="comment-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end sm:items-center justify-center fade-in">
@@ -189,9 +191,7 @@
                 <div id="comments-list" class="flex-1 overflow-y-auto space-y-3 py-2"></div>
                 <div class="mt-3 pt-3 flex gap-2 border-t border-gray-100">
                     <input type="text" id="comment-input" placeholder="留言..." class="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-300">
-                    <button onclick="App.submitComment()" class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-md hover:bg-blue-700 transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                    </button>
+                    <button onclick="App.submitComment()" class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-md hover:bg-blue-700 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg></button>
                 </div>
             </div>
         </div>
@@ -203,8 +203,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, setDoc, deleteDoc, updateDoc, doc, getDoc, getDocs, onSnapshot, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, setDoc, deleteDoc, updateDoc, doc, getDoc, onSnapshot, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // ================= 配置區 =================
         const firebaseConfig = {
@@ -225,21 +225,54 @@
         let currentUser = null;
         let currentViewUid = null;
         let transactions = [];
-        let accounts = []; 
+        let accounts = [];
         let myProfileData = null;
         let editingId = null;
         let currentCommentTxId = null;
-        let currentPhotoData = null; 
-        let currentProfilePhotoData = null; 
+        let currentPhotoData = null;
+        let currentProfilePhotoData = null;
         
         let unsubTransactions = null;
-        let unsubFriends = null;
         let unsubAccounts = null;
 
         const defaultCategories = { expense: ['餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他'], income: ['薪資', '獎金', '投資', '兼職', '其他'] };
         let userCustomCategories = { expense: [], income: [] };
 
-        // ================= UI =================
+        // 登入邏輯修正：加入 setPersistence
+        document.getElementById('btn-google-login').addEventListener('click', async () => {
+            try {
+                // 強制設定持久性為 LOCAL，嘗試解決 iOS 失憶問題
+                await setPersistence(auth, browserLocalPersistence);
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error("登入錯誤:", error);
+                const errorDiv = document.getElementById('login-error-msg');
+                errorDiv.classList.remove('hidden');
+                
+                if (error.code === 'auth/web-storage-unsupported' || error.message.includes("missing initial state")) {
+                    errorDiv.innerHTML = "⚠️ <strong>登入被阻擋</strong><br>Chrome 用戶請檢查：<br>1. 關閉「無痕模式」<br>2. iPhone 設定 -> Chrome -> 開啟「允許跨網站追蹤」<br>3. 不要使用 LINE 內建瀏覽器";
+                } else {
+                    errorDiv.innerText = "登入失敗: " + error.message;
+                }
+            }
+        });
+
+        window.logout = () => { if(confirm('確定要登出嗎？')) signOut(auth); };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                currentViewUid = user.uid;
+                await App.init(user);
+            } else {
+                currentUser = null;
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('app-screen').classList.add('hidden');
+                if(unsubTransactions) unsubTransactions();
+                if(unsubAccounts) unsubAccounts();
+            }
+        });
+
         window.UI = {
             switchPage: (pageId) => {
                 document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
@@ -257,8 +290,7 @@
             },
             updateAccountOptions: () => {
                 const select = document.getElementById('inp-account');
-                if (accounts.length === 0) select.innerHTML = '<option value="default">預設帳戶</option>';
-                else select.innerHTML = accounts.map(acc => `<option value="${acc.id}">${App.escape(acc.name)}</option>`).join('');
+                select.innerHTML = accounts.length ? accounts.map(acc => `<option value="${acc.id}">${acc.name}</option>`).join('') : '<option value="default">預設帳戶</option>';
             },
             renderAccounts: () => {
                 const container = document.getElementById('account-list-container');
@@ -266,7 +298,7 @@
                 const balances = {};
                 accounts.forEach(acc => balances[acc.id] = 0);
                 transactions.forEach(t => {
-                    const accId = t.accountId || 'default'; 
+                    const accId = t.accountId || 'default';
                     if (balances[accId] !== undefined) {
                         if (t.type === 'income') balances[accId] += Number(t.amount);
                         else balances[accId] -= Number(t.amount);
@@ -275,64 +307,43 @@
                 accounts.forEach(acc => {
                     const balance = balances[acc.id] || 0;
                     const div = document.createElement('div');
-                    div.className = "bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group";
-                    let icon = '💰';
-                    if (acc.type === 'bank') icon = '🏦';
-                    if (acc.type === 'card') icon = '💳';
-                    div.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-xl">${icon}</div>
-                            <div>
-                                <div class="font-bold text-gray-800">${App.escape(acc.name)}</div>
-                                <div class="text-xs text-gray-400 capitalize">${acc.type}</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="font-bold ${balance >= 0 ? 'text-blue-600' : 'text-red-500'}">$ ${balance.toLocaleString()}</div>
-                            <button onclick="App.deleteAccount('${acc.id}')" class="text-gray-300 hover:text-red-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
-                        </div>
-                    `;
+                    div.className = "bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center";
+                    let icon = acc.type === 'bank' ? '🏦' : (acc.type === 'card' ? '💳' : '💰');
+                    div.innerHTML = `<div class="flex items-center gap-3"><div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-xl">${icon}</div><div><div class="font-bold text-gray-800">${acc.name}</div><div class="text-xs text-gray-400 capitalize">${acc.type}</div></div></div><div class="font-bold ${balance >= 0 ? 'text-blue-600' : 'text-red-500'}">$ ${balance.toLocaleString()}</div>`;
                     container.appendChild(div);
                 });
+            },
+            toggleChart: () => {
+                const checkbox = document.getElementById('chart-toggle-checkbox');
+                const container = document.getElementById('chart-container');
+                checkbox.checked ? container.classList.remove('hidden') : container.classList.add('hidden');
             },
             openPhotoModal: (src) => { document.getElementById('modal-img').src = src; document.getElementById('photo-modal').classList.remove('hidden'); },
             closePhotoModal: () => document.getElementById('photo-modal').classList.add('hidden')
         };
 
-        // ================= App Logic =================
         window.App = {
-            escape: (str) => {
-                if (!str) return '';
-                return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
-            },
-
             init: async (user) => {
-                currentUser = user;
-                currentViewUid = user.uid;
                 await App.ensureUserHasId(user);
                 await App.loadCustomCategories(user);
                 await App.ensureDefaultAccounts(user);
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-screen').classList.remove('hidden');
-                App.loadAccountsRealtime(); 
-                App.loadDataRealtime(user.uid); 
+                App.loadAccountsRealtime();
+                App.loadDataRealtime(user.uid);
                 App.loadFriends();
-                
-                const now = new Date();
-                const localIso = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-                const localMonth = localIso.slice(0, 7);
-                document.getElementById('inp-date').value = localIso;
-                document.getElementById('filter-day').value = localIso;
-                document.getElementById('filter-month').value = localMonth;
+                const today = new Date();
+                document.getElementById('inp-date').valueAsDate = today;
+                document.getElementById('filter-day').valueAsDate = today;
+                document.getElementById('filter-month').value = today.toISOString().slice(0, 7);
                 UI.updateCategoryOptions();
             },
             ensureDefaultAccounts: async (user) => {
                 const accRef = collection(db, "users", user.uid, "accounts");
-                const snapshot = await getDocs(query(accRef)); 
+                const snapshot = await getDocs(query(accRef));
                 if (snapshot.empty) {
-                    await addDoc(accRef, { name: '現金錢包', type: 'cash', createdAt: Date.now() });
-                    await addDoc(accRef, { name: '銀行帳戶', type: 'bank', createdAt: Date.now() });
-                    await addDoc(accRef, { name: '信用卡', type: 'card', createdAt: Date.now() });
+                    await addDoc(accRef, { name: '現金', type: 'cash', createdAt: Date.now() });
+                    await addDoc(accRef, { name: '銀行', type: 'bank', createdAt: Date.now() });
                 }
             },
             loadAccountsRealtime: () => {
@@ -341,27 +352,17 @@
                 unsubAccounts = onSnapshot(q, (snapshot) => {
                     accounts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     UI.updateAccountOptions();
-                    UI.renderAccounts(); 
+                    UI.renderAccounts();
                 });
             },
             createNewAccount: async () => {
-                const name = prompt("輸入新帳戶名稱 (例如: 私房錢):");
-                if (name) {
-                    await addDoc(collection(db, "users", currentUser.uid, "accounts"), {
-                        name: name, type: 'cash', createdAt: Date.now()
-                    });
-                }
-            },
-            deleteAccount: async (id) => {
-                if(confirm("確定刪除此帳戶？(關聯的交易紀錄不會被刪除，但會失去帳戶標籤)")) {
-                    await deleteDoc(doc(db, "users", currentUser.uid, "accounts", id));
-                }
+                const name = prompt("輸入新帳戶名稱:");
+                if (name) await addDoc(collection(db, "users", currentUser.uid, "accounts"), { name: name, type: 'cash', createdAt: Date.now() });
             },
             ensureUserHasId: async (user) => {
                 const userRef = doc(db, "users", user.uid);
                 const userSnap = await getDoc(userRef);
-                let userName = user.displayName || "User";
-                let userPhoto = user.photoURL;
+                let userName = user.displayName || "User", userPhoto = user.photoURL;
                 if (userSnap.exists()) {
                     const data = userSnap.data();
                     myShortId = data.shortId;
@@ -387,59 +388,40 @@
             },
             loadCustomCategories: async (user) => {
                 const userSnap = await getDoc(doc(db, "users", user.uid));
-                if (userSnap.exists()) {
-                    const data = userSnap.data();
-                    if(data.customCategories) userCustomCategories = data.customCategories;
-                }
-            },
-            addCustomCategory: async () => {
-                const type = document.getElementById('inp-type').value;
-                const newCatName = prompt(`請輸入新的分類名稱：`);
-                if (newCatName && newCatName.trim() !== "") {
-                    const name = newCatName.trim();
-                    if (!userCustomCategories[type]) userCustomCategories[type] = [];
-                    if (defaultCategories[type].includes(name) || userCustomCategories[type].includes(name)) { alert("分類已存在"); return; }
-                    userCustomCategories[type].push(name);
-                    UI.updateCategoryOptions();
-                    document.getElementById('inp-category').value = name; 
-                    try { await setDoc(doc(db, "users", currentUser.uid), { customCategories: userCustomCategories }, { merge: true }); } catch(e) { console.error(e); }
-                }
+                if (userSnap.exists()) { const data = userSnap.data(); if(data.customCategories) userCustomCategories = data.customCategories; }
             },
             loadDataRealtime: (targetUid) => {
                 if (unsubTransactions) unsubTransactions();
+                document.getElementById('sync-status').innerText = "讀取中...";
                 const q = query(collection(db, "users", targetUid, "transactions"), orderBy("dateTimestamp", "desc"));
                 unsubTransactions = onSnapshot(q, (snapshot) => {
                     transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    UI.renderAccounts(); 
+                    UI.renderAccounts();
                     if(document.getElementById('filter-type').value === 'year') App.populateYearSelect();
                     App.updateUI();
-                }, (error) => { console.error(error); });
+                    document.getElementById('sync-status').innerText = "已同步";
+                }, (error) => { console.error(error); document.getElementById('sync-status').innerText = "權限不足"; });
             },
             submitTransaction: async (e) => {
                 e.preventDefault();
-                if(currentViewUid !== currentUser.uid) return alert("你只能編輯自己的帳本喔！");
+                if(currentViewUid !== currentUser.uid) return alert("只能編輯自己的帳本");
                 const category = document.getElementById('inp-category').value;
                 let title = document.getElementById('inp-title').value.trim();
                 if (!title) title = category;
                 const amount = Number(document.getElementById('inp-amount').value);
                 const type = document.getElementById('inp-type').value;
-                const accountId = document.getElementById('inp-account').value; 
+                const accountId = document.getElementById('inp-account').value;
                 const dateValue = document.getElementById('inp-date').valueAsDate;
                 if (!dateValue) return alert("請選擇日期");
                 const dateTimestamp = dateValue.getTime();
                 const dateString = dateValue.toLocaleDateString();
-                if (amount <= 0) return alert('請輸入有效金額');
+                if (amount <= 0) return alert('無效金額');
                 document.getElementById('btn-submit').innerText = "處理中...";
                 try {
                     const txData = { title, amount, type, category, accountId, dateTimestamp, date: dateString, photo: currentPhotoData };
-                    if (editingId) {
-                        await updateDoc(doc(db, "users", currentUser.uid, "transactions", editingId), txData);
-                        App.resetForm();
-                    } else {
-                        await addDoc(collection(db, "users", currentUser.uid, "transactions"), txData);
-                        App.resetForm();
-                    }
-                } catch (e) { alert("操作失敗: " + e.message); }
+                    if (editingId) { await updateDoc(doc(db, "users", currentUser.uid, "transactions", editingId), txData); App.resetForm(); }
+                    else { await addDoc(collection(db, "users", currentUser.uid, "transactions"), txData); App.resetForm(); }
+                } catch (e) { alert("失敗: " + e.message); }
                 document.getElementById('btn-submit').innerText = "記一筆";
             },
             changeFilterMode: () => {
@@ -451,10 +433,7 @@
                 document.getElementById('filter-all').classList.add('filter-hidden');
                 if(mode === 'day') document.getElementById('filter-day').classList.remove('filter-hidden');
                 else if(mode === 'month') document.getElementById('filter-month').classList.remove('filter-hidden');
-                else if(mode === 'year') {
-                    document.getElementById('filter-year').classList.remove('filter-hidden');
-                    App.populateYearSelect();
-                }
+                else if(mode === 'year') { document.getElementById('filter-year').classList.remove('filter-hidden'); App.populateYearSelect(); }
                 else if(mode === 'all') document.getElementById('filter-all').classList.remove('filter-hidden');
                 App.updateUI();
             },
@@ -476,6 +455,7 @@
                 else if(mode === 'month') dTitle.innerText = '本月結餘';
                 else if(mode === 'year') dTitle.innerText = '本年結餘';
                 else dTitle.innerText = '生涯總結餘';
+
                 const filteredTransactions = transactions.filter(t => {
                     const date = new Date(t.dateTimestamp);
                     const yyyy = date.getFullYear();
@@ -486,10 +466,12 @@
                     if (mode === 'year') return `${yyyy}` == document.getElementById('filter-year').value;
                     return true;
                 });
+
                 listEl.innerHTML = '';
                 let totalIncome = 0, totalExpense = 0, expenseData = {};
                 if (filteredTransactions.length === 0) document.getElementById('empty-state').classList.remove('hidden');
                 else document.getElementById('empty-state').classList.add('hidden');
+
                 let lastDate = '';
                 filteredTransactions.forEach(t => {
                     if (t.type === 'income') totalIncome += Number(t.amount);
@@ -509,12 +491,8 @@
                     }
                     const isIncome = t.type === 'income';
                     const colorClass = isIncome ? 'text-green-500' : 'text-gray-900';
-                    let leftIconHTML = '';
-                    if (t.photo) {
-                        leftIconHTML = `<img src="${t.photo}" onclick="UI.openPhotoModal('${t.photo}')" class="w-12 h-12 rounded-xl object-cover border border-gray-100 cursor-pointer shrink-0 shadow-sm">`;
-                    } else {
-                        leftIconHTML = `<div class="w-12 h-12 rounded-xl ${isIncome ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'} flex items-center justify-center shrink-0 font-bold text-lg shadow-sm">${isIncome ? '入' : '出'}</div>`;
-                    }
+                    let leftIconHTML = t.photo ? `<img src="${t.photo}" onclick="UI.openPhotoModal('${t.photo}')" class="w-12 h-12 rounded-xl object-cover border border-gray-100 cursor-pointer shrink-0 shadow-sm">` : `<div class="w-12 h-12 rounded-xl ${isIncome ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'} flex items-center justify-center shrink-0 font-bold text-lg shadow-sm">${isIncome ? '入' : '出'}</div>`;
+                    
                     let actionBtns = '';
                     if (isSelf) {
                         actionBtns = `<div class="flex gap-1 ml-2"><button onclick="App.editTransaction('${t.id}')" class="text-gray-300 hover:text-blue-500 p-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button><button onclick="App.deleteTransaction('${t.id}')" class="text-gray-300 hover:text-red-500 p-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div>`;
@@ -526,7 +504,7 @@
                     }
                     const item = document.createElement('div');
                     item.className = 'bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between mb-2';
-                    item.innerHTML = `<div class="flex items-center gap-3 overflow-hidden flex-1">${leftIconHTML}<div class="min-w-0"><p class="font-bold text-gray-800 text-sm truncate">${App.escape(t.category)} <span class="text-gray-400 font-normal mx-1">|</span> <span class="text-gray-500 font-normal">${App.escape(t.title)}</span></p><p class="text-xs text-gray-400 mt-0.5">${App.escape(accounts.find(a=>a.id === t.accountId)?.name || '預設帳戶')}</p></div></div><div class="flex items-center"><span class="font-bold ${colorClass} text-base whitespace-nowrap">${isIncome ? '+' : '-'} ${Number(t.amount).toLocaleString()}</span>${actionBtns}</div>`;
+                    item.innerHTML = `<div class="flex items-center gap-3 overflow-hidden flex-1">${leftIconHTML}<div class="min-w-0"><p class="font-bold text-gray-800 text-sm truncate">${t.category} <span class="text-gray-400 font-normal mx-1">|</span> <span class="text-gray-500 font-normal">${t.title}</span></p><p class="text-xs text-gray-400 mt-0.5">${accounts.find(a=>a.id === t.accountId)?.name || '預設帳戶'}</p></div></div><div class="flex items-center"><span class="font-bold ${colorClass} text-base whitespace-nowrap">${isIncome ? '+' : '-'} ${Number(t.amount).toLocaleString()}</span>${actionBtns}</div>`;
                     listEl.appendChild(item);
                 });
                 document.getElementById('display-balance').innerText = `$ ${(totalIncome - totalExpense).toLocaleString()}`;
@@ -592,7 +570,7 @@
                     myDiv.innerHTML = `<img src="${myProfileData?.photo||'./Shiba Logo.png'}" class="w-10 h-10 rounded-full bg-gray-200 object-cover"><span class="font-bold">👤 我的帳本</span>`;
                     myDiv.onclick = () => App.switchView(currentUser.uid, '我的帳本');
                     c.appendChild(myDiv);
-                    snap.forEach(d=>{ const f=d.data(); const div=document.createElement('div'); div.className=`p-3 rounded-2xl border cursor-pointer flex justify-between items-center ${currentViewUid===f.uid?'bg-blue-50 border-blue-200':'bg-white border-gray-100'}`; div.innerHTML=`<div class="flex items-center gap-3"><img src="${f.photo||'./Shiba Logo.png'}" class="w-10 h-10 rounded-full bg-gray-200 object-cover"><div><div class="font-bold text-sm">${App.escape(f.name)}</div></div></div>`; div.onclick=()=>{App.switchView(f.uid,f.name)}; c.appendChild(div); });
+                    snap.forEach(d=>{ const f=d.data(); const div=document.createElement('div'); div.className=`p-3 rounded-2xl border cursor-pointer flex justify-between items-center ${currentViewUid===f.uid?'bg-blue-50 border-blue-200':'bg-white border-gray-100'}`; div.innerHTML=`<div class="flex items-center gap-3"><img src="${f.photo||'./Shiba Logo.png'}" class="w-10 h-10 rounded-full bg-gray-200 object-cover"><div><div class="font-bold text-sm">${f.name}</div></div></div>`; div.onclick=()=>{App.switchView(f.uid,f.name)}; c.appendChild(div); });
                 });
             },
             switchView: (uid, name) => {
@@ -603,36 +581,15 @@
             openCommentModal: (id) => { currentCommentTxId=id; document.getElementById('comment-modal').classList.remove('hidden'); App.renderComments(id); },
             closeCommentModal: () => { document.getElementById('comment-modal').classList.add('hidden'); currentCommentTxId=null; },
             submitComment: async () => { const t=document.getElementById('comment-input').value.trim(); if(!t)return; const ref=doc(db,"users",currentViewUid,"transactions",currentCommentTxId); const snap=await getDoc(ref); if(snap.exists()){ const d=snap.data(); const cs=(d.comments||[]).filter(c=>Date.now()-c.timestamp<86400000); cs.push({text:t,authorName:myProfileData.name,timestamp:Date.now()}); await updateDoc(ref,{comments:cs}); document.getElementById('comment-input').value=''; App.renderComments(currentCommentTxId); } },
-            renderComments: (id) => { const tx=transactions.find(t=>t.id===id); const cDiv=document.getElementById('comments-list'); cDiv.innerHTML=''; const cs=(tx.comments||[]).filter(c=>Date.now()-c.timestamp<86400000); if(!cs.length)cDiv.innerHTML='<div class="text-center text-gray-400 mt-10">無留言</div>'; else cs.forEach(c=>{ const d=document.createElement('div'); d.className="bg-gray-50 p-3 rounded-xl text-sm"; d.innerHTML=`<div class="flex justify-between font-bold text-blue-600"><span>${App.escape(c.authorName)}</span><span class="text-gray-300 font-normal text-xs">${moment(c.timestamp).fromNow()}</span></div><div class="text-gray-700 mt-1">${App.escape(c.text)}</div>`; cDiv.appendChild(d); }); }
+            renderComments: (id) => { const tx=transactions.find(t=>t.id===id); const cDiv=document.getElementById('comments-list'); cDiv.innerHTML=''; const cs=(tx.comments||[]).filter(c=>Date.now()-c.timestamp<86400000); if(!cs.length)cDiv.innerHTML='<div class="text-center text-gray-400 mt-10">無留言</div>'; else cs.forEach(c=>{ const d=document.createElement('div'); d.className="bg-gray-50 p-3 rounded-xl text-sm"; d.innerHTML=`<div class="flex justify-between font-bold text-blue-600"><span>${c.authorName}</span><span class="text-gray-300 font-normal text-xs">${moment(c.timestamp).fromNow()}</span></div><div class="text-gray-700 mt-1">${c.text}</div>`; cDiv.appendChild(d); }); }
         };
-
-        // Listeners (改用 addEventListener 確保綁定)
-        document.getElementById('btn-google-login').addEventListener('click', () => {
-            signInWithPopup(auth, provider).catch((error) => {
-                console.error(error);
-                if (error.message.includes("missing initial state") || error.code === "auth/web-storage-unsupported") {
-                    alert("⚠️ 登入被瀏覽器阻擋\n\n請嘗試以下方法：\n1. 請點擊右下角/右上角的「在瀏覽器開啟」(Safari/Chrome)。\n2. 不要使用 LINE/FB 內建瀏覽器。\n3. 不要使用「無痕/私密」模式。");
-                } else {
-                    alert("登入失敗: " + error.message);
-                }
-            });
-        });
 
         document.getElementById('btn-submit').onclick = App.submitTransaction;
         document.getElementById('filter-day').onchange = App.updateUI;
         document.getElementById('filter-month').onchange = App.updateUI;
         document.getElementById('filter-year').onchange = App.updateUI;
 
-        // Auth Listener
-        onAuthStateChanged(auth, async (user) => {
-            if(user) {
-                App.init(user);
-            } else {
-                document.getElementById('login-screen').classList.remove('hidden');
-                document.getElementById('app-screen').classList.add('hidden');
-            }
-        });
-
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/import-map-overrides@2.2.0/dist/import-map-overrides.js"></script>
 </body>
 </html>
