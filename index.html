@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 社群記帳</title>
+    <title>柴管家 - 備註頭像版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -115,7 +115,7 @@
                     </div>
                     <div class="flex gap-2">
                         <button type="button" onclick="addCustomCategory()" class="bg-blue-50 text-blue-600 border border-blue-100 rounded-lg px-3 text-sm font-bold hover:bg-blue-100 whitespace-nowrap">+ 分類</button>
-                        <input type="text" id="inp-title" placeholder="項目 (選填)" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm">
+                        <input type="text" id="inp-title" placeholder="備註 (選填)" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm">
                     </div>
                     <div class="flex gap-2">
                         <input type="number" id="inp-amount" placeholder="金額 $" min="1" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm" required>
@@ -515,10 +515,12 @@
                 if (targetDoc.exists()) {
                     const targetData = targetDoc.data();
                     const addTargetToMe = setDoc(doc(db, "users", currentUser.uid, "friends", targetData.uid), {
-                        uid: targetData.uid, shortId: inputId, name: targetData.name, email: targetData.email, addedAt: Date.now()
+                        uid: targetData.uid, shortId: inputId, name: targetData.name, email: targetData.email, addedAt: Date.now(),
+                        photo: targetData.photo || null
                     });
                     const addMeToTarget = setDoc(doc(db, "users", targetData.uid, "friends", currentUser.uid), {
-                        uid: currentUser.uid, shortId: myProfileData.shortId, name: myProfileData.name, email: currentUser.email, addedAt: Date.now()
+                        uid: currentUser.uid, shortId: myProfileData.shortId, name: myProfileData.name, email: currentUser.email, addedAt: Date.now(),
+                        photo: myProfileData.photo || null
                     });
                     await Promise.all([addTargetToMe, addMeToTarget]);
                     alert(`成功！你與 ${targetData.name} 現在是雙向好友了！`);
@@ -531,16 +533,35 @@
             const q = query(collection(db, "users", currentUser.uid, "friends"));
             friendsUnsubscribe = onSnapshot(q, (snapshot) => {
                 friendListContainer.innerHTML = '';
+                // 顯示自己
+                const myPhoto = myProfileData?.photo || './Shiba Logo.png';
                 const selfDiv = document.createElement('div');
                 selfDiv.className = `p-3 rounded-lg border cursor-pointer flex justify-between items-center ${currentViewUid === currentUser.uid ? 'friend-active' : 'border-gray-100 hover:bg-gray-50'}`;
-                selfDiv.innerHTML = `<span class="font-bold">👤 我的帳本</span>`;
+                selfDiv.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${myPhoto}" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                        <span class="font-bold">👤 我的帳本</span>
+                    </div>
+                `;
                 selfDiv.onclick = () => switchView(currentUser.uid, '我的帳本');
                 friendListContainer.appendChild(selfDiv);
+
+                // 顯示好友
                 snapshot.forEach(doc => {
                     const f = doc.data();
+                    const friendPhoto = f.photo || './Shiba Logo.png';
                     const div = document.createElement('div');
                     div.className = `p-3 rounded-lg border cursor-pointer flex justify-between items-center ${currentViewUid === f.uid ? 'friend-active' : 'border-gray-100 hover:bg-gray-50'}`;
-                    div.innerHTML = `<div><div class="font-bold text-sm">${f.name}</div><div class="text-xs text-gray-400">ID: ${f.shortId || '...'}</div></div><button onclick="deleteFriend('${f.uid}', event)" class="text-gray-300 hover:text-red-500 px-2">🗑️</button>`;
+                    div.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <img src="${friendPhoto}" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                            <div>
+                                <div class="font-bold text-sm">${f.name}</div>
+                                <div class="text-xs text-gray-400">ID: ${f.shortId || '...'}</div>
+                            </div>
+                        </div>
+                        <button onclick="deleteFriend('${f.uid}', event)" class="text-gray-300 hover:text-red-500 px-2">🗑️</button>
+                    `;
                     div.onclick = (e) => { if(e.target.tagName !== 'BUTTON') switchView(f.uid, f.name); };
                     friendListContainer.appendChild(div);
                 });
@@ -656,6 +677,7 @@
             const expenseEl = document.getElementById('display-expense');
             const emptyState = document.getElementById('empty-state');
             const isSelf = currentViewUid === currentUser.uid;
+            
             const mode = filterType.value;
             
             if(mode === 'day') dashboardTitle.innerText = '本日結餘';
@@ -762,7 +784,6 @@
             
             if (myChart) myChart.destroy();
             
-            // 🔥 修正重點：如果有資料，顯示圖表；沒資料，顯示提示文字。
             if (labels.length === 0) { 
                 document.getElementById('expenseChart').style.display = 'none';
                 document.getElementById('chart-placeholder').classList.remove('hidden');
@@ -778,8 +799,7 @@
 
         // UI Helpers
         window.toggleFriendModal = () => document.getElementById('friend-modal').classList.toggle('hidden');
-        
-        // Open Photo Modal
+        window.toggleChart = () => document.getElementById('chart-container').classList.toggle('hidden');
         window.openPhotoModal = (src) => { document.getElementById('modal-img').src = src; document.getElementById('photo-modal').classList.remove('hidden'); };
         window.closePhotoModal = () => document.getElementById('photo-modal').classList.add('hidden');
         
