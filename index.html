@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 v10 - 帳戶管理版</title>
+    <title>柴管家 v10.3 - 登入修復版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -18,7 +18,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .friend-active { border-color: #2563EB; background-color: #EFF6FF; }
         .filter-hidden { display: none; }
-        .page-content { display: none; padding-bottom: 80px; } /* 預留底部導航空間 */
+        .page-content { display: none; padding-bottom: 80px; } 
         .page-content.active { display: block; animation: fadeIn 0.3s ease-out; }
         .nav-item.active { color: #2563EB; }
         .nav-item.active svg { fill: currentColor; }
@@ -28,8 +28,15 @@
 
     <div id="login-screen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-6 text-center fade-in">
         <img src="./Shiba Logo.png" class="w-24 h-24 rounded-3xl shadow-2xl mb-8 object-cover">
-        <h1 class="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">柴管家 v10</h1>
-        <p class="text-gray-500 mb-12">多帳戶管理 · 社群記帳</p>
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">柴管家 v10.3</h1>
+        <p class="text-gray-500 mb-6">安全 · 快速 · 社群記帳</p>
+        
+        <div class="bg-yellow-50 text-yellow-800 text-xs px-4 py-2 rounded-lg mb-8 max-w-xs text-left">
+            <strong>💡 無法登入？</strong><br>
+            iPhone 請點擊右下角 <span class="text-xl leading-3">🧭</span> 選「在 Safari 開啟」。<br>
+            請勿使用 LINE/IG 內建瀏覽器。
+        </div>
+
         <button id="btn-google-login" class="w-full max-w-sm bg-white border border-gray-200 text-gray-700 font-bold py-3.5 px-6 rounded-2xl shadow-sm hover:bg-gray-50 transition flex items-center justify-center gap-3">
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="Google">
             使用 Google 帳號登入
@@ -156,19 +163,19 @@
 
         <footer class="bg-white border-t border-gray-100 px-6 py-3 flex justify-between items-center sticky bottom-0 z-40 pb-safe">
             <button onclick="UI.switchPage('ledger')" class="nav-item active flex flex-col items-center gap-1 text-gray-400 w-16">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                <svg class="w-6 h-6 transition-transform active:scale-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                 <span class="text-[10px] font-bold">記帳</span>
             </button>
             <button onclick="UI.switchPage('chart')" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+                <svg class="w-6 h-6 transition-transform active:scale-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
                 <span class="text-[10px] font-bold">統計</span>
             </button>
             <button onclick="UI.switchPage('accounts')" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                <svg class="w-6 h-6 transition-transform active:scale-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                 <span class="text-[10px] font-bold">帳戶</span>
             </button>
             <button onclick="UI.switchPage('settings')" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <svg class="w-6 h-6 transition-transform active:scale-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 <span class="text-[10px] font-bold">設定</span>
             </button>
         </footer>
@@ -199,6 +206,7 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, setDoc, deleteDoc, updateDoc, doc, getDoc, getDocs, onSnapshot, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // ================= 配置區 =================
         const firebaseConfig = {
             apiKey: "AIzaSyCQRVE28OmopT1v6hybciDaigW4-9GaVzY",
             authDomain: "fma-cloud.firebaseapp.com",
@@ -231,6 +239,7 @@
         const defaultCategories = { expense: ['餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他'], income: ['薪資', '獎金', '投資', '兼職', '其他'] };
         let userCustomCategories = { expense: [], income: [] };
 
+        // ================= UI =================
         window.UI = {
             switchPage: (pageId) => {
                 document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
@@ -249,7 +258,7 @@
             updateAccountOptions: () => {
                 const select = document.getElementById('inp-account');
                 if (accounts.length === 0) select.innerHTML = '<option value="default">預設帳戶</option>';
-                else select.innerHTML = accounts.map(acc => `<option value="${acc.id}">${acc.name}</option>`).join('');
+                else select.innerHTML = accounts.map(acc => `<option value="${acc.id}">${App.escape(acc.name)}</option>`).join('');
             },
             renderAccounts: () => {
                 const container = document.getElementById('account-list-container');
@@ -266,7 +275,7 @@
                 accounts.forEach(acc => {
                     const balance = balances[acc.id] || 0;
                     const div = document.createElement('div');
-                    div.className = "bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center";
+                    div.className = "bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group";
                     let icon = '💰';
                     if (acc.type === 'bank') icon = '🏦';
                     if (acc.type === 'card') icon = '💳';
@@ -274,11 +283,14 @@
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-xl">${icon}</div>
                             <div>
-                                <div class="font-bold text-gray-800">${acc.name}</div>
+                                <div class="font-bold text-gray-800">${App.escape(acc.name)}</div>
                                 <div class="text-xs text-gray-400 capitalize">${acc.type}</div>
                             </div>
                         </div>
-                        <div class="font-bold ${balance >= 0 ? 'text-blue-600' : 'text-red-500'}">$ ${balance.toLocaleString()}</div>
+                        <div class="flex items-center gap-3">
+                            <div class="font-bold ${balance >= 0 ? 'text-blue-600' : 'text-red-500'}">$ ${balance.toLocaleString()}</div>
+                            <button onclick="App.deleteAccount('${acc.id}')" class="text-gray-300 hover:text-red-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                        </div>
                     `;
                     container.appendChild(div);
                 });
@@ -287,7 +299,13 @@
             closePhotoModal: () => document.getElementById('photo-modal').classList.add('hidden')
         };
 
+        // ================= App Logic =================
         window.App = {
+            escape: (str) => {
+                if (!str) return '';
+                return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
+            },
+
             init: async (user) => {
                 currentUser = user;
                 currentViewUid = user.uid;
@@ -299,10 +317,13 @@
                 App.loadAccountsRealtime(); 
                 App.loadDataRealtime(user.uid); 
                 App.loadFriends();
-                const today = new Date();
-                document.getElementById('inp-date').valueAsDate = today;
-                document.getElementById('filter-day').valueAsDate = today;
-                document.getElementById('filter-month').value = today.toISOString().slice(0, 7);
+                
+                const now = new Date();
+                const localIso = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+                const localMonth = localIso.slice(0, 7);
+                document.getElementById('inp-date').value = localIso;
+                document.getElementById('filter-day').value = localIso;
+                document.getElementById('filter-month').value = localMonth;
                 UI.updateCategoryOptions();
             },
             ensureDefaultAccounts: async (user) => {
@@ -329,6 +350,11 @@
                     await addDoc(collection(db, "users", currentUser.uid, "accounts"), {
                         name: name, type: 'cash', createdAt: Date.now()
                     });
+                }
+            },
+            deleteAccount: async (id) => {
+                if(confirm("確定刪除此帳戶？(關聯的交易紀錄不會被刪除，但會失去帳戶標籤)")) {
+                    await deleteDoc(doc(db, "users", currentUser.uid, "accounts", id));
                 }
             },
             ensureUserHasId: async (user) => {
@@ -381,14 +407,12 @@
             },
             loadDataRealtime: (targetUid) => {
                 if (unsubTransactions) unsubTransactions();
-                // document.getElementById('sync-status').innerText = "讀取中...";
                 const q = query(collection(db, "users", targetUid, "transactions"), orderBy("dateTimestamp", "desc"));
                 unsubTransactions = onSnapshot(q, (snapshot) => {
                     transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     UI.renderAccounts(); 
                     if(document.getElementById('filter-type').value === 'year') App.populateYearSelect();
                     App.updateUI();
-                    // document.getElementById('sync-status').innerText = "已同步";
                 }, (error) => { console.error(error); });
             },
             submitTransaction: async (e) => {
@@ -502,7 +526,7 @@
                     }
                     const item = document.createElement('div');
                     item.className = 'bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between mb-2';
-                    item.innerHTML = `<div class="flex items-center gap-3 overflow-hidden flex-1">${leftIconHTML}<div class="min-w-0"><p class="font-bold text-gray-800 text-sm truncate">${t.category} <span class="text-gray-400 font-normal mx-1">|</span> <span class="text-gray-500 font-normal">${t.title}</span></p><p class="text-xs text-gray-400 mt-0.5">${accounts.find(a=>a.id === t.accountId)?.name || '預設帳戶'}</p></div></div><div class="flex items-center"><span class="font-bold ${colorClass} text-base whitespace-nowrap">${isIncome ? '+' : '-'} ${Number(t.amount).toLocaleString()}</span>${actionBtns}</div>`;
+                    item.innerHTML = `<div class="flex items-center gap-3 overflow-hidden flex-1">${leftIconHTML}<div class="min-w-0"><p class="font-bold text-gray-800 text-sm truncate">${App.escape(t.category)} <span class="text-gray-400 font-normal mx-1">|</span> <span class="text-gray-500 font-normal">${App.escape(t.title)}</span></p><p class="text-xs text-gray-400 mt-0.5">${App.escape(accounts.find(a=>a.id === t.accountId)?.name || '預設帳戶')}</p></div></div><div class="flex items-center"><span class="font-bold ${colorClass} text-base whitespace-nowrap">${isIncome ? '+' : '-'} ${Number(t.amount).toLocaleString()}</span>${actionBtns}</div>`;
                     listEl.appendChild(item);
                 });
                 document.getElementById('display-balance').innerText = `$ ${(totalIncome - totalExpense).toLocaleString()}`;
@@ -568,28 +592,38 @@
                     myDiv.innerHTML = `<img src="${myProfileData?.photo||'./Shiba Logo.png'}" class="w-10 h-10 rounded-full bg-gray-200 object-cover"><span class="font-bold">👤 我的帳本</span>`;
                     myDiv.onclick = () => App.switchView(currentUser.uid, '我的帳本');
                     c.appendChild(myDiv);
-                    snap.forEach(d=>{ const f=d.data(); const div=document.createElement('div'); div.className=`p-3 rounded-2xl border cursor-pointer flex justify-between items-center ${currentViewUid===f.uid?'bg-blue-50 border-blue-200':'bg-white border-gray-100'}`; div.innerHTML=`<div class="flex items-center gap-3"><img src="${f.photo||'./Shiba Logo.png'}" class="w-10 h-10 rounded-full bg-gray-200 object-cover"><div><div class="font-bold text-sm">${f.name}</div></div></div>`; div.onclick=()=>{App.switchView(f.uid,f.name)}; c.appendChild(div); });
+                    snap.forEach(d=>{ const f=d.data(); const div=document.createElement('div'); div.className=`p-3 rounded-2xl border cursor-pointer flex justify-between items-center ${currentViewUid===f.uid?'bg-blue-50 border-blue-200':'bg-white border-gray-100'}`; div.innerHTML=`<div class="flex items-center gap-3"><img src="${f.photo||'./Shiba Logo.png'}" class="w-10 h-10 rounded-full bg-gray-200 object-cover"><div><div class="font-bold text-sm">${App.escape(f.name)}</div></div></div>`; div.onclick=()=>{App.switchView(f.uid,f.name)}; c.appendChild(div); });
                 });
             },
             switchView: (uid, name) => {
                 currentViewUid = uid;
-                // document.getElementById('current-view-label').innerText = name; 
                 App.loadDataRealtime(uid);
                 UI.switchPage('ledger');
             },
             openCommentModal: (id) => { currentCommentTxId=id; document.getElementById('comment-modal').classList.remove('hidden'); App.renderComments(id); },
             closeCommentModal: () => { document.getElementById('comment-modal').classList.add('hidden'); currentCommentTxId=null; },
             submitComment: async () => { const t=document.getElementById('comment-input').value.trim(); if(!t)return; const ref=doc(db,"users",currentViewUid,"transactions",currentCommentTxId); const snap=await getDoc(ref); if(snap.exists()){ const d=snap.data(); const cs=(d.comments||[]).filter(c=>Date.now()-c.timestamp<86400000); cs.push({text:t,authorName:myProfileData.name,timestamp:Date.now()}); await updateDoc(ref,{comments:cs}); document.getElementById('comment-input').value=''; App.renderComments(currentCommentTxId); } },
-            renderComments: (id) => { const tx=transactions.find(t=>t.id===id); const cDiv=document.getElementById('comments-list'); cDiv.innerHTML=''; const cs=(tx.comments||[]).filter(c=>Date.now()-c.timestamp<86400000); if(!cs.length)cDiv.innerHTML='<div class="text-center text-gray-400 mt-10">無留言</div>'; else cs.forEach(c=>{ const d=document.createElement('div'); d.className="bg-gray-50 p-3 rounded-xl text-sm"; d.innerHTML=`<div class="flex justify-between font-bold text-blue-600"><span>${c.authorName}</span><span class="text-gray-300 font-normal text-xs">${moment(c.timestamp).fromNow()}</span></div><div class="text-gray-700 mt-1">${c.text}</div>`; cDiv.appendChild(d); }); }
+            renderComments: (id) => { const tx=transactions.find(t=>t.id===id); const cDiv=document.getElementById('comments-list'); cDiv.innerHTML=''; const cs=(tx.comments||[]).filter(c=>Date.now()-c.timestamp<86400000); if(!cs.length)cDiv.innerHTML='<div class="text-center text-gray-400 mt-10">無留言</div>'; else cs.forEach(c=>{ const d=document.createElement('div'); d.className="bg-gray-50 p-3 rounded-xl text-sm"; d.innerHTML=`<div class="flex justify-between font-bold text-blue-600"><span>${App.escape(c.authorName)}</span><span class="text-gray-300 font-normal text-xs">${moment(c.timestamp).fromNow()}</span></div><div class="text-gray-700 mt-1">${App.escape(c.text)}</div>`; cDiv.appendChild(d); }); }
         };
 
-        // Listeners
+        // Listeners (改用 addEventListener 確保綁定)
+        document.getElementById('btn-google-login').addEventListener('click', () => {
+            signInWithPopup(auth, provider).catch((error) => {
+                console.error(error);
+                if (error.message.includes("missing initial state") || error.code === "auth/web-storage-unsupported") {
+                    alert("⚠️ 登入被瀏覽器阻擋\n\n請嘗試以下方法：\n1. 請點擊右下角/右上角的「在瀏覽器開啟」(Safari/Chrome)。\n2. 不要使用 LINE/FB 內建瀏覽器。\n3. 不要使用「無痕/私密」模式。");
+                } else {
+                    alert("登入失敗: " + error.message);
+                }
+            });
+        });
+
         document.getElementById('btn-submit').onclick = App.submitTransaction;
         document.getElementById('filter-day').onchange = App.updateUI;
         document.getElementById('filter-month').onchange = App.updateUI;
         document.getElementById('filter-year').onchange = App.updateUI;
 
-        // Auth Listener to trigger App.init
+        // Auth Listener
         onAuthStateChanged(auth, async (user) => {
             if(user) {
                 App.init(user);
