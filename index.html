@@ -1,114 +1,678 @@
-<div id="app-screen" class="hidden max-w-md mx-auto min-h-screen bg-[#F2F2F7] relative overflow-hidden flex flex-col">
-    <header class="bg-[#F2F2F7] px-5 pt-12 pb-2 flex items-center justify-between sticky top-0 z-10">
-        <div class="flex flex-col">
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">我的帳本</h1>
-            <div class="flex items-center gap-2 mt-1">
-                <span id="current-view-label" class="text-xs font-medium text-gray-500 bg-gray-200 px-2 py-0.5 rounded-md">個人</span>
-                <span id="sync-status" class="text-[10px] text-green-600">已同步</span>
-            </div>
-        </div>
-        <div class="bg-gray-200 p-0.5 rounded-lg flex text-xs font-medium relative">
-            <select id="filter-type" onchange="changeFilterMode()" class="bg-transparent appearance-none px-3 py-1 text-gray-600 focus:outline-none z-10 relative">
-                <option value="day">日</option>
-                <option value="month" selected>月</option>
-                <option value="year">年</option>
-            </select>
-            </div>
-    </header>
-
-    <main class="flex-1 overflow-y-auto px-5 pb-32 no-scrollbar">
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>柴管家 - 極簡版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/zh-tw.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
         
-        <div id="dashboard-card" class="mt-4 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 relative overflow-hidden">
-            <div class="flex justify-between items-start mb-2">
-                <span class="text-gray-400 text-xs font-medium tracking-wide uppercase">本月結餘</span>
-                <button onclick="toggleChart()" class="text-blue-500 text-xs font-bold bg-blue-50 px-2 py-1 rounded-full">圖表</button>
-            </div>
-            <div class="text-3xl font-extrabold text-gray-900 mb-6 tracking-tight" id="display-balance">$ 0</div>
-            
-            <div class="flex gap-4">
-                <div class="flex-1">
-                    <span class="text-[10px] text-gray-400 block mb-0.5">收入</span>
-                    <div class="font-bold text-green-500 text-lg" id="display-income">0</div>
-                </div>
-                <div class="w-px bg-gray-100 h-8 self-center"></div>
-                <div class="flex-1">
-                    <span class="text-[10px] text-gray-400 block mb-0.5">支出</span>
-                    <div class="font-bold text-red-500 text-lg" id="display-expense">0</div>
-                </div>
-            </div>
-
-            <div id="chart-container" class="hidden mt-6 pt-6 border-t border-gray-100 fade-in">
-                <div class="h-48 w-full flex justify-center">
-                    <canvas id="expenseChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div id="transaction-list" class="mt-6 space-y-2">
-            </div>
-        <div id="empty-state" class="hidden py-20 text-center">
-            <div class="text-4xl mb-2">🐕</div>
-            <p class="text-gray-400 text-sm">這個月還沒有記帳喔</p>
-        </div>
-    </main>
-
-    <nav class="fixed bottom-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-200 pb-safe pt-2 px-6 flex justify-between items-end z-30 h-20">
-        <button onclick="switchView(currentUser.uid, '我的帳本')" class="flex flex-col items-center gap-1 w-16 pb-2 text-blue-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-            <span class="text-[10px] font-medium">帳戶</span>
-        </button>
-
-        <button onclick="openInputModal()" class="mb-4 bg-gray-900 text-white rounded-full w-14 h-14 shadow-lg shadow-blue-900/20 flex items-center justify-center transform transition active:scale-95 hover:bg-black">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-        </button>
-
-        <button onclick="toggleFriendModal()" class="flex flex-col items-center gap-1 w-16 pb-2 text-gray-400 hover:text-gray-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-            <span class="text-[10px] font-medium">好友</span>
-        </button>
+        /* 動畫區 */
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        <button onclick="toggleProfileModal()" class="flex flex-col items-center gap-1 w-16 pb-2 text-gray-400 hover:text-gray-600 hidden"> 
-            </button>
-    </nav>
+        .slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-    <div id="input-modal" class="fixed inset-0 bg-black/40 z-50 hidden flex flex-col justify-end fade-in">
-        <div class="bg-white w-full rounded-t-3xl p-6 shadow-2xl animate-slide-up h-[70vh] flex flex-col">
-            <div class="flex justify-between items-center mb-6">
-                <button onclick="closeInputModal()" class="text-gray-400 p-2">取消</button>
-                <h2 class="text-lg font-bold" id="form-title">新增一筆</h2>
-                <button onclick="document.getElementById('transaction-form').dispatchEvent(new Event('submit', {cancelable: true, bubbles: true}))" class="text-blue-600 font-bold p-2">完成</button>
+        .friend-active { border-color: #2563EB; background-color: #EFF6FF; }
+        .filter-hidden { display: none; }
+    </style>
+</head>
+<body class="bg-[#F2F2F7] text-gray-800 min-h-screen">
+
+    <div id="login-screen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-6 text-center fade-in">
+        <div class="w-24 h-24 bg-gray-900 rounded-3xl shadow-xl mb-6 flex items-center justify-center text-4xl">🐕</div>
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">柴管家 v2</h1>
+        <p class="text-gray-500 mb-10 font-medium">極簡 · 專注 · 記帳</p>
+        <button id="btn-google-login" class="w-full max-w-sm bg-white border border-gray-300 text-gray-700 font-bold py-3.5 px-4 rounded-2xl shadow-sm hover:bg-gray-50 transition flex items-center justify-center gap-3">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="Google">
+            使用 Google 帳號登入
+        </button>
+    </div>
+
+    <div id="app-screen" class="hidden max-w-md mx-auto min-h-screen bg-[#F2F2F7] relative overflow-hidden flex flex-col shadow-2xl">
+        
+        <header class="bg-[#F2F2F7] px-5 pt-12 pb-2 flex items-center justify-between sticky top-0 z-10">
+            <div class="flex flex-col">
+                <div class="flex items-center gap-2">
+                    <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">我的帳本</h1>
+                    <span id="sync-status" class="text-[10px] font-bold bg-green-100 text-green-600 px-1.5 py-0.5 rounded">SYNC</span>
+                </div>
+                <div class="flex items-center gap-1 mt-1 text-xs text-gray-500 font-medium cursor-pointer" onclick="toggleProfileModal()">
+                    <span id="current-view-label">個人</span>
+                    <span id="my-short-id" class="font-mono bg-gray-200 px-1 rounded text-gray-600">ID...</span>
+                </div>
             </div>
             
-            <form id="transaction-form" class="flex flex-col gap-4 flex-1">
-                <div class="relative">
-                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-2xl text-gray-400">$</span>
-                    <input type="number" id="inp-amount" placeholder="0" class="w-full bg-gray-50 border-none rounded-2xl py-4 pl-10 pr-4 text-4xl font-bold text-gray-900 text-center focus:ring-0" required inputmode="decimal">
-                </div>
+            <div class="bg-gray-200 p-0.5 rounded-lg flex text-xs font-bold relative">
+                <select id="filter-type" onchange="changeFilterMode()" class="bg-transparent appearance-none px-3 py-1.5 text-gray-600 focus:outline-none z-10 relative cursor-pointer">
+                    <option value="day">日</option>
+                    <option value="month" selected>月</option>
+                    <option value="year">年</option>
+                    <option value="all">全</option>
+                </select>
+                <input type="month" id="filter-month" class="absolute inset-0 opacity-0 cursor-pointer">
+                <input type="date" id="filter-day" class="absolute inset-0 opacity-0 cursor-pointer hidden">
+                <select id="filter-year" class="absolute inset-0 opacity-0 cursor-pointer hidden"></select>
+            </div>
+        </header>
 
-                <div class="bg-gray-100 p-1 rounded-xl flex">
-                    <select id="inp-type" onchange="updateCategoryOptions()" class="bg-transparent w-20 text-center text-sm font-bold text-gray-600 focus:outline-none"><option value="expense">支出</option><option value="income">收入</option></select>
-                    <div class="w-px bg-gray-300 my-1"></div>
-                    <select id="inp-category" class="flex-1 bg-transparent px-4 text-sm font-bold text-gray-800 focus:outline-none appearance-none text-center"></select>
+        <main class="flex-1 overflow-y-auto px-5 pb-32 no-scrollbar">
+            
+            <div id="dashboard-card" class="mt-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 relative overflow-hidden transition-all duration-500">
+                <div class="flex justify-between items-start mb-1">
+                    <span class="text-gray-400 text-[10px] font-bold tracking-wider uppercase" id="dashboard-title">本月結餘</span>
+                    <button onclick="toggleChart()" class="text-blue-600 text-[10px] font-bold bg-blue-50 px-2 py-1 rounded-full hover:bg-blue-100 transition">分析圖表</button>
                 </div>
-
-                <div class="flex gap-3">
-                    <input type="date" id="inp-date" class="bg-gray-50 border-none rounded-xl px-4 py-3 text-sm text-gray-600 w-1/3">
-                    <input type="text" id="inp-title" placeholder="寫點備註..." class="flex-1 bg-gray-50 border-none rounded-xl px-4 py-3 text-sm text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-blue-100">
+                <div class="text-3xl font-extrabold text-gray-900 mb-6 tracking-tight flex items-baseline gap-1">
+                    <span class="text-sm text-gray-400 font-normal">$</span>
+                    <span id="display-balance">0</span>
                 </div>
-
-                <div class="flex gap-3 mt-2">
-                    <input type="file" id="inp-photo" accept="image/*" onchange="handlePhotoSelect(event)" class="hidden">
-                    <label for="inp-photo" id="btn-camera" class="w-full border-2 border-dashed border-gray-200 rounded-xl py-4 flex flex-col items-center justify-center text-gray-400 hover:border-blue-400 hover:text-blue-500 transition cursor-pointer">
-                        <span class="text-2xl mb-1">📷</span>
-                        <span class="text-xs font-bold">加入照片</span>
-                    </label>
-                    <div id="preview-container" class="hidden relative w-full h-32">
-                        <img id="img-preview" class="w-full h-full object-cover rounded-xl">
-                        <button type="button" onclick="clearPhoto()" class="absolute top-2 right-2 bg-black/50 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs backdrop-blur-sm">✕</button>
+                
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <span class="text-[10px] text-gray-400 block mb-0.5 font-medium">總收入</span>
+                        <div class="font-bold text-green-500 text-lg" id="display-income">0</div>
+                    </div>
+                    <div class="w-px bg-gray-100 h-8 self-center"></div>
+                    <div class="flex-1 text-right">
+                        <span class="text-[10px] text-gray-400 block mb-0.5 font-medium">總支出</span>
+                        <div class="font-bold text-red-500 text-lg" id="display-expense">0</div>
                     </div>
                 </div>
-            </form>
+
+                <div id="chart-container" class="hidden mt-6 pt-6 border-t border-gray-100 fade-in">
+                    <div class="h-48 w-full flex justify-center items-center relative">
+                        <canvas id="expenseChart"></canvas>
+                        <p id="chart-placeholder" class="hidden absolute text-gray-300 text-xs font-bold">無數據</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="transaction-list" class="mt-6 space-y-3"></div>
+            <div id="empty-state" class="hidden py-20 text-center">
+                <div class="text-4xl mb-4 grayscale opacity-50">🐕</div>
+                <p class="text-gray-400 text-sm font-medium">這個區間還沒有記帳喔</p>
+                <button onclick="openInputModal()" class="mt-4 text-blue-500 text-xs font-bold hover:underline">記一筆?</button>
+            </div>
+        </main>
+
+        <nav class="fixed bottom-0 w-full max-w-md bg-white/90 backdrop-blur-md border-t border-gray-200 pb-safe pt-2 px-6 flex justify-between items-end z-30 h-[88px]">
+            <button onclick="switchView(currentUser.uid, '我的帳本')" class="flex flex-col items-center gap-1 w-16 pb-2 text-gray-900 transition hover:opacity-70">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                <span class="text-[10px] font-bold">帳戶</span>
+            </button>
+
+            <button id="fab-btn" onclick="openInputModal()" class="mb-6 bg-gray-900 text-white rounded-[20px] w-14 h-14 shadow-lg shadow-gray-900/30 flex items-center justify-center transform transition active:scale-90 hover:bg-black hover:-translate-y-1">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+            </button>
+
+            <button onclick="toggleFriendModal()" class="flex flex-col items-center gap-1 w-16 pb-2 text-gray-400 hover:text-gray-900 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <span class="text-[10px] font-bold">好友</span>
+            </button>
+        </nav>
+
+        <div id="input-modal" class="fixed inset-0 bg-black/40 z-50 hidden flex flex-col justify-end fade-in backdrop-blur-sm">
+            <div class="absolute inset-0" onclick="closeInputModal()"></div>
+            
+            <div class="bg-white w-full rounded-t-3xl p-6 shadow-2xl slide-up relative z-10 pb-safe">
+                <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
+                
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="closeInputModal()" class="text-gray-400 text-sm font-bold p-2 hover:bg-gray-100 rounded-lg">取消</button>
+                    <h2 class="text-sm font-bold text-gray-500 tracking-wider uppercase" id="form-title">新增紀錄</h2>
+                    <button onclick="triggerSubmit()" class="text-blue-600 text-sm font-bold p-2 hover:bg-blue-50 rounded-lg">完成</button>
+                </div>
+                
+                <form id="transaction-form" class="flex flex-col gap-5">
+                    <div class="relative group">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-2xl text-gray-300 font-medium group-focus-within:text-gray-900 transition">$</span>
+                        <input type="number" id="inp-amount" placeholder="0" class="w-full bg-gray-50 border-none rounded-2xl py-4 pl-10 pr-4 text-4xl font-extrabold text-gray-900 text-center focus:ring-2 focus:ring-blue-100 transition-all placeholder-gray-200" required inputmode="decimal">
+                    </div>
+
+                    <div class="bg-gray-100 p-1.5 rounded-2xl flex">
+                        <select id="inp-type" onchange="updateCategoryOptions()" class="bg-white rounded-xl shadow-sm w-24 text-center text-sm font-bold text-gray-800 focus:outline-none py-2.5 border border-gray-200"><option value="expense">支出</option><option value="income">收入</option></select>
+                        <select id="inp-category" class="flex-1 bg-transparent px-4 text-sm font-bold text-gray-600 focus:outline-none appearance-none text-center cursor-pointer"></select>
+                        <button type="button" onclick="addCustomCategory()" class="px-3 text-gray-400 hover:text-blue-600 font-bold text-lg">+</button>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <input type="date" id="inp-date" class="bg-gray-50 border-none rounded-2xl px-4 py-3.5 text-sm font-medium text-gray-600 w-1/3 focus:ring-2 focus:ring-blue-100">
+                        <input type="text" id="inp-title" placeholder="備註 (例如: 早餐)" class="flex-1 bg-gray-50 border-none rounded-2xl px-4 py-3.5 text-sm font-medium text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-blue-100">
+                    </div>
+
+                    <div class="flex gap-3">
+                        <input type="file" id="inp-photo" accept="image/*" onchange="handlePhotoSelect(event)" class="hidden">
+                        <label for="inp-photo" id="btn-camera" class="w-full border-2 border-dashed border-gray-200 rounded-2xl py-3 flex items-center justify-center gap-2 text-gray-400 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition cursor-pointer">
+                            <span class="text-xl">📷</span>
+                            <span class="text-xs font-bold">新增照片</span>
+                        </label>
+                        <div id="preview-container" class="hidden relative w-full h-24">
+                            <img id="img-preview" class="w-full h-full object-cover rounded-2xl border border-gray-100">
+                            <button type="button" onclick="clearPhoto()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md font-bold">×</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
+
+        <div id="friend-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-end sm:items-center justify-center fade-in backdrop-blur-sm">
+            <div class="absolute inset-0" onclick="toggleFriendModal()"></div>
+            <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 h-[80vh] flex flex-col relative z-10 slide-up">
+                <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-4"></div>
+                <h2 class="text-xl font-extrabold text-gray-900 mb-6">好友列表</h2>
+                
+                <div class="mb-6 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                    <label class="text-xs font-bold text-gray-400 block mb-2 uppercase tracking-wide">加入好友 (輸入 6 位數 ID)</label>
+                    <div class="flex gap-2">
+                        <input type="tel" maxlength="6" id="friend-id-input" placeholder="000000" class="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-3 text-lg font-mono font-bold tracking-widest text-center focus:ring-2 focus:ring-blue-500 outline-none">
+                        <button onclick="addFriend()" class="bg-gray-900 text-white px-5 rounded-xl text-sm font-bold hover:bg-black transition">加入</button>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto space-y-2" id="friend-list-container"></div>
+            </div>
+        </div>
+
+        <div id="profile-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center fade-in p-6 backdrop-blur-sm">
+            <div class="absolute inset-0" onclick="toggleProfileModal()"></div>
+            <div class="bg-white w-full max-w-sm rounded-3xl p-6 relative z-10 shadow-2xl scale-95 transition-transform duration-200" id="profile-card">
+                <div class="flex flex-col items-center mb-6">
+                    <div class="relative">
+                        <img id="profile-avatar" src="" class="w-24 h-24 rounded-full border-4 border-white shadow-lg mb-4 object-cover">
+                        <label for="inp-profile-photo" class="absolute bottom-4 right-0 bg-gray-900 text-white p-2 rounded-full shadow-md cursor-pointer hover:bg-black transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        </label>
+                        <input type="file" id="inp-profile-photo" accept="image/*" onchange="handleProfilePhotoSelect(event)" class="hidden">
+                    </div>
+                    <div class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">我的 ID</div>
+                    <div id="profile-short-id" class="font-mono font-black text-3xl text-blue-600 tracking-wider mb-1 select-all">...</div>
+                    <div id="profile-email" class="text-xs text-gray-400 font-medium">...</div>
+                </div>
+                <div class="space-y-3">
+                    <input type="text" id="profile-name-input" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-center focus:ring-2 focus:ring-blue-500 outline-none" placeholder="顯示名稱">
+                    <button onclick="saveProfile()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 transition">儲存變更</button>
+                    <button onclick="logout()" class="w-full bg-white border border-red-100 text-red-500 font-bold py-3.5 rounded-xl hover:bg-red-50 transition">登出帳號</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="photo-modal" class="fixed inset-0 bg-black/95 z-[60] hidden flex items-center justify-center p-4 cursor-pointer" onclick="closePhotoModal()">
+            <img id="modal-img" src="" class="max-w-full max-h-full rounded-lg shadow-2xl">
+        </div>
+        
+        <div id="comment-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-end sm:items-center justify-center fade-in backdrop-blur-sm">
+            <div class="absolute inset-0" onclick="closeCommentModal()"></div>
+            <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 flex flex-col h-[60vh] relative z-10 slide-up">
+                <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-4"></div>
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-100">
+                    <h2 class="text-lg font-bold">留言板 <span class="text-xs text-gray-400 font-normal ml-2">(24hr 內)</span></h2>
+                </div>
+                <div id="comments-list" class="flex-1 overflow-y-auto space-y-3 py-2"></div>
+                <div class="mt-3 flex gap-2">
+                    <input type="text" id="comment-input" placeholder="說點什麼..." class="flex-1 bg-gray-100 rounded-full px-5 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-300 font-medium">
+                    <button onclick="submitComment()" class="bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:bg-blue-700 transition">➤</button>
+                </div>
+            </div>
+        </div>
 
     </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, setDoc, deleteDoc, updateDoc, doc, getDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // ⚠️ 請確保這裡使用你自己的 Firebase Config (上一次對話中的 Config)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCQRVE28OmopT1v6hybciDaigW4-9GaVzY",
+            authDomain: "fma-cloud.firebaseapp.com",
+            projectId: "fma-cloud",
+            storageBucket: "fma-cloud.firebasestorage.app",
+            messagingSenderId: "496004687854",
+            appId: "1:496004687854:web:fb40424dabe2f1566a10ff",
+            measurementId: "G-MTPV76EV3R"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        let currentUser = null;
+        let currentViewUid = null;
+        let transactions = [];
+        let unsubscribe = null;
+        let friendsUnsubscribe = null;
+        let myShortId = null;
+        let myProfileData = null;
+        let editingId = null;
+        let currentCommentTxId = null;
+        let currentPhotoData = null;
+        let currentProfilePhotoData = null;
+        let myChart = null;
+
+        const defaultCategories = { expense: ['餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他'], income: ['薪資', '獎金', '投資', '兼職', '其他'] };
+        let userCustomCategories = { expense: [], income: [] };
+
+        // DOM Elements
+        const loginScreen = document.getElementById('login-screen');
+        const appScreen = document.getElementById('app-screen');
+        const inpAmount = document.getElementById('inp-amount');
+        const inpType = document.getElementById('inp-type');
+        const inpCategory = document.getElementById('inp-category');
+        const inpDate = document.getElementById('inp-date');
+        const inpTitle = document.getElementById('inp-title');
+        
+        // Init Date
+        inpDate.valueAsDate = new Date();
+        document.getElementById('filter-month').value = new Date().toISOString().slice(0, 7);
+
+        // --- Auth ---
+        document.getElementById('btn-google-login').addEventListener('click', () => {
+            signInWithPopup(auth, provider).catch(e => alert("登入失敗: " + e.message));
+        });
+        window.logout = () => { if(confirm('確定登出？')) signOut(auth); };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                currentViewUid = user.uid;
+                await ensureUserHasId(user);
+                await loadCustomCategories(user);
+                loginScreen.classList.add('hidden');
+                appScreen.classList.remove('hidden');
+                loadDataRealtime(user.uid);
+                loadFriends();
+                updateViewMode();
+            } else {
+                loginScreen.classList.remove('hidden');
+                appScreen.classList.add('hidden');
+                if(unsubscribe) unsubscribe();
+            }
+        });
+
+        // --- Core Functions ---
+        
+        // 1. Modal Control (MOZE Style)
+        window.openInputModal = () => {
+            if(!editingId) window.resetForm();
+            document.getElementById('input-modal').classList.remove('hidden');
+            // document.getElementById('inp-amount').focus(); // Optional: Auto focus
+        };
+        window.closeInputModal = () => {
+            document.getElementById('input-modal').classList.add('hidden');
+            setTimeout(() => window.resetForm(), 300); // Wait for animation
+        };
+        window.triggerSubmit = () => {
+            document.getElementById('transaction-form').dispatchEvent(new Event('submit', {cancelable: true, bubbles: true}));
+        };
+
+        window.resetForm = () => {
+            editingId = null;
+            document.getElementById('form-title').innerText = "新增紀錄";
+            inpAmount.value = '';
+            inpTitle.value = '';
+            inpDate.valueAsDate = new Date();
+            window.clearPhoto();
+        };
+
+        window.editTransaction = (id) => {
+            const tx = transactions.find(t => t.id === id);
+            if (!tx) return;
+            editingId = id;
+            inpTitle.value = tx.title;
+            inpAmount.value = tx.amount;
+            inpType.value = tx.type;
+            updateCategoryOptions();
+            inpCategory.value = tx.category;
+            const dateObj = new Date(tx.dateTimestamp);
+            inpDate.valueAsDate = dateObj;
+            currentPhotoData = tx.photo || null;
+            if (currentPhotoData) {
+                document.getElementById('img-preview').src = currentPhotoData;
+                document.getElementById('preview-container').classList.remove('hidden');
+                document.getElementById('btn-camera').classList.add('hidden');
+            } else window.clearPhoto();
+            
+            document.getElementById('form-title').innerText = "編輯紀錄";
+            window.openInputModal();
+        };
+
+        document.getElementById('transaction-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(currentViewUid !== currentUser.uid) return alert("只能編輯自己的帳本喔");
+            
+            const amount = Number(inpAmount.value);
+            if(amount <= 0) return alert("金額錯誤");
+            
+            const data = {
+                amount,
+                type: inpType.value,
+                category: inpCategory.value,
+                title: inpTitle.value.trim() || inpCategory.value,
+                dateTimestamp: inpDate.valueAsDate.getTime(),
+                date: inpDate.valueAsDate.toLocaleDateString(),
+                photo: currentPhotoData
+            };
+
+            try {
+                if(editingId) await updateDoc(doc(db, "users", currentUser.uid, "transactions", editingId), data);
+                else await addDoc(collection(db, "users", currentUser.uid, "transactions"), data);
+                window.closeInputModal();
+            } catch(e) { alert("錯誤: " + e.message); }
+        });
+
+        // 2. UI Rendering (MOZE Style Lists)
+        window.updateUI = () => {
+            const listEl = document.getElementById('transaction-list');
+            const mode = document.getElementById('filter-type').value;
+            // Filter Logic
+            const filterDate = mode === 'day' ? document.getElementById('filter-day').value : 
+                               mode === 'month' ? document.getElementById('filter-month').value : 
+                               document.getElementById('filter-year').value;
+                               
+            const filtered = transactions.filter(t => {
+                const d = new Date(t.dateTimestamp);
+                const isoDate = d.toISOString().split('T')[0];
+                const isoMonth = isoDate.slice(0, 7);
+                const isoYear = String(d.getFullYear());
+                
+                if(mode === 'day') return isoDate === filterDate;
+                if(mode === 'month') return isoMonth === filterDate;
+                if(mode === 'year') return isoYear === filterDate;
+                return true;
+            });
+
+            // Calc
+            let income = 0, expense = 0, expData = {};
+            listEl.innerHTML = '';
+            
+            if(filtered.length === 0) document.getElementById('empty-state').classList.remove('hidden');
+            else document.getElementById('empty-state').classList.add('hidden');
+
+            let lastDate = '';
+            filtered.forEach(t => {
+                if(t.type === 'income') income += Number(t.amount);
+                else {
+                    expense += Number(t.amount);
+                    expData[t.category] = (expData[t.category] || 0) + Number(t.amount);
+                }
+
+                const dObj = new Date(t.dateTimestamp);
+                const dStr = dObj.toLocaleDateString('zh-TW', {month: 'numeric', day: 'numeric'});
+                const week = ['日','一','二','三','四','五','六'][dObj.getDay()];
+                
+                if(dStr !== lastDate) {
+                    const header = document.createElement('div');
+                    header.className = 'flex items-center gap-2 mt-5 mb-2 px-1';
+                    header.innerHTML = `<span class="text-sm font-bold text-gray-900">${dStr}</span><span class="text-xs font-medium text-gray-400">週${week}</span>`;
+                    listEl.appendChild(header);
+                    lastDate = dStr;
+                }
+                
+                // Item
+                const div = document.createElement('div');
+                div.className = "bg-white p-4 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex items-center justify-between transition active:scale-[0.98]";
+                
+                const isInc = t.type === 'income';
+                const color = isInc ? 'text-green-600' : 'text-gray-900';
+                
+                // Icon or Photo
+                let iconHtml = '';
+                if(t.photo) iconHtml = `<img src="${t.photo}" onclick="event.stopPropagation();openPhotoModal('${t.photo}')" class="w-10 h-10 rounded-lg object-cover border border-gray-100 shadow-sm shrink-0">`;
+                else iconHtml = `<div class="w-10 h-10 rounded-full ${isInc?'bg-green-100 text-green-600':'bg-gray-100 text-gray-500'} flex items-center justify-center font-bold text-xs shrink-0">${t.category.slice(0,1)}</div>`;
+
+                // Actions
+                let actionHtml = '';
+                if(currentViewUid === currentUser.uid) {
+                    actionHtml = `<button onclick="event.stopPropagation();deleteTransactionCloud('${t.id}')" class="text-gray-300 hover:text-red-500 p-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>`;
+                } else {
+                    const cnt = (t.comments || []).length;
+                    actionHtml = `<div class="flex items-center gap-1 text-gray-300"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg><span class="text-xs">${cnt||''}</span></div>`;
+                }
+
+                div.innerHTML = `
+                    <div class="flex items-center gap-3 overflow-hidden flex-1" onclick="currentViewUid === currentUser.uid ? editTransaction('${t.id}') : openCommentModal('${t.id}')">
+                        ${iconHtml}
+                        <div class="min-w-0 flex-1">
+                            <div class="font-bold text-sm text-gray-900 truncate">${t.title}</div>
+                            <div class="text-[10px] text-gray-400 font-medium">${t.category}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 pl-2">
+                        <span class="font-bold text-base ${color}">${isInc?'+':''} ${Number(t.amount).toLocaleString()}</span>
+                        ${actionHtml}
+                    </div>
+                `;
+                listEl.appendChild(div);
+            });
+
+            document.getElementById('display-balance').innerText = (income - expense).toLocaleString();
+            document.getElementById('display-income').innerText = income.toLocaleString();
+            document.getElementById('display-expense').innerText = expense.toLocaleString();
+            
+            renderChart(expData);
+        };
+
+        // --- Utils & Helpers ---
+        function loadDataRealtime(targetUid) {
+            if(unsubscribe) unsubscribe();
+            const q = query(collection(db, "users", targetUid, "transactions"), orderBy("dateTimestamp", "desc"));
+            unsubscribe = onSnapshot(q, (snap) => {
+                transactions = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                // Year Select Logic
+                const years = new Set([new Date().getFullYear()]);
+                transactions.forEach(t => years.add(new Date(t.dateTimestamp).getFullYear()));
+                const ySelect = document.getElementById('filter-year');
+                const currY = ySelect.value;
+                ySelect.innerHTML = Array.from(years).sort((a,b)=>b-a).map(y => `<option value="${y}">${y} 年</option>`).join('');
+                if(currY) ySelect.value = currY;
+                
+                updateUI();
+            });
+        }
+        
+        async function ensureUserHasId(user) {
+            // (Same as V1 - Logic hidden for brevity, but functional)
+            const ref = doc(db, "users", user.uid);
+            const snap = await getDoc(ref);
+            if(snap.exists()) {
+                const d = snap.data();
+                myShortId = d.shortId;
+                myProfileData = {...d, photo: user.photoURL};
+            } else {
+                let id = Math.floor(100000 + Math.random()*900000).toString();
+                await setDoc(doc(db, "public_codes", id), {uid: user.uid, email: user.email});
+                await setDoc(ref, {shortId: id, name: user.displayName, email: user.email});
+                myShortId = id;
+                myProfileData = {shortId: id, name: user.displayName, email: user.email};
+            }
+            document.getElementById('my-short-id').innerText = `ID: ${myShortId}`;
+            document.getElementById('profile-short-id').innerText = myShortId;
+            document.getElementById('profile-email').innerText = user.email;
+            document.getElementById('profile-name-input').value = myProfileData.name;
+            document.getElementById('profile-avatar').src = myProfileData.photo || user.photoURL;
+        }
+
+        window.changeFilterMode = () => {
+            const mode = document.getElementById('filter-type').value;
+            document.getElementById('filter-day').classList.add('hidden');
+            document.getElementById('filter-month').classList.add('hidden');
+            document.getElementById('filter-year').classList.add('hidden');
+            
+            if(mode === 'day') document.getElementById('filter-day').classList.remove('hidden');
+            if(mode === 'month') document.getElementById('filter-month').classList.remove('hidden');
+            if(mode === 'year') document.getElementById('filter-year').classList.remove('hidden');
+            updateUI();
+        }
+
+        // --- Other Features (Friends, Profile, Photo, Chart) ---
+        // Reuse logic from V1 but ensure element IDs match new HTML
+        async function loadCustomCategories(user) {
+             const s = await getDoc(doc(db, "users", user.uid));
+             if(s.exists() && s.data().customCategories) userCustomCategories = s.data().customCategories;
+             updateCategoryOptions();
+        }
+        window.updateCategoryOptions = () => {
+             const type = inpType.value;
+             const cats = [...defaultCategories[type], ...(userCustomCategories[type]||[])];
+             inpCategory.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+        window.addCustomCategory = async () => {
+             const n = prompt("新分類名稱:");
+             if(n) {
+                 const t = inpType.value;
+                 if(!userCustomCategories[t]) userCustomCategories[t] = [];
+                 userCustomCategories[t].push(n);
+                 await setDoc(doc(db, "users", currentUser.uid), {customCategories: userCustomCategories}, {merge:true});
+                 updateCategoryOptions();
+                 inpCategory.value = n;
+             }
+        }
+        
+        // Listeners for filters
+        document.getElementById('filter-day').addEventListener('input', updateUI);
+        document.getElementById('filter-month').addEventListener('input', updateUI);
+        document.getElementById('filter-year').addEventListener('change', updateUI);
+        
+        // Chart
+        Chart.register(ChartDataLabels);
+        function renderChart(data) {
+             const ctx = document.getElementById('expenseChart').getContext('2d');
+             const lbs = Object.keys(data);
+             const vals = Object.values(data);
+             if(myChart) myChart.destroy();
+             if(lbs.length === 0) {
+                 document.getElementById('chart-placeholder').classList.remove('hidden');
+                 return;
+             }
+             document.getElementById('chart-placeholder').classList.add('hidden');
+             myChart = new Chart(ctx, {
+                 type: 'doughnut',
+                 data: { labels: lbs, datasets: [{data: vals, backgroundColor: ['#3B82F6','#EF4444','#10B981','#F59E0B','#8B5CF6'], borderWidth: 0}] },
+                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display: false}, datalabels: {color:'#fff', font:{weight:'bold'}, formatter: (v,c)=> { let sum=c.chart.data.datasets[0].data.reduce((a,b)=>a+b,0); return (v/sum*100)>5 ? (v/sum*100).toFixed(0)+'%' : ''; } } } }
+             });
+        }
+        window.toggleChart = () => { document.getElementById('chart-container').classList.toggle('hidden'); }
+
+        // Friends
+        window.toggleFriendModal = () => document.getElementById('friend-modal').classList.toggle('hidden');
+        window.addFriend = async () => {
+             const id = document.getElementById('friend-id-input').value;
+             if(id.length!==6) return alert("ID 錯誤");
+             try {
+                 const target = await getDoc(doc(db, "public_codes", id));
+                 if(!target.exists()) return alert("找不到");
+                 const td = target.data();
+                 await setDoc(doc(db, "users", currentUser.uid, "friends", td.uid), {uid: td.uid, shortId: id, name: td.name, photo: td.photo});
+                 await setDoc(doc(db, "users", td.uid, "friends", currentUser.uid), {uid: currentUser.uid, shortId: myShortId, name: myProfileData.name, photo: myProfileData.photo});
+                 alert("添加成功");
+                 document.getElementById('friend-id-input').value='';
+             } catch(e) { alert(e.message); }
+        }
+        function loadFriends() {
+             onSnapshot(query(collection(db, "users", currentUser.uid, "friends")), s => {
+                 const el = document.getElementById('friend-list-container');
+                 el.innerHTML = '';
+                 // Self
+                 const me = document.createElement('div');
+                 me.className = `p-4 rounded-2xl flex items-center gap-3 cursor-pointer ${currentViewUid===currentUser.uid ? 'bg-blue-50 border border-blue-200' : 'bg-white hover:bg-gray-50'}`;
+                 me.innerHTML = `<img src="${myProfileData?.photo||''}" class="w-10 h-10 rounded-full bg-gray-200"><div class="font-bold">我的帳本</div>`;
+                 me.onclick = () => switchView(currentUser.uid, '我的帳本');
+                 el.appendChild(me);
+                 // Others
+                 s.forEach(d => {
+                     const f = d.data();
+                     const div = document.createElement('div');
+                     div.className = `p-4 rounded-2xl flex items-center justify-between cursor-pointer mt-2 ${currentViewUid===f.uid ? 'bg-purple-50 border border-purple-200' : 'bg-white hover:bg-gray-50'}`;
+                     div.innerHTML = `<div class="flex items-center gap-3"><img src="${f.photo||''}" class="w-10 h-10 rounded-full bg-gray-200"><div><div class="font-bold text-sm">${f.name}</div><div class="text-xs text-gray-400">ID: ${f.shortId}</div></div></div><button onclick="event.stopPropagation();deleteFriend('${f.uid}')" class="text-gray-300 hover:text-red-500">×</button>`;
+                     div.onclick = () => switchView(f.uid, f.name);
+                     el.appendChild(div);
+                 });
+             });
+        }
+        window.switchView = (uid, name) => {
+             currentViewUid = uid;
+             document.getElementById('current-view-label').innerText = uid===currentUser.uid ? '個人' : name;
+             updateViewMode();
+             loadDataRealtime(uid);
+             document.getElementById('friend-modal').classList.add('hidden');
+        }
+        function updateViewMode() {
+             const isMe = currentViewUid === currentUser.uid;
+             document.getElementById('fab-btn').classList.toggle('hidden', !isMe);
+             document.getElementById('dashboard-title').innerText = isMe ? '本月結餘' : '好友視角 (唯讀)';
+        }
+        window.deleteFriend = async (uid) => { if(confirm('刪除？')) await deleteDoc(doc(db, "users", currentUser.uid, "friends", uid)); }
+        window.deleteTransactionCloud = async (id) => { if(confirm('刪除？')) await deleteDoc(doc(db, "users", currentUser.uid, "transactions", id)); }
+        
+        // Photo & Profile
+        window.handlePhotoSelect = (e) => processImage(e.target.files[0], (data) => { currentPhotoData = data; document.getElementById('img-preview').src = data; document.getElementById('preview-container').classList.remove('hidden'); document.getElementById('btn-camera').classList.add('hidden'); });
+        window.handleProfilePhotoSelect = (e) => processImage(e.target.files[0], (data) => { currentProfilePhotoData = data; document.getElementById('profile-avatar').src = data; });
+        function processImage(file, cb) {
+             if(!file) return;
+             const r = new FileReader();
+             r.onload = (e) => {
+                 const i = new Image();
+                 i.onload = () => {
+                     const c = document.createElement('canvas');
+                     const scale = 600/i.width;
+                     c.width = 600; c.height = i.height*scale;
+                     c.getContext('2d').drawImage(i,0,0,c.width,c.height);
+                     cb(c.toDataURL('image/jpeg', 0.6));
+                 };
+                 i.src = e.target.result;
+             };
+             r.readAsDataURL(file);
+        }
+        window.clearPhoto = () => { document.getElementById('inp-photo').value=''; currentPhotoData=null; document.getElementById('preview-container').classList.add('hidden'); document.getElementById('btn-camera').classList.remove('hidden'); };
+        window.toggleProfileModal = () => document.getElementById('profile-modal').classList.toggle('hidden');
+        window.saveProfile = async () => {
+             await updateDoc(doc(db,"users",currentUser.uid), {name:document.getElementById('profile-name-input').value, photo:currentProfilePhotoData});
+             alert('已儲存'); window.toggleProfileModal();
+        };
+        window.openPhotoModal = (src) => { document.getElementById('modal-img').src=src; document.getElementById('photo-modal').classList.remove('hidden'); };
+        window.closePhotoModal = () => document.getElementById('photo-modal').classList.add('hidden');
+
+        // Comments
+        window.openCommentModal = (id) => { currentCommentTxId=id; document.getElementById('comment-modal').classList.remove('hidden'); renderComments(id); };
+        window.closeCommentModal = () => document.getElementById('comment-modal').classList.add('hidden');
+        function renderComments(id) {
+             const tx = transactions.find(t=>t.id===id);
+             const list = document.getElementById('comments-list');
+             list.innerHTML = '';
+             const now = Date.now();
+             const comms = (tx.comments||[]).filter(c => now-c.timestamp < 86400000);
+             if(!comms.length) list.innerHTML = '<div class="text-gray-300 text-center mt-10 text-sm">暫無留言</div>';
+             comms.forEach(c => {
+                 const d = document.createElement('div');
+                 d.className = "bg-gray-50 p-3 rounded-xl text-sm mb-2";
+                 d.innerHTML = `<div class="flex justify-between mb-1"><span class="font-bold text-blue-600">${c.authorName}</span><span class="text-xs text-gray-400">${moment(c.timestamp).fromNow()}</span></div><div>${c.text}</div>`;
+                 list.appendChild(d);
+             });
+        }
+        window.submitComment = async () => {
+             const txt = document.getElementById('comment-input').value.trim();
+             if(!txt) return;
+             const ref = doc(db,"users",currentViewUid,"transactions",currentCommentTxId);
+             const snap = await getDoc(ref);
+             let arr = snap.data().comments || [];
+             arr.push({text:txt, authorName:myProfileData.name, timestamp:Date.now()});
+             await updateDoc(ref, {comments:arr});
+             document.getElementById('comment-input').value='';
+             renderComments(currentCommentTxId);
+        }
+    </script>
+</body>
+</html>
