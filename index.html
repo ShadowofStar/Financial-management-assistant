@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 雙模式登入版</title>
+    <title>柴管家 v10.7 - 除錯版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -24,30 +24,36 @@
         .nav-item.active svg { fill: currentColor; }
         .toggle-checkbox:checked { right: 0; border-color: #2563EB; }
         .toggle-checkbox:checked + .toggle-label { background-color: #2563EB; }
+        
+        /* 載入遮罩 */
+        #loading-overlay { position: fixed; inset: 0; bg-white; z-index: 9999; display: flex; align-items: center; justify-content: center; background: white; flex-col; gap: 4; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
-    <div id="login-screen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-6 text-center fade-in">
+    <div id="loading-overlay" class="flex flex-col gap-4">
+        <img src="./Shiba Logo.png" class="w-16 h-16 rounded-xl animate-bounce">
+        <p class="text-gray-500 font-bold">系統啟動中...</p>
+        <p class="text-xs text-red-400 px-10 text-center">如果卡在這裡很久，請檢查是否使用了 file:// 開啟</p>
+    </div>
+
+    <div id="global-error-box" class="hidden fixed top-0 left-0 w-full bg-red-600 text-white p-4 z-[10000] text-xs font-mono break-all"></div>
+
+    <div id="login-screen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-6 text-center fade-in hidden">
         <img src="./Shiba Logo.png" class="w-24 h-24 rounded-3xl shadow-2xl mb-8 object-cover">
-        <h1 class="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">柴管家 v10.6</h1>
-        <p class="text-gray-500 mb-8">雙模式登入測試</p>
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">柴管家 v10.7</h1>
+        <p class="text-gray-500 mb-8">除錯診斷模式</p>
         
         <div id="login-error-msg" class="hidden bg-red-50 text-red-500 text-xs p-3 rounded-xl mb-4 text-left border border-red-100"></div>
 
         <button id="btn-login-popup" class="w-full max-w-sm bg-blue-600 text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition flex items-center justify-center gap-3 mb-4">
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6 bg-white rounded-full p-0.5" alt="Google">
-            模式 A：彈窗登入 (推薦)
+            <span id="btn-text-a">模式 A：彈窗登入</span>
         </button>
 
         <button id="btn-login-redirect" class="w-full max-w-sm bg-white border border-gray-200 text-gray-700 font-bold py-3.5 px-6 rounded-2xl shadow-sm hover:bg-gray-50 transition flex items-center justify-center gap-3">
-            模式 B：跳轉登入
+            <span id="btn-text-b">模式 B：跳轉登入</span>
         </button>
-
-        <p class="text-xs text-gray-400 mt-6 leading-relaxed">
-            iPhone Chrome 用戶請嘗試「模式 A」。<br>
-            若跳出「封鎖彈出視窗」，請點擊「永遠允許」。
-        </p>
     </div>
 
     <div id="app-screen" class="hidden w-full max-w-md mx-auto bg-white min-h-screen shadow-2xl relative flex flex-col">
@@ -140,9 +146,7 @@
             </div>
 
             <div id="page-chart" class="page-content space-y-6">
-                <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex items-center justify-center h-64 text-gray-400">
-                    進階統計功能開發中...
-                </div>
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex items-center justify-center h-64 text-gray-400">進階統計功能開發中...</div>
             </div>
 
             <div id="page-accounts" class="page-content space-y-4">
@@ -169,10 +173,7 @@
                     <div class="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full tracking-wider font-mono select-all" id="profile-short-id-display">...</div>
                 </div>
                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-800 mb-4 flex justify-between items-center">
-                        好友列表
-                        <button onclick="App.addFriendPrompt()" class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-full">加入好友</button>
-                    </h3>
+                    <h3 class="font-bold text-gray-800 mb-4 flex justify-between items-center">好友列表<button onclick="App.addFriendPrompt()" class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-full">加入好友</button></h3>
                     <div id="friend-list-container" class="space-y-3"></div>
                 </div>
                 <div class="bg-white rounded-3xl p-2 shadow-sm border border-gray-100">
@@ -209,6 +210,14 @@
         </div>
     </div>
 
+    <script>
+        window.addEventListener('error', function(e) {
+            const box = document.getElementById('global-error-box');
+            box.classList.remove('hidden');
+            box.innerText = "❌ 系統錯誤: " + e.message;
+        });
+    </script>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -225,10 +234,19 @@
             measurementId: "G-MTPV76EV3R"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
+        let app, auth, db, provider;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            provider = new GoogleAuthProvider();
+            // 移除 Loading
+            document.getElementById('loading-overlay').style.display = 'none';
+        } catch (err) {
+            document.getElementById('global-error-box').classList.remove('hidden');
+            document.getElementById('global-error-box').innerText = "Firebase Init 失敗: " + err.message;
+        }
 
         let currentUser = null;
         let currentViewUid = null;
@@ -245,52 +263,26 @@
         const defaultCategories = { expense: ['餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他'], income: ['薪資', '獎金', '投資', '兼職', '其他'] };
         let userCustomCategories = { expense: [], income: [] };
 
-        // 🔥🔥🔥 雙模式登入邏輯 (v10.6) 🔥🔥🔥
-        
-        // 1. 處理跳轉回來的結果 (針對模式 B)
-        getRedirectResult(auth).then((result) => {
-            if (result) console.log("Redirect Success");
-        }).catch((error) => {
-            console.error("Redirect Error:", error);
-            showLoginError(error);
-        });
+        // 登入邏輯
+        getRedirectResult(auth).then((result) => { if (result) console.log("Redirect Success"); }).catch((error) => { console.error("Redirect Error:", error); showLoginError(error); });
 
-        // 2. 模式 A：彈窗登入 (Popup) - 適合 Chrome iOS
         document.getElementById('btn-login-popup').addEventListener('click', async () => {
-            try {
-                await setPersistence(auth, browserLocalPersistence);
-                await signInWithPopup(auth, provider);
-            } catch (error) {
-                console.error("Popup Error:", error);
-                if (error.code === 'auth/popup-blocked') {
-                    alert("⚠️ 彈出視窗被封鎖\n\n請在瀏覽器網址列或設定中，選擇「允許彈出視窗」後再試一次！");
-                } else if (error.code === 'auth/cancelled-popup-request') {
-                    // 用戶自己關掉的，不做提示
-                } else {
-                    showLoginError(error);
-                }
-            }
+            document.getElementById('btn-text-a').innerText = "處理中...";
+            try { await setPersistence(auth, browserLocalPersistence); await signInWithPopup(auth, provider); } 
+            catch (error) { showLoginError(error); }
+            document.getElementById('btn-text-a').innerText = "模式 A：彈窗登入";
         });
 
-        // 3. 模式 B：跳轉登入 (Redirect) - 適合 Safari
         document.getElementById('btn-login-redirect').addEventListener('click', async () => {
-            try {
-                await setPersistence(auth, browserLocalPersistence);
-                await signInWithRedirect(auth, provider);
-            } catch (error) {
-                console.error("Redirect Trigger Error:", error);
-                showLoginError(error);
-            }
+            document.getElementById('btn-text-b').innerText = "跳轉中...";
+            try { await setPersistence(auth, browserLocalPersistence); await signInWithRedirect(auth, provider); } 
+            catch (error) { showLoginError(error); }
         });
 
         function showLoginError(error) {
             const errorDiv = document.getElementById('login-error-msg');
             errorDiv.classList.remove('hidden');
-            if (error.message.includes("missing initial state")) {
-                errorDiv.innerHTML = "⚠️ <strong>登入被阻擋</strong><br>1. 請嘗試「模式 A」<br>2. 關閉無痕模式<br>3. 請勿使用 LINE 內建瀏覽器";
-            } else {
-                errorDiv.innerText = "登入錯誤: " + error.message;
-            }
+            errorDiv.innerText = "登入失敗 (" + error.code + "): " + error.message;
         }
 
         window.logout = () => { if(confirm('確定要登出嗎？')) signOut(auth); };
@@ -309,7 +301,6 @@
             }
         });
 
-        // ================= UI & App Logic (保持不變) =================
         window.UI = {
             switchPage: (pageId) => {
                 document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
@@ -429,15 +420,15 @@
             },
             loadDataRealtime: (targetUid) => {
                 if (unsubTransactions) unsubTransactions();
-                document.getElementById('sync-status').innerText = "讀取中...";
+                //document.getElementById('sync-status').innerText = "讀取中...";
                 const q = query(collection(db, "users", targetUid, "transactions"), orderBy("dateTimestamp", "desc"));
                 unsubTransactions = onSnapshot(q, (snapshot) => {
                     transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     UI.renderAccounts();
                     if(document.getElementById('filter-type').value === 'year') App.populateYearSelect();
                     App.updateUI();
-                    document.getElementById('sync-status').innerText = "已同步";
-                }, (error) => { console.error(error); document.getElementById('sync-status').innerText = "權限不足"; });
+                    //document.getElementById('sync-status').innerText = "已同步";
+                }, (error) => { console.error(error); });
             },
             submitTransaction: async (e) => {
                 e.preventDefault();
@@ -616,6 +607,7 @@
                 App.loadDataRealtime(uid);
                 UI.switchPage('ledger');
             },
+            
             openCommentModal: (id) => { currentCommentTxId=id; document.getElementById('comment-modal').classList.remove('hidden'); App.renderComments(id); },
             closeCommentModal: () => { document.getElementById('comment-modal').classList.add('hidden'); currentCommentTxId=null; },
             submitComment: async () => { const t=document.getElementById('comment-input').value.trim(); if(!t)return; const ref=doc(db,"users",currentViewUid,"transactions",currentCommentTxId); const snap=await getDoc(ref); if(snap.exists()){ const d=snap.data(); const cs=(d.comments||[]).filter(c=>Date.now()-c.timestamp<86400000); cs.push({text:t,authorName:myProfileData.name,timestamp:Date.now()}); await updateDoc(ref,{comments:cs}); document.getElementById('comment-input').value=''; App.renderComments(currentCommentTxId); } },
@@ -631,4 +623,3 @@
     <script src="https://cdn.jsdelivr.net/npm/import-map-overrides@2.2.0/dist/import-map-overrides.js"></script>
 </body>
 </html>
-
