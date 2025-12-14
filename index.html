@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 滑動開關版</title>
+    <title>柴管家 - 照片優先版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -19,7 +19,6 @@
         .friend-active { border-color: #2563EB; background-color: #EFF6FF; }
         .filter-hidden { display: none; }
         
-        /* 滑動開關的過渡動畫 */
         .toggle-checkbox:checked {
             right: 0;
             border-color: #2563EB;
@@ -252,7 +251,6 @@
         const defaultCategories = { expense: ['餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他'], income: ['薪資', '獎金', '投資', '兼職', '其他'] };
         let userCustomCategories = { expense: [], income: [] };
 
-        // DOM
         const loginScreen = document.getElementById('login-screen');
         const appScreen = document.getElementById('app-screen');
         const currentViewLabel = document.getElementById('current-view-label');
@@ -293,7 +291,14 @@
         filterMonth.value = today.toISOString().slice(0, 7);
 
         document.getElementById('btn-google-login').addEventListener('click', () => {
-            signInWithPopup(auth, provider).catch((err) => alert("登入失敗: " + err.message));
+            signInWithPopup(auth, provider).catch((error) => {
+                console.error(error);
+                if (error.message.includes("missing initial state") || error.code === "auth/web-storage-unsupported") {
+                    alert("⚠️ 登入被瀏覽器阻擋\n\n請嘗試以下方法：\n1. 請點擊右下角/右上角的「在瀏覽器開啟」(Safari/Chrome)。\n2. 不要使用 LINE/FB 內建瀏覽器。\n3. 不要使用「無痕/私密」模式。");
+                } else {
+                    alert("登入失敗: " + error.message);
+                }
+            });
         });
 
         window.logout = () => { if(confirm('確定要登出嗎？')) signOut(auth); };
@@ -384,7 +389,6 @@
             inpCategory.innerHTML = allCats.map(opt => `<option value="${opt}">${opt}</option>`).join('');
         };
 
-        // Filter & Toggle Logic
         window.changeFilterMode = () => {
             const mode = filterType.value;
             filterDay.classList.add('filter-hidden');
@@ -752,9 +756,18 @@
                     lastDate = dateStr;
                 }
 
+                // 🔥 優先顯示照片 (修改重點)
                 const isIncome = t.type === 'income';
                 const colorClass = isIncome ? 'text-green-600' : 'text-gray-800';
-                const photoHtml = t.photo ? `<img src="${t.photo}" onclick="openPhotoModal('${t.photo}')" class="w-12 h-12 rounded-lg object-cover border border-gray-200 cursor-pointer ml-3">` : '';
+                
+                let leftIconHTML = '';
+                if (t.photo) {
+                    // 如果有照片，顯示照片縮圖
+                    leftIconHTML = `<img src="${t.photo}" onclick="openPhotoModal('${t.photo}')" class="w-12 h-12 rounded-lg object-cover border border-gray-200 cursor-pointer shrink-0">`;
+                } else {
+                    // 如果沒照片，顯示原本的圓圈
+                    leftIconHTML = `<div class="w-12 h-12 rounded-full ${isIncome ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'} flex items-center justify-center shrink-0 font-bold text-sm">${isIncome ? '入' : '出'}</div>`;
+                }
                 
                 let actionBtns = '';
                 if (isSelf) {
@@ -776,14 +789,13 @@
                 
                 item.innerHTML = `
                     <div class="flex items-center gap-3 overflow-hidden">
-                        <div class="w-10 h-10 rounded-full ${isIncome ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'} flex items-center justify-center shrink-0 font-bold text-sm">${isIncome ? '入' : '出'}</div>
+                        ${leftIconHTML}
                         <div class="min-w-0">
                             <p class="font-bold text-gray-800 text-sm truncate">${t.category} - ${t.title}</p>
                         </div>
                     </div>
                     <div class="flex items-center">
                         <span class="font-bold ${colorClass}">${isIncome ? '+' : '-'} ${Number(t.amount).toLocaleString()}</span>
-                        ${photoHtml}
                         ${actionBtns}
                     </div>
                 `;
@@ -818,6 +830,7 @@
 
         // UI Helpers
         window.toggleFriendModal = () => document.getElementById('friend-modal').classList.toggle('hidden');
+        window.toggleChart = () => document.getElementById('chart-container').classList.toggle('hidden');
         window.openPhotoModal = (src) => { document.getElementById('modal-img').src = src; document.getElementById('photo-modal').classList.remove('hidden'); };
         window.closePhotoModal = () => document.getElementById('photo-modal').classList.add('hidden');
         
