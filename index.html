@@ -20,8 +20,6 @@
         .filter-hidden { display: none; }
         .page-content { display: none; padding-bottom: 80px; } /* 預留底部導航空間 */
         .page-content.active { display: block; animation: fadeIn 0.3s ease-out; }
-        
-        /* 底部導航選中樣式 */
         .nav-item.active { color: #2563EB; }
         .nav-item.active svg { fill: currentColor; }
     </style>
@@ -73,14 +71,8 @@
                         <div class="text-gray-400 text-xs font-medium uppercase mb-1" id="dashboard-title">本月結餘</div>
                         <div class="text-4xl font-bold mb-6 tracking-tight" id="display-balance">$ 0</div>
                         <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <span class="text-xs text-gray-400 block mb-1">收入</span>
-                                <div class="font-semibold text-lg text-green-400" id="display-income">0</div>
-                            </div>
-                            <div>
-                                <span class="text-xs text-gray-400 block mb-1">支出</span>
-                                <div class="font-semibold text-lg text-red-400" id="display-expense">0</div>
-                            </div>
+                            <div><span class="text-xs text-gray-400 block mb-1">收入</span><div class="font-semibold text-lg text-green-400" id="display-income">0</div></div>
+                            <div><span class="text-xs text-gray-400 block mb-1">支出</span><div class="font-semibold text-lg text-red-400" id="display-expense">0</div></div>
                         </div>
                     </div>
                 </div>
@@ -92,8 +84,7 @@
                     </div>
                     <form id="transaction-form" class="space-y-3">
                         <div class="flex gap-2">
-                            <select id="inp-account" class="w-1/2 bg-gray-50 border-none rounded-xl px-3 py-3 text-sm font-bold text-gray-700 focus:ring-2 focus:ring-blue-100">
-                                </select>
+                            <select id="inp-account" class="w-1/2 bg-gray-50 border-none rounded-xl px-3 py-3 text-sm font-bold text-gray-700 focus:ring-2 focus:ring-blue-100"></select>
                             <input type="date" id="inp-date" class="w-1/2 bg-gray-50 border-none rounded-xl px-3 py-3 text-sm text-gray-600 focus:ring-2 focus:ring-blue-100">
                         </div>
                         <div class="flex gap-2">
@@ -107,12 +98,10 @@
                         <div class="flex gap-2 pt-2">
                             <input type="file" id="inp-photo" accept="image/*" onchange="App.handlePhotoSelect(event)">
                             <label for="inp-photo" id="btn-camera" class="w-12 h-12 flex-shrink-0 cursor-pointer bg-gray-100 text-gray-400 rounded-xl flex items-center justify-center hover:bg-gray-200 transition">📷</label>
-                            
                             <div id="preview-container" class="hidden relative w-12 h-12">
                                 <img id="img-preview" class="w-full h-full object-cover rounded-xl border border-gray-200">
                                 <button type="button" onclick="App.clearPhoto()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow-md">×</button>
                             </div>
-
                             <button type="submit" id="btn-submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-200 transition">記一筆</button>
                         </div>
                     </form>
@@ -137,18 +126,14 @@
                     <h2 class="text-xl font-bold text-gray-800">我的帳戶</h2>
                     <button onclick="App.createNewAccount()" class="text-sm bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg font-bold">+ 新增</button>
                 </div>
-                <div id="account-list-container" class="grid gap-3">
-                    </div>
+                <div id="account-list-container" class="grid gap-3"></div>
             </div>
 
             <div id="page-settings" class="page-content space-y-6">
-                
                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col items-center">
                     <div class="relative">
                         <img id="profile-avatar" src="" class="w-24 h-24 rounded-full border-4 border-blue-50 mb-3 shadow-sm object-cover">
-                        <label for="inp-profile-photo" class="absolute bottom-1 right-0 bg-blue-600 text-white p-2 rounded-full shadow-lg cursor-pointer hover:bg-blue-700 transition">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        </label>
+                        <label for="inp-profile-photo" class="absolute bottom-1 right-0 bg-blue-600 text-white p-2 rounded-full shadow-lg cursor-pointer hover:bg-blue-700 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></label>
                         <input type="file" id="inp-profile-photo" accept="image/*" onchange="App.handleProfilePhotoSelect(event)">
                     </div>
                     <div class="w-full flex gap-2 justify-center items-center mb-4">
@@ -157,43 +142,33 @@
                     </div>
                     <div class="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full tracking-wider font-mono select-all" id="profile-short-id-display">...</div>
                 </div>
-
                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-800 mb-4 flex justify-between items-center">
-                        好友列表
-                        <button onclick="App.addFriendPrompt()" class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-full">加入好友</button>
-                    </h3>
+                    <h3 class="font-bold text-gray-800 mb-4 flex justify-between items-center">好友列表 <button onclick="App.addFriendPrompt()" class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-full">加入好友</button></h3>
                     <div id="friend-list-container" class="space-y-3"></div>
                 </div>
-
                 <div class="bg-white rounded-3xl p-2 shadow-sm border border-gray-100">
-                    <button onclick="addCustomCategory()" class="w-full text-left px-6 py-4 text-gray-700 font-medium hover:bg-gray-50 rounded-2xl flex justify-between">
-                        新增自訂分類 <span>+</span>
-                    </button>
+                    <button onclick="App.addCustomCategory()" class="w-full text-left px-6 py-4 text-gray-700 font-medium hover:bg-gray-50 rounded-2xl flex justify-between">新增自訂分類 <span>+</span></button>
                     <div class="border-t border-gray-50 my-1"></div>
-                    <button onclick="window.logout()" class="w-full text-left px-6 py-4 text-red-500 font-medium hover:bg-red-50 rounded-2xl flex justify-between">
-                        登出帳號 <span>→</span>
-                    </button>
+                    <button onclick="window.logout()" class="w-full text-left px-6 py-4 text-red-500 font-medium hover:bg-red-50 rounded-2xl flex justify-between">登出帳號 <span>→</span></button>
                 </div>
             </div>
-
         </main>
 
         <footer class="bg-white border-t border-gray-100 px-6 py-3 flex justify-between items-center sticky bottom-0 z-40 pb-safe">
             <button onclick="UI.switchPage('ledger')" class="nav-item active flex flex-col items-center gap-1 text-gray-400 w-16">
-                <svg class="w-6 h-6 transition-transform active:scale-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                 <span class="text-[10px] font-bold">記帳</span>
             </button>
             <button onclick="UI.switchPage('chart')" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16">
-                <svg class="w-6 h-6 transition-transform active:scale-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
                 <span class="text-[10px] font-bold">統計</span>
             </button>
             <button onclick="UI.switchPage('accounts')" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16">
-                <svg class="w-6 h-6 transition-transform active:scale-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                 <span class="text-[10px] font-bold">帳戶</span>
             </button>
             <button onclick="UI.switchPage('settings')" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16">
-                <svg class="w-6 h-6 transition-transform active:scale-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 <span class="text-[10px] font-bold">設定</span>
             </button>
         </footer>
@@ -222,9 +197,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, setDoc, deleteDoc, updateDoc, doc, getDoc, onSnapshot, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, setDoc, deleteDoc, updateDoc, doc, getDoc, getDocs, onSnapshot, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // ================= 配置區 =================
         const firebaseConfig = {
             apiKey: "AIzaSyCQRVE28OmopT1v6hybciDaigW4-9GaVzY",
             authDomain: "fma-cloud.firebaseapp.com",
@@ -240,16 +214,15 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        // ================= 全域狀態 =================
         let currentUser = null;
         let currentViewUid = null;
         let transactions = [];
-        let accounts = []; // 帳戶資料
+        let accounts = []; 
         let myProfileData = null;
         let editingId = null;
         let currentCommentTxId = null;
-        let currentPhotoData = null; // 記帳照片
-        let currentProfilePhotoData = null; // 頭像照片
+        let currentPhotoData = null; 
+        let currentProfilePhotoData = null; 
         
         let unsubTransactions = null;
         let unsubFriends = null;
@@ -258,62 +231,45 @@
         const defaultCategories = { expense: ['餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他'], income: ['薪資', '獎金', '投資', '兼職', '其他'] };
         let userCustomCategories = { expense: [], income: [] };
 
-        // ================= UI 控制層 =================
         window.UI = {
             switchPage: (pageId) => {
                 document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
                 document.getElementById(`page-${pageId}`).classList.add('active');
-                
                 document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-                // 簡單對應：ledger->第1個, chart->2, accounts->3, settings->4
                 const navIndex = { 'ledger': 0, 'chart': 1, 'accounts': 2, 'settings': 3 }[pageId];
                 document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
-
-                // Header 標題變化
                 const titles = { 'ledger': '記帳', 'chart': '統計', 'accounts': '帳戶管理', 'settings': '設定' };
                 document.getElementById('header-title').innerText = titles[pageId];
             },
-
             updateCategoryOptions: () => {
                 const type = document.getElementById('inp-type').value;
                 const allCats = [...defaultCategories[type], ...(userCustomCategories[type] || [])];
                 document.getElementById('inp-category').innerHTML = allCats.map(opt => `<option value="${opt}">${opt}</option>`).join('');
             },
-
             updateAccountOptions: () => {
                 const select = document.getElementById('inp-account');
-                if (accounts.length === 0) {
-                    select.innerHTML = '<option value="default">預設帳戶</option>';
-                } else {
-                    select.innerHTML = accounts.map(acc => `<option value="${acc.id}">${acc.name}</option>`).join('');
-                }
+                if (accounts.length === 0) select.innerHTML = '<option value="default">預設帳戶</option>';
+                else select.innerHTML = accounts.map(acc => `<option value="${acc.id}">${acc.name}</option>`).join('');
             },
-
             renderAccounts: () => {
                 const container = document.getElementById('account-list-container');
                 container.innerHTML = '';
-                
-                // 計算每個帳戶的餘額 (即時計算)
                 const balances = {};
                 accounts.forEach(acc => balances[acc.id] = 0);
-                
                 transactions.forEach(t => {
-                    const accId = t.accountId || 'default'; // 舊資料相容
+                    const accId = t.accountId || 'default'; 
                     if (balances[accId] !== undefined) {
                         if (t.type === 'income') balances[accId] += Number(t.amount);
                         else balances[accId] -= Number(t.amount);
                     }
                 });
-
                 accounts.forEach(acc => {
                     const balance = balances[acc.id] || 0;
                     const div = document.createElement('div');
                     div.className = "bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center";
-                    // 根據帳戶類型給不同 icon
                     let icon = '💰';
                     if (acc.type === 'bank') icon = '🏦';
                     if (acc.type === 'card') icon = '💳';
-                    
                     div.innerHTML = `
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-xl">${icon}</div>
@@ -327,62 +283,46 @@
                     container.appendChild(div);
                 });
             },
-
-            openPhotoModal: (src) => {
-                document.getElementById('modal-img').src = src;
-                document.getElementById('photo-modal').classList.remove('hidden');
-            },
+            openPhotoModal: (src) => { document.getElementById('modal-img').src = src; document.getElementById('photo-modal').classList.remove('hidden'); },
             closePhotoModal: () => document.getElementById('photo-modal').classList.add('hidden')
         };
 
-        // ================= 應用邏輯層 =================
         window.App = {
             init: async (user) => {
                 currentUser = user;
                 currentViewUid = user.uid;
-                
                 await App.ensureUserHasId(user);
                 await App.loadCustomCategories(user);
-                // 確保有預設帳戶
                 await App.ensureDefaultAccounts(user);
-
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-screen').classList.remove('hidden');
-                
-                App.loadAccountsRealtime(); // 載入帳戶
-                App.loadDataRealtime(user.uid); // 載入交易
+                App.loadAccountsRealtime(); 
+                App.loadDataRealtime(user.uid); 
                 App.loadFriends();
-                
-                // 初始化日期
                 const today = new Date();
                 document.getElementById('inp-date').valueAsDate = today;
                 document.getElementById('filter-day').valueAsDate = today;
                 document.getElementById('filter-month').value = today.toISOString().slice(0, 7);
-                
                 UI.updateCategoryOptions();
             },
-
             ensureDefaultAccounts: async (user) => {
                 const accRef = collection(db, "users", user.uid, "accounts");
-                const snapshot = await getDocs(query(accRef)); // 先讀一次
+                const snapshot = await getDocs(query(accRef)); 
                 if (snapshot.empty) {
-                    // 如果沒有帳戶，建立預設
                     await addDoc(accRef, { name: '現金錢包', type: 'cash', createdAt: Date.now() });
                     await addDoc(accRef, { name: '銀行帳戶', type: 'bank', createdAt: Date.now() });
                     await addDoc(accRef, { name: '信用卡', type: 'card', createdAt: Date.now() });
                 }
             },
-
             loadAccountsRealtime: () => {
                 if (unsubAccounts) unsubAccounts();
                 const q = query(collection(db, "users", currentUser.uid, "accounts"), orderBy("createdAt", "asc"));
                 unsubAccounts = onSnapshot(q, (snapshot) => {
                     accounts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     UI.updateAccountOptions();
-                    UI.renderAccounts(); // 重新計算餘額
+                    UI.renderAccounts(); 
                 });
             },
-
             createNewAccount: async () => {
                 const name = prompt("輸入新帳戶名稱 (例如: 私房錢):");
                 if (name) {
@@ -391,8 +331,6 @@
                     });
                 }
             },
-
-            // ... (保留原本的 ensureUserHasId, loadCustomCategories 等邏輯，與 v9.1 相同，略作封裝)
             ensureUserHasId: async (user) => {
                 const userRef = doc(db, "users", user.uid);
                 const userSnap = await getDoc(userRef);
@@ -421,7 +359,6 @@
                 document.getElementById('profile-avatar').src = userPhoto;
                 document.getElementById('profile-short-id-display').innerText = myShortId;
             },
-
             loadCustomCategories: async (user) => {
                 const userSnap = await getDoc(doc(db, "users", user.uid));
                 if (userSnap.exists()) {
@@ -429,52 +366,48 @@
                     if(data.customCategories) userCustomCategories = data.customCategories;
                 }
             },
-
-            // 交易相關
+            addCustomCategory: async () => {
+                const type = document.getElementById('inp-type').value;
+                const newCatName = prompt(`請輸入新的分類名稱：`);
+                if (newCatName && newCatName.trim() !== "") {
+                    const name = newCatName.trim();
+                    if (!userCustomCategories[type]) userCustomCategories[type] = [];
+                    if (defaultCategories[type].includes(name) || userCustomCategories[type].includes(name)) { alert("分類已存在"); return; }
+                    userCustomCategories[type].push(name);
+                    UI.updateCategoryOptions();
+                    document.getElementById('inp-category').value = name; 
+                    try { await setDoc(doc(db, "users", currentUser.uid), { customCategories: userCustomCategories }, { merge: true }); } catch(e) { console.error(e); }
+                }
+            },
             loadDataRealtime: (targetUid) => {
                 if (unsubTransactions) unsubTransactions();
-                document.getElementById('sync-status').innerText = "讀取中...";
+                // document.getElementById('sync-status').innerText = "讀取中...";
                 const q = query(collection(db, "users", targetUid, "transactions"), orderBy("dateTimestamp", "desc"));
                 unsubTransactions = onSnapshot(q, (snapshot) => {
                     transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    // 每次交易更新，也要更新帳戶餘額
                     UI.renderAccounts(); 
                     if(document.getElementById('filter-type').value === 'year') App.populateYearSelect();
                     App.updateUI();
-                    document.getElementById('sync-status').innerText = "已同步";
-                }, (error) => {
-                    console.error(error);
-                    document.getElementById('sync-status').innerText = "權限不足";
-                });
+                    // document.getElementById('sync-status').innerText = "已同步";
+                }, (error) => { console.error(error); });
             },
-
-            // ... (Add Transaction, Edit, Delete 邏輯整合)
             submitTransaction: async (e) => {
                 e.preventDefault();
                 if(currentViewUid !== currentUser.uid) return alert("你只能編輯自己的帳本喔！");
-                
                 const category = document.getElementById('inp-category').value;
                 let title = document.getElementById('inp-title').value.trim();
                 if (!title) title = category;
                 const amount = Number(document.getElementById('inp-amount').value);
                 const type = document.getElementById('inp-type').value;
-                const accountId = document.getElementById('inp-account').value; // 獲取帳戶ID
+                const accountId = document.getElementById('inp-account').value; 
                 const dateValue = document.getElementById('inp-date').valueAsDate;
-                
                 if (!dateValue) return alert("請選擇日期");
                 const dateTimestamp = dateValue.getTime();
                 const dateString = dateValue.toLocaleDateString();
-
                 if (amount <= 0) return alert('請輸入有效金額');
-
                 document.getElementById('btn-submit').innerText = "處理中...";
-                
                 try {
-                    const txData = { 
-                        title, amount, type, category, accountId, // 儲存 accountId
-                        dateTimestamp, date: dateString, photo: currentPhotoData 
-                    };
-
+                    const txData = { title, amount, type, category, accountId, dateTimestamp, date: dateString, photo: currentPhotoData };
                     if (editingId) {
                         await updateDoc(doc(db, "users", currentUser.uid, "transactions", editingId), txData);
                         App.resetForm();
@@ -485,16 +418,13 @@
                 } catch (e) { alert("操作失敗: " + e.message); }
                 document.getElementById('btn-submit').innerText = "記一筆";
             },
-
-            // Filter
             changeFilterMode: () => {
                 const mode = document.getElementById('filter-type').value;
-                document.querySelectorAll('.filter-hidden').forEach(el => el.style.display = 'none'); // 先手動隱藏
+                document.querySelectorAll('.filter-hidden').forEach(el => el.style.display = 'none');
                 document.getElementById('filter-day').classList.add('filter-hidden');
                 document.getElementById('filter-month').classList.add('filter-hidden');
                 document.getElementById('filter-year').classList.add('filter-hidden');
                 document.getElementById('filter-all').classList.add('filter-hidden');
-
                 if(mode === 'day') document.getElementById('filter-day').classList.remove('filter-hidden');
                 else if(mode === 'month') document.getElementById('filter-month').classList.remove('filter-hidden');
                 else if(mode === 'year') {
@@ -504,7 +434,6 @@
                 else if(mode === 'all') document.getElementById('filter-all').classList.remove('filter-hidden');
                 App.updateUI();
             },
-
             populateYearSelect: () => {
                 const years = new Set([new Date().getFullYear()]);
                 transactions.forEach(t => years.add(new Date(t.dateTimestamp).getFullYear()));
@@ -514,21 +443,15 @@
                 select.innerHTML = sortedYears.map(y => `<option value="${y}">${y} 年</option>`).join('');
                 if (currentVal) select.value = currentVal;
             },
-
-            // 渲染 UI (最核心)
             updateUI: () => {
                 const listEl = document.getElementById('transaction-list');
                 const isSelf = currentViewUid === currentUser.uid;
                 const mode = document.getElementById('filter-type').value;
-                
-                // Dashboard Update
                 const dTitle = document.getElementById('dashboard-title');
                 if(mode === 'day') dTitle.innerText = '本日結餘';
                 else if(mode === 'month') dTitle.innerText = '本月結餘';
                 else if(mode === 'year') dTitle.innerText = '本年結餘';
                 else dTitle.innerText = '生涯總結餘';
-
-                // Filtering
                 const filteredTransactions = transactions.filter(t => {
                     const date = new Date(t.dateTimestamp);
                     const yyyy = date.getFullYear();
@@ -539,15 +462,11 @@
                     if (mode === 'year') return `${yyyy}` == document.getElementById('filter-year').value;
                     return true;
                 });
-
                 listEl.innerHTML = '';
                 let totalIncome = 0, totalExpense = 0, expenseData = {};
-
                 if (filteredTransactions.length === 0) document.getElementById('empty-state').classList.remove('hidden');
                 else document.getElementById('empty-state').classList.add('hidden');
-
                 let lastDate = '';
-
                 filteredTransactions.forEach(t => {
                     if (t.type === 'income') totalIncome += Number(t.amount);
                     else {
@@ -555,8 +474,6 @@
                         let cat = t.category || '其他';
                         expenseData[cat] = (expenseData[cat] || 0) + Number(t.amount);
                     }
-
-                    // Date Header
                     const dateObj = new Date(t.dateTimestamp);
                     const dateStr = dateObj.toLocaleDateString('zh-TW');
                     if (dateStr !== lastDate) {
@@ -566,67 +483,38 @@
                         listEl.appendChild(header);
                         lastDate = dateStr;
                     }
-
                     const isIncome = t.type === 'income';
                     const colorClass = isIncome ? 'text-green-500' : 'text-gray-900';
-                    
-                    // Left Icon (Photo or Default)
                     let leftIconHTML = '';
                     if (t.photo) {
                         leftIconHTML = `<img src="${t.photo}" onclick="UI.openPhotoModal('${t.photo}')" class="w-12 h-12 rounded-xl object-cover border border-gray-100 cursor-pointer shrink-0 shadow-sm">`;
                     } else {
                         leftIconHTML = `<div class="w-12 h-12 rounded-xl ${isIncome ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'} flex items-center justify-center shrink-0 font-bold text-lg shadow-sm">${isIncome ? '入' : '出'}</div>`;
                     }
-
-                    // Action Buttons
                     let actionBtns = '';
                     if (isSelf) {
-                        actionBtns = `
-                            <div class="flex gap-1 ml-2">
-                                <button onclick="App.editTransaction('${t.id}')" class="text-gray-300 hover:text-blue-500 p-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
-                                <button onclick="App.deleteTransaction('${t.id}')" class="text-gray-300 hover:text-red-500 p-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-                            </div>`;
+                        actionBtns = `<div class="flex gap-1 ml-2"><button onclick="App.editTransaction('${t.id}')" class="text-gray-300 hover:text-blue-500 p-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button><button onclick="App.deleteTransaction('${t.id}')" class="text-gray-300 hover:text-red-500 p-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div>`;
                     } else {
-                        // Comment Logic
                         const now = Date.now();
-                        const validCount = (t.comments || []).filter(c => now - c.timestamp < 24 * 60 * 60 * 1000).length;
+                        const validCount = (t.comments || []).filter(c => now - c.timestamp < 86400000).length;
                         const badge = validCount > 0 ? `<span class="bg-red-500 text-white text-[10px] px-1.5 rounded-full absolute -top-1 -right-1 border border-white">${validCount}</span>` : '';
                         actionBtns = `<div class="relative ml-2"><button onclick="App.openCommentModal('${t.id}')" class="text-gray-300 hover:text-blue-500 p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg></button>${badge}</div>`;
                     }
-
                     const item = document.createElement('div');
                     item.className = 'bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between mb-2';
-                    item.innerHTML = `
-                        <div class="flex items-center gap-3 overflow-hidden flex-1">
-                            ${leftIconHTML}
-                            <div class="min-w-0">
-                                <p class="font-bold text-gray-800 text-sm truncate">${t.category} <span class="text-gray-400 font-normal mx-1">|</span> <span class="text-gray-500 font-normal">${t.title}</span></p>
-                                <p class="text-xs text-gray-400 mt-0.5">${accounts.find(a=>a.id === t.accountId)?.name || '預設帳戶'}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center">
-                            <span class="font-bold ${colorClass} text-base whitespace-nowrap">${isIncome ? '+' : '-'} ${Number(t.amount).toLocaleString()}</span>
-                            ${actionBtns}
-                        </div>
-                    `;
+                    item.innerHTML = `<div class="flex items-center gap-3 overflow-hidden flex-1">${leftIconHTML}<div class="min-w-0"><p class="font-bold text-gray-800 text-sm truncate">${t.category} <span class="text-gray-400 font-normal mx-1">|</span> <span class="text-gray-500 font-normal">${t.title}</span></p><p class="text-xs text-gray-400 mt-0.5">${accounts.find(a=>a.id === t.accountId)?.name || '預設帳戶'}</p></div></div><div class="flex items-center"><span class="font-bold ${colorClass} text-base whitespace-nowrap">${isIncome ? '+' : '-'} ${Number(t.amount).toLocaleString()}</span>${actionBtns}</div>`;
                     listEl.appendChild(item);
                 });
-
                 document.getElementById('display-balance').innerText = `$ ${(totalIncome - totalExpense).toLocaleString()}`;
                 document.getElementById('display-income').innerText = `+ ${totalIncome.toLocaleString()}`;
                 document.getElementById('display-expense').innerText = `- ${totalExpense.toLocaleString()}`;
-                
                 App.renderChart(expenseData);
             },
-
-            // Chart
             renderChart: (dataObj) => {
                 const ctx = document.getElementById('expenseChart').getContext('2d');
                 const labels = Object.keys(dataObj);
                 const values = Object.values(dataObj);
-                
                 if (window.myChart) window.myChart.destroy();
-                
                 if (labels.length === 0) {
                     document.getElementById('expenseChart').style.display = 'none';
                     document.getElementById('chart-placeholder').classList.remove('hidden');
@@ -636,8 +524,6 @@
                     window.myChart = new Chart(ctx, { type: 'doughnut', data: { labels, datasets: [{ data: values, backgroundColor: ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6'], borderWidth: 0, hoverOffset: 4 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, usePointStyle: true } } } } });
                 }
             },
-
-            // ... (Helper functions like Edit, Delete, Photo, Friends - Compacted)
             editTransaction: (id) => {
                 const tx = transactions.find(t => t.id === id);
                 if (!tx) return;
@@ -656,7 +542,6 @@
                 document.getElementById('btn-submit').classList.replace('bg-blue-600', 'bg-green-600');
                 document.getElementById('form-title').innerText = "修改模式";
                 document.getElementById('btn-cancel-edit').classList.remove('hidden');
-                // Auto scroll top
                 document.querySelector('.page-content.active').scrollTo({ top: 0, behavior: 'smooth' });
             },
             resetForm: () => {
@@ -672,49 +557,48 @@
             deleteTransaction: async (id) => { if(confirm('確定刪除？')) await deleteDoc(doc(db, "users", currentUser.uid, "transactions", id)); },
             handlePhotoSelect: (e) => { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=(ev)=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');const s=600/i.width;c.width=(i.width>600)?600:i.width;c.height=(i.width>600)?i.height*s:i.height;const ctx=c.getContext('2d');ctx.drawImage(i,0,0,c.width,c.height);currentPhotoData=c.toDataURL('image/jpeg',0.5);document.getElementById('img-preview').src=currentPhotoData;document.getElementById('preview-container').classList.remove('hidden');document.getElementById('btn-camera').classList.add('hidden');};i.src=ev.target.result;};r.readAsDataURL(f); },
             clearPhoto: () => { document.getElementById('inp-photo').value=''; currentPhotoData=null; document.getElementById('preview-container').classList.add('hidden'); document.getElementById('btn-camera').classList.remove('hidden'); },
-            // ... (Friend, Profile Photos Logic omitted for brevity but logic is same as v9.1, just adapted to new UI namespace)
             handleProfilePhotoSelect: (e) => { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=(ev)=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');const s=300/i.width;c.width=(i.width>300)?300:i.width;c.height=(i.width>300)?i.height*s:i.height;const ctx=c.getContext('2d');ctx.drawImage(i,0,0,c.width,c.height);currentProfilePhotoData=c.toDataURL('image/jpeg',0.5);document.getElementById('profile-avatar').src=currentProfilePhotoData;};i.src=ev.target.result;};r.readAsDataURL(f); },
             saveProfileName: async () => { const n=document.getElementById('profile-name-input').value.trim(); if(!n)return; try{ const d={name:n}; if(currentProfilePhotoData)d.photo=currentProfilePhotoData; await updateDoc(doc(db,"users",currentUser.uid),d); await updateDoc(doc(db,"public_codes",myShortId),d); myProfileData.name=n; alert("已更新"); }catch(e){alert("Error");} },
             addFriendPrompt: async () => { const id=prompt("輸入好友 6 位數 ID:"); if(!id||id.length!==6)return; try{ const tDoc=await getDoc(doc(db,"public_codes",id)); if(tDoc.exists()){ const tData=tDoc.data(); const d1=setDoc(doc(db,"users",currentUser.uid,"friends",tData.uid),{uid:tData.uid,shortId:id,name:tData.name,email:tData.email,photo:tData.photo||null}); const d2=setDoc(doc(db,"users",tData.uid,"friends",currentUser.uid),{uid:currentUser.uid,shortId:myProfileData.shortId,name:myProfileData.name,email:currentUser.email,photo:myProfileData.photo||null}); await Promise.all([d1,d2]); alert(`已加入 ${tData.name}`); }else{alert("找不到 ID");} }catch(e){alert("Error");} },
             loadFriends: () => {
                 onSnapshot(query(collection(db,"users",currentUser.uid,"friends")), (snap) => {
                     const c = document.getElementById('friend-list-container'); c.innerHTML='';
-                    // Self
                     const myDiv = document.createElement('div');
                     myDiv.className = `p-3 rounded-2xl border cursor-pointer flex items-center gap-3 ${currentViewUid===currentUser.uid?'bg-blue-50 border-blue-200':'bg-white border-gray-100'}`;
                     myDiv.innerHTML = `<img src="${myProfileData?.photo||'./Shiba Logo.png'}" class="w-10 h-10 rounded-full bg-gray-200 object-cover"><span class="font-bold">👤 我的帳本</span>`;
                     myDiv.onclick = () => App.switchView(currentUser.uid, '我的帳本');
                     c.appendChild(myDiv);
-                    // Friends
                     snap.forEach(d=>{ const f=d.data(); const div=document.createElement('div'); div.className=`p-3 rounded-2xl border cursor-pointer flex justify-between items-center ${currentViewUid===f.uid?'bg-blue-50 border-blue-200':'bg-white border-gray-100'}`; div.innerHTML=`<div class="flex items-center gap-3"><img src="${f.photo||'./Shiba Logo.png'}" class="w-10 h-10 rounded-full bg-gray-200 object-cover"><div><div class="font-bold text-sm">${f.name}</div></div></div>`; div.onclick=()=>{App.switchView(f.uid,f.name)}; c.appendChild(div); });
                 });
             },
             switchView: (uid, name) => {
                 currentViewUid = uid;
-                document.getElementById('current-view-label').innerText = name;
+                // document.getElementById('current-view-label').innerText = name; 
                 App.loadDataRealtime(uid);
-                // Switch back to Ledger view
                 UI.switchPage('ledger');
             },
-            
-            // Comment logic
             openCommentModal: (id) => { currentCommentTxId=id; document.getElementById('comment-modal').classList.remove('hidden'); App.renderComments(id); },
             closeCommentModal: () => { document.getElementById('comment-modal').classList.add('hidden'); currentCommentTxId=null; },
             submitComment: async () => { const t=document.getElementById('comment-input').value.trim(); if(!t)return; const ref=doc(db,"users",currentViewUid,"transactions",currentCommentTxId); const snap=await getDoc(ref); if(snap.exists()){ const d=snap.data(); const cs=(d.comments||[]).filter(c=>Date.now()-c.timestamp<86400000); cs.push({text:t,authorName:myProfileData.name,timestamp:Date.now()}); await updateDoc(ref,{comments:cs}); document.getElementById('comment-input').value=''; App.renderComments(currentCommentTxId); } },
             renderComments: (id) => { const tx=transactions.find(t=>t.id===id); const cDiv=document.getElementById('comments-list'); cDiv.innerHTML=''; const cs=(tx.comments||[]).filter(c=>Date.now()-c.timestamp<86400000); if(!cs.length)cDiv.innerHTML='<div class="text-center text-gray-400 mt-10">無留言</div>'; else cs.forEach(c=>{ const d=document.createElement('div'); d.className="bg-gray-50 p-3 rounded-xl text-sm"; d.innerHTML=`<div class="flex justify-between font-bold text-blue-600"><span>${c.authorName}</span><span class="text-gray-300 font-normal text-xs">${moment(c.timestamp).fromNow()}</span></div><div class="text-gray-700 mt-1">${c.text}</div>`; cDiv.appendChild(d); }); }
         };
 
-        // 綁定 Event Listeners
+        // Listeners
         document.getElementById('btn-submit').onclick = App.submitTransaction;
-        // 篩選器監聽
         document.getElementById('filter-day').onchange = App.updateUI;
         document.getElementById('filter-month').onchange = App.updateUI;
         document.getElementById('filter-year').onchange = App.updateUI;
 
-        // Init App with Login Button
-        // (Login logic is already bound in HTML via ID)
+        // Auth Listener to trigger App.init
+        onAuthStateChanged(auth, async (user) => {
+            if(user) {
+                App.init(user);
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('app-screen').classList.add('hidden');
+            }
+        });
 
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/import-map-overrides@2.2.0/dist/import-map-overrides.js"></script>
 </body>
 </html>
