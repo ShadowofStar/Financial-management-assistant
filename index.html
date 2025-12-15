@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 刪除修復版</title>
+    <title>柴管家 - 好友檔案版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -44,7 +44,20 @@
     </div>
 
     <div id="app-screen" class="hidden max-w-md mx-auto min-h-screen bg-[#FFFCF5] relative overflow-hidden flex flex-col shadow-2xl">
-        <header class="bg-[#FFFCF5]/95 px-5 pt-12 pb-2 flex items-center justify-between sticky top-0 z-10 backdrop-blur-md"><div class="flex flex-col"><div class="flex items-center gap-2"><h1 class="text-2xl font-black text-[#4A3B32] tracking-tight">我的相簿</h1><span id="sync-status" class="text-[10px] font-bold bg-[#E9C46A] text-[#4A3B32] px-2 py-1 rounded-full shadow-sm">SYNC</span></div><div class="flex items-center gap-1 mt-1 text-xs text-[#8D6E63] font-bold cursor-pointer bg-[#FFF0D4] px-2 py-1 rounded-lg w-fit" onclick="toggleProfileModal()"><span id="current-view-label">個人</span><span class="text-[#F4A261]">|</span><span id="my-short-id" class="font-mono">ID...</span></div></div><div class="bg-white border-2 border-[#FFE8D6] p-0.5 rounded-xl flex text-xs font-bold relative shadow-sm"><select id="filter-type" onchange="changeFilterMode()" class="bg-transparent appearance-none px-3 py-1.5 text-[#8D6E63] focus:outline-none z-10 relative cursor-pointer"><option value="day">日</option><option value="month" selected>月</option><option value="year">年</option><option value="all">全</option></select><div class="pr-2 text-[#F4A261]">▼</div><input type="month" id="filter-month" class="absolute inset-0 opacity-0 cursor-pointer"><input type="date" id="filter-day" class="absolute inset-0 opacity-0 cursor-pointer hidden"><select id="filter-year" class="absolute inset-0 opacity-0 cursor-pointer hidden"></select></div></header>
+        <header class="bg-[#FFFCF5]/95 px-5 pt-12 pb-2 flex items-center justify-between sticky top-0 z-10 backdrop-blur-md">
+            <div class="flex flex-col">
+                <div class="flex items-center gap-2">
+                    <h1 class="text-2xl font-black text-[#4A3B32] tracking-tight">我的相簿</h1>
+                    <span id="sync-status" class="text-[10px] font-bold bg-[#E9C46A] text-[#4A3B32] px-2 py-1 rounded-full shadow-sm">SYNC</span>
+                </div>
+                <div class="flex items-center gap-1 mt-1 text-xs text-[#8D6E63] font-bold cursor-pointer bg-[#FFF0D4] px-2 py-1 rounded-lg w-fit transition active:scale-95" onclick="openUserProfile(currentViewUid)">
+                    <span id="current-view-label">個人</span>
+                    <span class="text-[#F4A261]">|</span>
+                    <span id="my-short-id" class="font-mono">ID...</span>
+                </div>
+            </div>
+            <div class="bg-white border-2 border-[#FFE8D6] p-0.5 rounded-xl flex text-xs font-bold relative shadow-sm"><select id="filter-type" onchange="changeFilterMode()" class="bg-transparent appearance-none px-3 py-1.5 text-[#8D6E63] focus:outline-none z-10 relative cursor-pointer"><option value="day">日</option><option value="month" selected>月</option><option value="year">年</option><option value="all">全</option></select><div class="pr-2 text-[#F4A261]">▼</div><input type="month" id="filter-month" class="absolute inset-0 opacity-0 cursor-pointer"><input type="date" id="filter-day" class="absolute inset-0 opacity-0 cursor-pointer hidden"><select id="filter-year" class="absolute inset-0 opacity-0 cursor-pointer hidden"></select></div>
+        </header>
 
         <main class="flex-1 overflow-y-auto pb-32 no-scrollbar" id="main-content">
             <div class="px-5 mt-2 mb-4">
@@ -68,51 +81,46 @@
         </div>
 
         <nav class="fixed bottom-0 w-full max-w-md bg-[#FFFCF5]/95 backdrop-blur-md border-t-2 border-[#FFE8D6] pb-safe pt-2 px-8 flex justify-between items-end z-30 h-[88px] rounded-t-[2rem]">
-            <button onclick="toggleFriendModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#4A3B32] transition hover:scale-105 active:scale-95">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                <span class="text-[11px] font-black">好友</span>
-            </button>
-            <button id="fab-btn" onclick="openInputModal()" class="mb-6 bg-[#F4A261] text-white rounded-2xl w-14 h-14 shadow-[0_6px_20px_rgba(244,162,97,0.4)] flex items-center justify-center transform transition active:scale-90 hover:bg-[#E76F51] hover:-translate-y-1 border-4 border-[#FFFCF5]">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
-            </button>
-            <button onclick="toggleStoreModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#4A3B32] transition hover:scale-105 active:scale-95 group">
-                <div class="relative">
-                    <svg class="w-6 h-6 group-hover:text-[#F4A261] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                    <div class="absolute -top-1 -right-1 w-2 h-2 bg-[#E76F51] rounded-full hidden"></div>
-                </div>
-                <span class="text-[11px] font-black group-hover:text-[#F4A261] transition">商店</span>
-            </button>
+            <button onclick="toggleFriendModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#4A3B32] transition hover:scale-105 active:scale-95"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z"></path></svg><span class="text-[11px] font-black">好友</span></button>
+            <button id="fab-btn" onclick="openInputModal()" class="mb-6 bg-[#F4A261] text-white rounded-2xl w-14 h-14 shadow-[0_6px_20px_rgba(244,162,97,0.4)] flex items-center justify-center transform transition active:scale-90 hover:bg-[#E76F51] hover:-translate-y-1 border-4 border-[#FFFCF5]"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg></button>
+            <button onclick="toggleStoreModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#4A3B32] transition hover:scale-105 active:scale-95 group"><div class="relative"><svg class="w-6 h-6 group-hover:text-[#F4A261] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg><div class="absolute -top-1 -right-1 w-2 h-2 bg-[#E76F51] rounded-full hidden"></div></div><span class="text-[11px] font-black group-hover:text-[#F4A261] transition">商店</span></button>
         </nav>
+
+        <div id="profile-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center fade-in p-6 backdrop-blur-sm">
+            <div class="absolute inset-0" onclick="toggleProfileModal()"></div>
+            <div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-6 relative z-10 shadow-2xl scale-95 transition-transform duration-200 border-4 border-white">
+                <div class="flex flex-col items-center mb-6">
+                    <div class="relative">
+                        <img id="profile-avatar" src="" class="w-24 h-24 rounded-full border-[6px] border-white shadow-lg mb-4 object-cover bg-white">
+                        <label id="profile-camera-btn" for="inp-profile-photo" class="absolute bottom-4 right-0 bg-[#4A3B32] text-white p-2 rounded-full shadow-md cursor-pointer hover:bg-[#F4A261] transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        </label>
+                        <input type="file" id="inp-profile-photo" accept="image/*" onchange="handleProfilePhotoSelect(event)" class="hidden">
+                    </div>
+                    <div class="text-xs font-bold text-[#8D6E63] uppercase tracking-widest mb-1">ID</div>
+                    <div id="profile-short-id" class="font-mono font-black text-3xl text-[#F4A261] tracking-wider mb-1 select-all">...</div>
+                    <div id="profile-email" class="text-xs text-[#8D6E63] font-bold">...</div>
+                </div>
+                
+                <div class="space-y-3">
+                    <input type="text" id="profile-name-input" class="w-full bg-white border-2 border-[#FFE8D6] rounded-xl px-4 py-3 text-sm font-bold text-center outline-none focus:border-[#F4A261] disabled:bg-gray-50 disabled:text-gray-500" placeholder="顯示名稱">
+                    
+                    <div id="profile-actions" class="space-y-3">
+                        <button onclick="saveProfile()" class="w-full bg-[#F4A261] hover:bg-[#E76F51] text-white font-bold py-3.5 rounded-xl shadow-md transition">儲存變更</button>
+                        <button onclick="window.setMoney(10000)" class="w-full bg-green-100 text-green-600 font-bold py-3.5 rounded-xl hover:bg-green-200 transition border-2 border-green-200">💰 領取測試經費</button>
+                        <button onclick="logout()" class="w-full bg-white border-2 border-[#FFCDD2] text-[#E76F51] font-bold py-3.5 rounded-xl hover:bg-[#FFEBEE] transition">登出帳號</button>
+                    </div>
+                    
+                    <button id="profile-close-btn" onclick="toggleProfileModal()" class="w-full bg-[#FFE8D6] text-[#8D6E63] font-bold py-3.5 rounded-xl hover:bg-[#F4A261] hover:text-white transition hidden">關閉</button>
+                </div>
+            </div>
+        </div>
 
         <div id="daily-bonus-modal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm"><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl scale-in relative border-4 border-[#F4A261]"><div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#FFF0D4] w-24 h-24 rounded-full flex items-center justify-center border-4 border-[#F4A261] shadow-md"><span class="text-5xl animate-coin">🦴</span></div><h2 class="text-2xl font-black text-[#4A3B32] mt-10 mb-1">每日簽到成功！</h2><p class="text-[#8D6E63] text-sm font-bold mb-6">連續登入第 <span id="streak-days" class="text-[#E76F51] text-lg">1</span> 天</p><div class="bg-[#FFF8E1] rounded-2xl p-4 mb-6 border-2 border-[#FFE8D6]"><div class="text-xs text-[#F4A261] font-bold uppercase tracking-wider mb-1">獲得獎勵</div><div class="text-4xl font-black text-[#4A3B32] flex items-center justify-center gap-2">+<span id="bonus-amount">10</span> 🦴</div></div><div class="flex justify-between items-end mb-6 px-2 h-16"><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-2 rounded-t-sm" id="bar-1"></div><span class="text-[10px] font-bold text-[#BDBDBD]">1天</span></div><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-4 rounded-t-sm" id="bar-2"></div><span class="text-[10px] font-bold text-[#BDBDBD]">2天</span></div><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-6 rounded-t-sm" id="bar-3"></div><span class="text-[10px] font-bold text-[#BDBDBD]">3天</span></div><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-8 rounded-t-sm" id="bar-4"></div><span class="text-[10px] font-bold text-[#BDBDBD]">4天</span></div><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-10 rounded-t-sm" id="bar-5"></div><span class="text-[10px] font-bold text-[#BDBDBD]">5+</span></div></div><button onclick="closeBonusModal()" class="w-full bg-[#F4A261] text-white font-black py-3.5 rounded-xl shadow-[0_4px_0_#E76F51] active:shadow-none active:translate-y-1 transition-all hover:bg-[#E76F51]">開心收下！</button></div></div>
         <div id="store-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center p-4 fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleStoreModal()"></div><div class="bg-[#FFFCF5] w-full max-w-sm h-[85vh] rounded-[2rem] flex flex-col relative z-10 scale-in shadow-2xl border-4 border-white"><div class="p-6 pb-2 flex justify-between items-center border-b-2 border-[#FFE8D6]"><div><h2 class="text-2xl font-black text-[#4A3B32]">柴柴雜貨舖</h2><p class="text-xs text-[#8D6E63] font-bold">消費讓生活更美好</p></div><div class="bg-[#FFF0D4] px-3 py-1.5 rounded-xl flex items-center gap-2 border border-[#F4A261]"><span class="text-xl">🦴</span><span id="store-coin-count" class="font-black text-[#F4A261] text-lg">0</span></div></div><div class="flex-1 overflow-y-auto p-4 grid grid-cols-2 gap-3 no-scrollbar"><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] flex flex-col items-center text-center shadow-sm"><div class="text-4xl mb-2">🥩</div><h3 class="font-black text-[#4A3B32] mb-1">高級肉罐頭</h3><p class="text-[10px] text-[#8D6E63] mb-3">心情+100</p><button onclick="buyItem(50, '高級肉罐頭')" class="w-full bg-[#F4A261] text-white py-1.5 rounded-lg text-xs font-bold hover:bg-[#E76F51] transition">50 🦴 購買</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] flex flex-col items-center text-center shadow-sm"><div class="text-4xl mb-2">🎩</div><h3 class="font-black text-[#4A3B32] mb-1">紳士帽子</h3><p class="text-[10px] text-[#8D6E63] mb-3">看起來很聰明</p><button onclick="buyItem(200, '紳士帽子')" class="w-full bg-[#2A9D8F] text-white py-1.5 rounded-lg text-xs font-bold hover:bg-[#264653] transition">200 🦴 購買</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] flex flex-col items-center text-center shadow-sm"><div class="text-4xl mb-2">🎨</div><h3 class="font-black text-[#4A3B32] mb-1">黑柴主題</h3><p class="text-[10px] text-[#8D6E63] mb-3">帥氣的風格</p><button onclick="buyItem(500, '黑柴主題')" class="w-full bg-[#4A3B32] text-white py-1.5 rounded-lg text-xs font-bold hover:bg-black transition">500 🦴 購買</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] flex flex-col items-center text-center shadow-sm"><div class="text-4xl mb-2">🚫</div><h3 class="font-black text-[#4A3B32] mb-1">去除廣告</h3><p class="text-[10px] text-[#8D6E63] mb-3">永久清爽介面</p><button onclick="buyItem(1000, '去除廣告')" class="w-full bg-[#E76F51] text-white py-1.5 rounded-lg text-xs font-bold hover:bg-red-600 transition">1000 🦴 購買</button></div></div><div class="p-4 border-t border-[#FFE8D6]"><button onclick="toggleStoreModal()" class="w-full bg-[#FFE8D6] text-[#8D6E63] py-3 rounded-xl font-bold hover:bg-[#F4A261] hover:text-white transition">關閉商店</button></div></div></div>
         <div id="detail-modal" class="fixed inset-0 bg-[#4A3B32]/60 z-50 hidden flex items-center justify-center p-4 fade-in backdrop-blur-sm" onclick="closeDetailModal()"><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl scale-in relative flex flex-col max-h-[90vh]" onclick="event.stopPropagation()"><div class="relative w-full bg-[#FFE8D6] aspect-square group shrink-0"><img id="detail-img" src="" class="w-full h-full object-cover"><div id="detail-no-img" class="hidden w-full h-full flex flex-col items-center justify-center bg-[#FFF0D4] text-[#F4A261]"><span class="text-8xl" id="detail-icon">🐕</span><span class="text-sm font-bold mt-4 text-[#8D6E63]">沒有照片</span></div><button onclick="closeDetailModal()" class="absolute top-4 right-4 bg-white/80 text-[#4A3B32] w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md shadow-md font-bold">✕</button></div><div class="p-6 flex-1 overflow-y-auto no-scrollbar"><div class="flex justify-between items-start mb-2"><div><span id="detail-date" class="text-xs font-bold text-[#8D6E63] uppercase tracking-wide bg-[#FFE8D6] px-2 py-0.5 rounded-md">...</span><h2 id="detail-title" class="text-xl font-black text-[#4A3B32] mt-2">...</h2></div><div id="detail-amount" class="text-2xl font-black text-[#4A3B32]">...</div></div><div class="flex items-center gap-2 mb-6"><span id="detail-category" class="bg-[#F4A261]/20 text-[#E76F51] px-3 py-1 rounded-lg text-xs font-bold">...</span><span id="detail-type" class="text-xs font-bold text-[#8D6E63]">...</span></div><div id="detail-actions" class="grid grid-cols-2 gap-3 mb-6 hidden"><button onclick="editCurrentDetail()" class="flex-1 bg-[#FFF0D4] text-[#4A3B32] py-3.5 rounded-xl font-bold hover:bg-[#FFE8D6] transition">✎ 編輯</button><button onclick="deleteCurrentDetail()" class="flex-1 bg-white border-2 border-[#FFCDD2] text-[#E76F51] py-3.5 rounded-xl font-bold hover:bg-[#FFEBEE] transition">🗑️ 刪除</button></div><div class="border-t border-[#FFE8D6] pt-4"><div class="text-xs font-bold text-[#F4A261] mb-2 uppercase tracking-wider">留言板</div><div id="detail-comments-list" class="space-y-3 mb-4 min-h-[60px]"></div><div class="flex gap-2"><input type="text" id="detail-comment-input" placeholder="說點好聽的..." class="flex-1 bg-white border border-[#FFE8D6] rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#F4A261] shadow-sm"><button onclick="submitDetailComment()" class="bg-[#F4A261] text-white rounded-xl px-4 font-bold shadow-[0_3px_0_#E76F51] active:shadow-none active:translate-y-1 transition hover:bg-[#E76F51]">傳送</button></div></div></div></div></div>
         <div id="input-modal" class="fixed inset-0 bg-[#4A3B32]/40 z-50 hidden flex flex-col justify-end fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="closeInputModal()"></div><div class="bg-[#FFFCF5] w-full rounded-t-[2.5rem] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] slide-up relative z-10 pb-safe"><div class="w-12 h-1.5 bg-[#FFE8D6] rounded-full mx-auto mb-6"></div><div class="flex justify-between items-center mb-6"><button onclick="closeInputModal()" class="text-[#8D6E63] text-sm font-bold p-2 hover:bg-[#FFE8D6] rounded-lg">取消</button><h2 class="text-sm font-black text-[#F4A261] uppercase tracking-widest" id="form-title">記一筆</h2><button onclick="triggerSubmit()" class="text-[#E76F51] text-sm font-bold p-2 hover:bg-[#FFE8D6] rounded-lg">完成</button></div><form id="transaction-form" class="flex flex-col gap-5"><div class="relative group"><span class="absolute left-6 top-1/2 -translate-y-1/2 text-2xl text-[#F4A261] font-bold">$</span><input type="number" id="inp-amount" placeholder="0" class="w-full bg-white border-2 border-[#FFE8D6] rounded-2xl py-4 pl-12 pr-4 text-4xl font-black text-[#4A3B32] text-center focus:ring-4 focus:ring-[#F4A261]/20 focus:border-[#F4A261] transition-all outline-none" required inputmode="decimal"></div><div class="bg-[#FFF0D4] p-1.5 rounded-2xl flex"><select id="inp-type" onchange="updateCategoryOptions()" class="bg-white rounded-xl shadow-sm w-24 text-center text-sm font-bold text-[#4A3B32] focus:outline-none py-3 border border-[#FFE8D6]"><option value="expense">支出</option><option value="income">收入</option></select><select id="inp-category" class="flex-1 bg-transparent px-4 text-sm font-bold text-[#4A3B32] focus:outline-none text-center"></select><button type="button" onclick="addCustomCategory()" class="px-3 text-[#E76F51] font-black text-lg hover:bg-white/50 rounded-lg">+</button></div><div class="flex gap-3"><input type="date" id="inp-date" class="bg-white border-2 border-[#FFE8D6] rounded-2xl px-4 py-3.5 text-sm font-bold text-[#4A3B32] w-1/3 focus:border-[#F4A261] outline-none"><input type="text" id="inp-title" placeholder="備註..." class="flex-1 bg-white border-2 border-[#FFE8D6] rounded-2xl px-4 py-3.5 text-sm font-bold text-[#4A3B32] focus:border-[#F4A261] outline-none placeholder-[#D7CCC8]"></div><div class="flex gap-3"><input type="file" id="inp-photo" accept="image/*" onchange="handlePhotoSelect(event)" class="hidden"><label for="inp-photo" id="btn-camera" class="w-full border-2 border-dashed border-[#F4A261]/50 bg-[#FFF8E1] rounded-2xl py-3 flex items-center justify-center gap-2 text-[#F4A261] cursor-pointer hover:bg-[#F4A261] hover:text-white transition"><span class="text-xl">📷</span><span class="text-xs font-bold">拍張照</span></label><div id="preview-container" class="hidden relative w-full h-24"><img id="img-preview" class="w-full h-full object-cover rounded-2xl border-2 border-[#F4A261]"><button type="button" onclick="clearPhoto()" class="absolute -top-2 -right-2 bg-[#E76F51] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md">×</button></div></div></form></div></div>
-        
-        <div id="friend-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-start justify-start fade-in backdrop-blur-sm">
-            <div class="absolute inset-0" onclick="toggleFriendModal()"></div>
-            <div class="bg-[#FFFCF5] w-4/5 max-w-sm h-full p-6 flex flex-col relative z-10 slide-in-left shadow-2xl rounded-r-[2rem]">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-black text-[#4A3B32]">柴友列表</h2>
-                    <div class="flex gap-2">
-                        <button onclick="loadFriends(true)" class="text-[#2A9D8F] text-sm font-bold bg-[#E0F2F1] px-2 py-1 rounded-lg">🔄 刷新</button>
-                        <button onclick="toggleFriendModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full">×</button>
-                    </div>
-                </div>
-                <div class="mb-6 bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] shadow-sm">
-                    <label class="text-xs font-bold text-[#F4A261] block mb-2 uppercase tracking-wide">加入好友 (輸入 ID)</label>
-                    <div class="flex gap-2">
-                        <input type="tel" maxlength="6" id="friend-id-input" placeholder="000000" class="flex-1 bg-[#FFF8E1] border-none rounded-xl px-4 py-3 text-lg font-mono font-bold tracking-widest text-center text-[#4A3B32] outline-none focus:ring-2 focus:ring-[#F4A261]">
-                        <button onclick="addFriend()" class="bg-[#F4A261] text-white px-4 rounded-xl text-lg font-bold hover:bg-[#E76F51] transition shadow-md">+</button>
-                    </div>
-                </div>
-                <div class="flex-1 overflow-y-auto space-y-2 h-full" id="friend-list-container">
-                    <div class="text-center text-[#8D6E63] text-xs mt-10">載入中...</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="profile-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center fade-in p-6 backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleProfileModal()"></div><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-6 relative z-10 shadow-2xl scale-95 transition-transform duration-200 border-4 border-white"><div class="flex flex-col items-center mb-6"><div class="relative"><img id="profile-avatar" src="./Shiba Logo.png" class="w-24 h-24 rounded-full border-[6px] border-white shadow-lg mb-4 object-cover bg-white"><label for="inp-profile-photo" class="absolute bottom-4 right-0 bg-[#4A3B32] text-white p-2 rounded-full shadow-md cursor-pointer hover:bg-[#F4A261] transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></label><input type="file" id="inp-profile-photo" accept="image/*" onchange="handleProfilePhotoSelect(event)" class="hidden"></div><div class="text-xs font-bold text-[#8D6E63] uppercase tracking-widest mb-1">我的 ID</div><div id="profile-short-id" class="font-mono font-black text-3xl text-[#F4A261] tracking-wider mb-1 select-all">...</div><div id="profile-email" class="text-xs text-[#8D6E63] font-bold">...</div></div><div class="space-y-3"><input type="text" id="profile-name-input" class="w-full bg-white border-2 border-[#FFE8D6] rounded-xl px-4 py-3 text-sm font-bold text-center outline-none focus:border-[#F4A261]" placeholder="顯示名稱"><button onclick="saveProfile()" class="w-full bg-[#F4A261] hover:bg-[#E76F51] text-white font-bold py-3.5 rounded-xl shadow-md transition">儲存變更</button><button onclick="window.setMoney(10000)" class="w-full bg-green-100 text-green-600 font-bold py-3.5 rounded-xl hover:bg-green-200 transition border-2 border-green-200">💰 領取測試經費 (10000)</button><button onclick="logout()" class="w-full bg-white border-2 border-[#FFCDD2] text-[#E76F51] font-bold py-3.5 rounded-xl hover:bg-[#FFEBEE] transition">登出帳號</button></div></div></div>
+        <div id="friend-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-start justify-start fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleFriendModal()"></div><div class="bg-[#FFFCF5] w-4/5 max-w-sm h-full p-6 flex flex-col relative z-10 slide-in-left shadow-2xl rounded-r-[2rem]"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-[#4A3B32]">柴友列表</h2><div class="flex gap-2"><button onclick="loadFriends(true)" class="text-[#2A9D8F] text-sm font-bold bg-[#E0F2F1] px-2 py-1 rounded-lg">🔄 刷新</button><button onclick="toggleFriendModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full">×</button></div></div><div class="mb-6 bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] shadow-sm"><label class="text-xs font-bold text-[#F4A261] block mb-2 uppercase tracking-wide">加入好友 (輸入 ID)</label><div class="flex gap-2"><input type="tel" maxlength="6" id="friend-id-input" placeholder="000000" class="flex-1 bg-[#FFF8E1] border-none rounded-xl px-4 py-3 text-lg font-mono font-bold tracking-widest text-center text-[#4A3B32] outline-none focus:ring-2 focus:ring-[#F4A261]"><button onclick="addFriend()" class="bg-[#F4A261] text-white px-4 rounded-xl text-lg font-bold hover:bg-[#E76F51] transition shadow-md">+</button></div></div><div class="flex-1 overflow-y-auto space-y-2 h-full" id="friend-list-container"><div class="text-center text-[#8D6E63] text-xs mt-10">載入中...</div></div></div></div>
     </div>
 
     <script type="module">
@@ -141,7 +149,7 @@
                 await ensureUserHasId(user); await loadCustomCategories(user);
                 document.getElementById('login-screen').classList.add('hidden'); document.getElementById('app-screen').classList.remove('hidden');
                 loadDataRealtime(user.uid); 
-                window.loadFriends(true); // 登入後強制載入一次
+                window.loadFriends(true); 
                 updateViewMode();
                 await checkDailyBonus(user.uid);
                 setTimeout(() => triggerShibaReaction("歡迎回來，主人！汪！"), 1500);
@@ -151,19 +159,64 @@
             }
         });
 
-        // 🔥 強制修復版 LoadFriends
+        // 🔥 新增：開啟通用個人檔案 (自己/好友)
+        window.openUserProfile = async (targetUid) => {
+            // 判斷是自己還是朋友
+            const isMe = (targetUid === currentUser.uid);
+            let userData = null;
+
+            if (isMe) {
+                userData = myProfileData;
+            } else {
+                // 如果是朋友，從資料庫抓取最新資料
+                try {
+                    const docSnap = await getDoc(doc(db, "users", targetUid));
+                    if (docSnap.exists()) userData = docSnap.data();
+                } catch (e) { console.error("抓取朋友資料失敗", e); }
+            }
+
+            if (!userData) return alert("無法讀取資料");
+
+            // 填入資料
+            document.getElementById('profile-avatar').src = userData.photo || DEFAULT_AVATAR;
+            document.getElementById('profile-name-input').value = userData.name || "神秘柴友";
+            document.getElementById('profile-short-id').innerText = userData.shortId || "???";
+            document.getElementById('profile-email').innerText = userData.email || "";
+
+            // 權限控制 UI
+            const editGroup = document.getElementById('profile-actions');
+            const cameraBtn = document.getElementById('profile-camera-btn');
+            const closeBtn = document.getElementById('profile-close-btn');
+            const nameInput = document.getElementById('profile-name-input');
+
+            if (isMe) {
+                // 自己：顯示編輯區，開啟輸入，顯示相機
+                editGroup.classList.remove('hidden');
+                cameraBtn.classList.remove('hidden');
+                closeBtn.classList.add('hidden');
+                nameInput.disabled = false;
+            } else {
+                // 朋友：隱藏編輯區，鎖定輸入，隱藏相機，顯示關閉鈕
+                editGroup.classList.add('hidden');
+                cameraBtn.classList.add('hidden');
+                closeBtn.classList.remove('hidden');
+                nameInput.disabled = true;
+            }
+
+            // 開啟 Modal
+            document.getElementById('profile-modal').classList.remove('hidden');
+        };
+
         window.loadFriends = (force = false) => {
             if (!currentUser) return;
-            console.log("正在載入好友...");
-            if (friendUnsubscribe && !force) return; // 避免重複訂閱
-            if (friendUnsubscribe) friendUnsubscribe(); // 如果強制刷新，先取消舊訂閱
+            if (friendUnsubscribe && !force) return; 
+            if (friendUnsubscribe) friendUnsubscribe(); 
 
             const q = query(collection(db, "users", currentUser.uid, "friends"));
             friendUnsubscribe = onSnapshot(q, (snapshot) => {
                 const el = document.getElementById('friend-list-container');
-                el.innerHTML = ''; // 清空列表
+                el.innerHTML = ''; 
 
-                // 1. 加入自己 (Me)
                 const me = document.createElement('div');
                 me.className = `p-4 rounded-2xl flex items-center gap-3 cursor-pointer ${currentViewUid===currentUser.uid ? 'bg-[#FFF0D4] border-2 border-[#F4A261]' : 'bg-white hover:bg-[#FFF8E1] border-2 border-[#FFE8D6]'}`;
                 const myPhoto = myProfileData?.photo || DEFAULT_AVATAR;
@@ -171,90 +224,69 @@
                 me.onclick = () => { switchView(currentUser.uid, '我的帳本'); toggleFriendModal(); };
                 el.appendChild(me);
 
-                // 2. 加入好友
-                if (snapshot.empty) {
-                    console.log("沒有好友資料");
-                } else {
-                    snapshot.forEach(doc => {
+                snapshot.forEach(doc => {
+                    try {
                         const f = doc.data();
-                        console.log("找到好友:", f.name); // Debug
                         const div = document.createElement('div');
                         div.className = `p-4 rounded-2xl flex items-center justify-between cursor-pointer mt-2 ${currentViewUid===f.uid ? 'bg-[#E1F5FE] border-2 border-[#81D4FA]' : 'bg-white hover:bg-[#FFF8E1] border-2 border-[#FFE8D6]'}`;
-                        
-                        // 防呆處理
                         const fName = f.name || "神秘柴友";
                         const fPhoto = f.photo || DEFAULT_AVATAR;
                         const fId = f.shortId || "???";
-
-                        div.innerHTML = `<div class="flex items-center gap-3"><img src="${fPhoto}" class="w-10 h-10 rounded-full bg-white object-cover border border-[#FFE8D6]"><div><div class="font-bold text-sm text-[#4A3B32]">${fName}</div><div class="text-xs text-[#8D6E63]">ID: ${fId}</div></div></div><button onclick="event.stopPropagation();deleteFriend('${f.uid}')" class="text-[#8D6E63] hover:text-[#E76F51]">×</button>`;
-                        div.onclick = () => { switchView(f.uid, fName); toggleFriendModal(); };
+                        // 🔥 修正：點擊頭像/名字會打開該好友的 Profile
+                        div.innerHTML = `
+                            <div class="flex items-center gap-3 flex-1" onclick="event.stopPropagation(); openUserProfile('${f.uid}');">
+                                <img src="${fPhoto}" class="w-10 h-10 rounded-full bg-white object-cover border border-[#FFE8D6]">
+                                <div><div class="font-bold text-sm text-[#4A3B32]">${fName}</div><div class="text-xs text-[#8D6E63]">ID: ${fId}</div></div>
+                            </div>
+                            <button onclick="event.stopPropagation();deleteFriend('${f.uid}')" class="text-[#8D6E63] hover:text-[#E76F51] p-2">×</button>
+                        `;
+                        // 點擊整列切換帳本
+                        div.onclick = (e) => { 
+                            if(e.target.tagName !== 'BUTTON' && !e.target.closest('.flex-1')) { 
+                                switchView(f.uid, fName); toggleFriendModal(); 
+                            }
+                        };
+                        // 這裡為了 UX，點擊整列任何地方(除了刪除鈕)都切換帳本比較直覺，若要看頭像則另外處理
+                        // 修正為：點左邊頭像區塊 -> 看 Profile，點其他空白處 -> 切換帳本
                         el.appendChild(div);
-                    });
-                }
-            }, (error) => {
-                console.error("好友載入失敗:", error);
-                document.getElementById('friend-list-container').innerHTML = '<div class="text-red-500 text-center">載入失敗，請重試</div>';
+                    } catch(e) { console.error("好友渲染錯誤:", e); }
+                });
             });
         };
 
-        // 🔥 關鍵修復：加好友邏輯 (解決 undefined 錯誤)
         window.addFriend = async () => { 
             const id = document.getElementById('friend-id-input').value; 
             if(id.length !== 6) return alert("ID 錯誤"); 
             if(id === myShortId) return alert("不能加自己喔 XD");
-
             try { 
                 const target = await getDoc(doc(db, "public_codes", id)); 
                 if(!target.exists()) return alert("找不到此 ID"); 
                 const td = target.data(); 
-                
-                // 防呆：確保寫入資料庫時沒有 undefined
-                const targetPhoto = td.photo || DEFAULT_AVATAR;
-                const myPhoto = myProfileData.photo || DEFAULT_AVATAR;
-                const targetName = td.name || "神秘柴友";
-                const myName = myProfileData.name || "神秘柴友";
-
+                const targetPhoto = td.photo || DEFAULT_AVATAR; const myPhoto = myProfileData.photo || DEFAULT_AVATAR;
+                const targetName = td.name || "神秘柴友"; const myName = myProfileData.name || "神秘柴友";
                 await setDoc(doc(db, "users", currentUser.uid, "friends", td.uid), { uid: td.uid, shortId: id, name: targetName, photo: targetPhoto }); 
                 await setDoc(doc(db, "users", td.uid, "friends", currentUser.uid), { uid: currentUser.uid, shortId: myShortId, name: myName, photo: myPhoto }); 
-                
-                alert("添加成功"); 
-                document.getElementById('friend-id-input').value=''; 
-                // 手動觸發重新載入
-                // loadFriends(true); 
+                alert("添加成功"); document.getElementById('friend-id-input').value=''; 
             } catch(e) { console.error(e); alert("添加失敗: " + e.message); } 
         }
 
-        // 🔥 關鍵修復：刪除好友邏輯 (雙向刪除 + 錯誤處理)
         window.deleteFriend = async (friendUid) => {
             if(!confirm('確定要刪除這位好友嗎？\n(對方的好友列表中也會將你移除)')) return;
             try {
-                // 1. 刪除「我的」好友列表中的「他」
                 await deleteDoc(doc(db, "users", currentUser.uid, "friends", friendUid));
-                // 2. 刪除「他的」好友列表中的「我」
-                try {
-                    await deleteDoc(doc(db, "users", friendUid, "friends", currentUser.uid));
-                } catch(err) { console.log("對方列表刪除失敗(可能是權限問題)", err); }
-
+                try { await deleteDoc(doc(db, "users", friendUid, "friends", currentUser.uid)); } catch(err) {}
                 alert("已刪除好友！");
                 if (currentViewUid === friendUid) { switchView(currentUser.uid, '我的帳本'); }
-            } catch (e) {
-                console.error(e);
-                alert("刪除失敗: " + e.message);
-            }
+            } catch (e) { console.error(e); alert("刪除失敗: " + e.message); }
         };
 
         async function checkDailyBonus(uid) {
-            const todayStr = new Date().toDateString(); 
-            const userRef = doc(db, "users", uid);
-            const snap = await getDoc(userRef);
+            const todayStr = new Date().toDateString(); const userRef = doc(db, "users", uid); const snap = await getDoc(userRef);
             if (!snap.exists()) return;
             const data = snap.data();
             if (data.lastLoginDate === todayStr) return;
             let newStreak = 1;
-            if (data.lastLoginDate) {
-                const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-                if (data.lastLoginDate === yesterday.toDateString()) { newStreak = (data.loginStreak || 0) + 1; }
-            }
+            if (data.lastLoginDate) { const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); if (data.lastLoginDate === yesterday.toDateString()) { newStreak = (data.loginStreak || 0) + 1; } }
             const reward = Math.min(newStreak * 10, 50);
             await updateDoc(userRef, { lastLoginDate: todayStr, loginStreak: newStreak, boneCoins: increment(reward) });
             myProfileData.boneCoins = (myProfileData.boneCoins || 0) + reward;
@@ -263,124 +295,56 @@
         }
 
         function showDailyBonusModal(streak, reward) {
-            document.getElementById('streak-days').innerText = streak;
-            document.getElementById('bonus-amount').innerText = reward;
+            document.getElementById('streak-days').innerText = streak; document.getElementById('bonus-amount').innerText = reward;
             const max = 5; const current = Math.min(streak, max);
-            for(let i=1; i<=max; i++) {
-                const bar = document.getElementById(`bar-${i}`);
-                if(i <= current) { bar.classList.remove('bg-[#E0E0E0]'); bar.classList.add('bg-[#F4A261]'); } 
-                else { bar.classList.add('bg-[#E0E0E0]'); bar.classList.remove('bg-[#F4A261]'); }
-            }
+            for(let i=1; i<=max; i++) { const bar = document.getElementById(`bar-${i}`); if(i <= current) { bar.classList.remove('bg-[#E0E0E0]'); bar.classList.add('bg-[#F4A261]'); } else { bar.classList.add('bg-[#E0E0E0]'); bar.classList.remove('bg-[#F4A261]'); } }
             document.getElementById('daily-bonus-modal').classList.remove('hidden');
             triggerShibaReaction(`早安！簽到成功！領取 ${reward} 骨頭幣！`);
         }
         window.closeBonusModal = () => document.getElementById('daily-bonus-modal').classList.add('hidden');
 
-        // Shiba Interaction
-        const shibaEl = document.getElementById('shiba-assistant');
-        const speechEl = document.getElementById('shiba-speech');
-        let speechTimeout;
+        const shibaEl = document.getElementById('shiba-assistant'); const speechEl = document.getElementById('shiba-speech'); let speechTimeout;
         const randomMessages = ["汪！今天花了多少錢？", "骨頭幣不夠用了嗎？", "我是不是很可愛？🐕", "努力存錢買罐罐！", "今天也要加油喔！"];
-        window.triggerShibaClick = () => {
-            shibaEl.classList.remove('animate-shiba-float'); void shibaEl.offsetWidth; shibaEl.classList.add('animate-shiba-bounce');
-            setTimeout(() => { shibaEl.classList.remove('animate-shiba-bounce'); shibaEl.classList.add('animate-shiba-float'); }, 400);
-            const msg = randomMessages[Math.floor(Math.random() * randomMessages.length)]; showSpeechBubble(msg);
-        };
-        function triggerShibaReaction(message) {
-            shibaEl.classList.remove('animate-shiba-float'); void shibaEl.offsetWidth; shibaEl.classList.add('animate-shiba-bounce');
-            setTimeout(() => { shibaEl.classList.remove('animate-shiba-bounce'); shibaEl.classList.add('animate-shiba-float'); }, 400);
-            showSpeechBubble(message);
-        }
-        function showSpeechBubble(text) {
-            clearTimeout(speechTimeout); speechEl.innerText = text; speechEl.classList.remove('hidden');
-            speechTimeout = setTimeout(() => { speechEl.classList.add('hidden'); }, 3000);
-        }
+        window.triggerShibaClick = () => { shibaEl.classList.remove('animate-shiba-float'); void shibaEl.offsetWidth; shibaEl.classList.add('animate-shiba-bounce'); setTimeout(() => { shibaEl.classList.remove('animate-shiba-bounce'); shibaEl.classList.add('animate-shiba-float'); }, 400); const msg = randomMessages[Math.floor(Math.random() * randomMessages.length)]; showSpeechBubble(msg); };
+        function triggerShibaReaction(message) { shibaEl.classList.remove('animate-shiba-float'); void shibaEl.offsetWidth; shibaEl.classList.add('animate-shiba-bounce'); setTimeout(() => { shibaEl.classList.remove('animate-shiba-bounce'); shibaEl.classList.add('animate-shiba-float'); }, 400); showSpeechBubble(message); }
+        function showSpeechBubble(text) { clearTimeout(speechTimeout); speechEl.innerText = text; speechEl.classList.remove('hidden'); speechTimeout = setTimeout(() => { speechEl.classList.add('hidden'); }, 3000); }
 
-        // Gestures
         let touchStartX = 0; let touchStartY = 0;
         document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, false);
-        document.addEventListener('touchend', e => {
-            let touchEndX = e.changedTouches[0].screenX; let touchEndY = e.changedTouches[0].screenY;
-            let xDiff = touchEndX - touchStartX; let yDiff = touchEndY - touchStartY;
-            if (Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff) > 50) {
-                if (xDiff > 0) document.getElementById('friend-modal').classList.remove('hidden');
-                else document.getElementById('friend-modal').classList.add('hidden');
-            }
-        }, false);
+        document.addEventListener('touchend', e => { let touchEndX = e.changedTouches[0].screenX; let touchEndY = e.changedTouches[0].screenY; let xDiff = touchEndX - touchStartX; let yDiff = touchEndY - touchStartY; if (Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff) > 50) { if (xDiff > 0) document.getElementById('friend-modal').classList.remove('hidden'); else document.getElementById('friend-modal').classList.add('hidden'); } }, false);
 
         window.updateUI = () => {
             const listEl = document.getElementById('transaction-list');
             const mode = document.getElementById('filter-type').value;
             const filterDate = mode === 'day' ? document.getElementById('filter-day').value : mode === 'month' ? document.getElementById('filter-month').value : document.getElementById('filter-year').value;
-            const filtered = transactions.filter(t => {
-                const d = new Date(t.dateTimestamp); const iso = d.toISOString().split('T')[0];
-                if(mode==='day') return iso===filterDate; if(mode==='month') return iso.slice(0,7)===filterDate; if(mode==='year') return String(d.getFullYear())===filterDate;
-                return true;
-            });
+            const filtered = transactions.filter(t => { const d = new Date(t.dateTimestamp); const iso = d.toISOString().split('T')[0]; if(mode==='day') return iso===filterDate; if(mode==='month') return iso.slice(0,7)===filterDate; if(mode==='year') return String(d.getFullYear())===filterDate; return true; });
             listEl.innerHTML = ''; let inc=0, exp=0, expData={};
             if(filtered.length===0) document.getElementById('empty-state').classList.remove('hidden'); else document.getElementById('empty-state').classList.add('hidden');
             filtered.forEach(t => {
                 if(t.type==='income') inc+=Number(t.amount); else { exp+=Number(t.amount); expData[t.category]=(expData[t.category]||0)+Number(t.amount); }
                 const div = document.createElement('div'); div.className = "aspect-square rounded-2xl overflow-hidden relative cursor-pointer border-2 border-white shadow-sm hover:scale-95 transition bg-white";
-                if(t.photo) { div.innerHTML = `<img src="${t.photo}" class="w-full h-full object-cover">`; } 
-                else { 
-                    const isInc = t.type==='income'; const colorClass = isInc ? 'bg-[#E0F2F1] text-[#2A9D8F]' : 'bg-[#FFEBEE] text-[#E76F51]'; 
-                    const icon = categoryIcons[t.category] || '✨';
-                    div.innerHTML = `<div class="w-full h-full ${colorClass} flex flex-col items-center justify-center p-2 text-center"><span class="text-4xl mb-1 filter drop-shadow-sm">${icon}</span><span class="text-[10px] font-black truncate w-full">${t.category}</span><span class="text-[10px] font-bold mt-0.5 opacity-80">$${t.amount}</span></div>`; 
-                }
+                if(t.photo) { div.innerHTML = `<img src="${t.photo}" class="w-full h-full object-cover">`; } else { const isInc = t.type==='income'; const colorClass = isInc ? 'bg-[#E0F2F1] text-[#2A9D8F]' : 'bg-[#FFEBEE] text-[#E76F51]'; const icon = categoryIcons[t.category] || '✨'; div.innerHTML = `<div class="w-full h-full ${colorClass} flex flex-col items-center justify-center p-2 text-center"><span class="text-4xl mb-1 filter drop-shadow-sm">${icon}</span><span class="text-[10px] font-black truncate w-full">${t.category}</span><span class="text-[10px] font-bold mt-0.5 opacity-80">$${t.amount}</span></div>`; }
                 if(t.photo) { div.innerHTML += `<div class="absolute bottom-0 right-0 bg-[#4A3B32]/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded-tl-lg border-t border-l border-white/20">$${t.amount}</div>`; }
                 div.onclick = () => openDetailModal(t.id); listEl.appendChild(div);
             });
             document.getElementById('display-balance').innerText=(inc-exp).toLocaleString(); document.getElementById('display-income').innerText=inc.toLocaleString(); document.getElementById('display-expense').innerText=exp.toLocaleString(); renderChart(expData);
         };
 
-        // Detail Modal
         window.openDetailModal = (id) => {
             const t = transactions.find(x => x.id === id); if(!t) return; currentDetailId = id;
-            document.getElementById('detail-title').innerText = t.title || t.category; 
-            document.getElementById('detail-amount').innerText = `$ ${Number(t.amount).toLocaleString()}`; 
-            document.getElementById('detail-amount').className = t.type==='income' ? 'text-2xl font-black text-[#2A9D8F]' : 'text-2xl font-black text-[#E76F51]'; 
-            document.getElementById('detail-date').innerText = t.date; document.getElementById('detail-category').innerText = t.category; document.getElementById('detail-type').innerText = t.type==='income'?'收入':'支出';
-            const imgEl = document.getElementById('detail-img'); const noImgEl = document.getElementById('detail-no-img');
-            const detailIconEl = document.getElementById('detail-icon');
-            if(t.photo) { imgEl.src = t.photo; imgEl.classList.remove('hidden'); noImgEl.classList.add('hidden'); } 
-            else { imgEl.classList.add('hidden'); noImgEl.classList.remove('hidden'); detailIconEl.innerText = categoryIcons[t.category] || '🐕'; }
-            
-            const actionsEl = document.getElementById('detail-actions');
-            if(currentViewUid === currentUser.uid) actionsEl.classList.remove('hidden'); 
-            else actionsEl.classList.add('hidden');
-            
-            renderDetailComments(t);
-            document.getElementById('detail-modal').classList.remove('hidden');
+            document.getElementById('detail-title').innerText = t.title || t.category; document.getElementById('detail-amount').innerText = `$ ${Number(t.amount).toLocaleString()}`; document.getElementById('detail-amount').className = t.type==='income' ? 'text-2xl font-black text-[#2A9D8F]' : 'text-2xl font-black text-[#E76F51]'; document.getElementById('detail-date').innerText = t.date; document.getElementById('detail-category').innerText = t.category; document.getElementById('detail-type').innerText = t.type==='income'?'收入':'支出';
+            const imgEl = document.getElementById('detail-img'); const noImgEl = document.getElementById('detail-no-img'); const detailIconEl = document.getElementById('detail-icon');
+            if(t.photo) { imgEl.src = t.photo; imgEl.classList.remove('hidden'); noImgEl.classList.add('hidden'); } else { imgEl.classList.add('hidden'); noImgEl.classList.remove('hidden'); detailIconEl.innerText = categoryIcons[t.category] || '🐕'; }
+            const actionsEl = document.getElementById('detail-actions'); if(currentViewUid === currentUser.uid) actionsEl.classList.remove('hidden'); else actionsEl.classList.add('hidden');
+            renderDetailComments(t); document.getElementById('detail-modal').classList.remove('hidden');
         };
         window.closeDetailModal = () => document.getElementById('detail-modal').classList.add('hidden');
         window.editCurrentDetail = () => { window.closeDetailModal(); window.editTransaction(currentDetailId); };
         window.deleteCurrentDetail = () => { if(confirm('刪除此紀錄？')) { window.deleteTransactionCloud(currentDetailId); window.closeDetailModal(); }};
-        function renderDetailComments(t) { 
-            const list = document.getElementById('detail-comments-list'); list.innerHTML = ''; 
-            const comms = (t.comments||[]).filter(c => Date.now()-c.timestamp < 86400000); 
-            if(comms.length===0) list.innerHTML = '<div class="text-xs text-[#8D6E63] text-center py-4 bg-[#FFF8E1] rounded-xl border border-[#FFE8D6]">✨ 還沒有留言，搶頭香！</div>'; 
-            comms.forEach(c => { 
-                const d = document.createElement('div'); d.className="text-sm bg-white border border-[#FFE8D6] p-3 rounded-xl mb-1 shadow-sm"; 
-                d.innerHTML = `<span class="font-bold text-[#F4A261] mr-1">${c.authorName}:</span><span class="text-[#4A3B32]">${c.text}</span>`; list.appendChild(d); 
-            }); 
-        }
+        function renderDetailComments(t) { const list = document.getElementById('detail-comments-list'); list.innerHTML = ''; const comms = (t.comments||[]).filter(c => Date.now()-c.timestamp < 86400000); if(comms.length===0) list.innerHTML = '<div class="text-xs text-[#8D6E63] text-center py-4 bg-[#FFF8E1] rounded-xl border border-[#FFE8D6]">✨ 還沒有留言，搶頭香！</div>'; comms.forEach(c => { const d = document.createElement('div'); d.className="text-sm bg-white border border-[#FFE8D6] p-3 rounded-xl mb-1 shadow-sm"; d.innerHTML = `<span class="font-bold text-[#F4A261] mr-1">${c.authorName}:</span><span class="text-[#4A3B32]">${c.text}</span>`; list.appendChild(d); }); }
         window.submitDetailComment = async () => { const txt = document.getElementById('detail-comment-input').value.trim(); if(!txt) return; const ref = doc(db,"users",currentViewUid,"transactions",currentDetailId); const snap = await getDoc(ref); let arr = snap.data().comments || []; arr.push({text:txt, authorName:myProfileData.name, timestamp:Date.now()}); await updateDoc(ref, {comments:arr}); document.getElementById('detail-comment-input').value=''; renderDetailComments({...snap.data(), comments:arr}); };
 
-        async function ensureUserHasId(user) { 
-            const ref = doc(db, "users", user.uid); const snap = await getDoc(ref); const userPhoto = user.photoURL || DEFAULT_AVATAR; 
-            if(snap.exists()) { 
-                const d = snap.data(); myShortId = d.shortId; myProfileData = {...d, photo: d.photo || userPhoto};
-                if (myProfileData.boneCoins === undefined) { await updateDoc(ref, { boneCoins: 100 }); myProfileData.boneCoins = 100; }
-            } else { 
-                let id = Math.floor(100000 + Math.random()*900000).toString(); 
-                const newData = { shortId: id, name: user.displayName, email: user.email, photo: userPhoto, boneCoins: 100 }; 
-                await setDoc(doc(db, "public_codes", id), {uid: user.uid, email: user.email, photo: userPhoto}); await setDoc(ref, newData); 
-                myShortId = id; myProfileData = newData; 
-            } 
-            document.getElementById('my-short-id').innerText = `ID: ${myShortId}`; document.getElementById('profile-short-id').innerText = myShortId; document.getElementById('profile-email').innerText = user.email; document.getElementById('profile-name-input').value = myProfileData.name; document.getElementById('profile-avatar').src = myProfileData.photo; 
-        }
-
+        async function ensureUserHasId(user) { const ref = doc(db, "users", user.uid); const snap = await getDoc(ref); const userPhoto = user.photoURL || DEFAULT_AVATAR; if(snap.exists()) { const d = snap.data(); myShortId = d.shortId; myProfileData = {...d, photo: d.photo || userPhoto}; if (myProfileData.boneCoins === undefined) { await updateDoc(ref, { boneCoins: 100 }); myProfileData.boneCoins = 100; } } else { let id = Math.floor(100000 + Math.random()*900000).toString(); const newData = { shortId: id, name: user.displayName, email: user.email, photo: userPhoto, boneCoins: 100 }; await setDoc(doc(db, "public_codes", id), {uid: user.uid, email: user.email, photo: userPhoto}); await setDoc(ref, newData); myShortId = id; myProfileData = newData; } document.getElementById('my-short-id').innerText = `ID: ${myShortId}`; document.getElementById('profile-short-id').innerText = myShortId; document.getElementById('profile-email').innerText = user.email; document.getElementById('profile-name-input').value = myProfileData.name; document.getElementById('profile-avatar').src = myProfileData.photo; }
         function loadDataRealtime(targetUid) { if(unsubscribe) unsubscribe(); const q = query(collection(db, "users", targetUid, "transactions"), orderBy("dateTimestamp", "desc")); unsubscribe = onSnapshot(q, (snap) => { transactions = snap.docs.map(d => ({id: d.id, ...d.data()})); const years = new Set([new Date().getFullYear()]); transactions.forEach(t => years.add(new Date(t.dateTimestamp).getFullYear())); const ySelect = document.getElementById('filter-year'); const currY = ySelect.value; ySelect.innerHTML = Array.from(years).sort((a,b)=>b-a).map(y => `<option value="${y}">${y} 年</option>`).join(''); if(currY) ySelect.value = currY; updateUI(); }); }
         
         window.openInputModal = () => { if(!editingId) window.resetForm(); document.getElementById('input-modal').classList.remove('hidden'); };
@@ -388,94 +352,31 @@
         window.triggerSubmit = () => { document.getElementById('transaction-form').dispatchEvent(new Event('submit', {cancelable: true, bubbles: true})); };
         window.resetForm = () => { editingId = null; document.getElementById('form-title').innerText = "記一筆"; inpAmount.value = ''; inpTitle.value = ''; inpDate.valueAsDate = new Date(); window.clearPhoto(); };
         window.editTransaction = (id) => { const tx = transactions.find(t => t.id === id); if (!tx) return; editingId = id; inpTitle.value = tx.title; inpAmount.value = tx.amount; inpType.value = tx.type; updateCategoryOptions(); inpCategory.value = tx.category; inpDate.valueAsDate = new Date(tx.dateTimestamp); currentPhotoData = tx.photo || null; if (currentPhotoData) { document.getElementById('img-preview').src = currentPhotoData; document.getElementById('preview-container').classList.remove('hidden'); document.getElementById('btn-camera').classList.add('hidden'); } else window.clearPhoto(); document.getElementById('form-title').innerText = "編輯"; window.openInputModal(); };
-        
-        document.getElementById('transaction-form').addEventListener('submit', async (e) => { 
-            e.preventDefault(); if(currentViewUid !== currentUser.uid) return alert("只能編輯自己的帳本喔"); const amount = Number(inpAmount.value); if(amount <= 0) return alert("金額錯誤"); const data = { amount, type: inpType.value, category: inpCategory.value, title: inpTitle.value.trim() || inpCategory.value, dateTimestamp: inpDate.valueAsDate.getTime(), date: inpDate.valueAsDate.toLocaleDateString(), photo: currentPhotoData }; 
-            try { 
-                if(editingId) { await updateDoc(doc(db, "users", currentUser.uid, "transactions", editingId), data); } 
-                else { await addDoc(collection(db, "users", currentUser.uid, "transactions"), data); await updateDoc(doc(db, "users", currentUser.uid), { boneCoins: increment(10) }); myProfileData.boneCoins += 10; triggerShibaReaction("記帳成功！骨頭幣 +10！(開心)"); } 
-                window.closeInputModal(); 
-            } catch(e) { alert("錯誤: " + e.message); } 
-        });
-        
+        document.getElementById('transaction-form').addEventListener('submit', async (e) => { e.preventDefault(); if(currentViewUid !== currentUser.uid) return alert("只能編輯自己的帳本喔"); const amount = Number(inpAmount.value); if(amount <= 0) return alert("金額錯誤"); const data = { amount, type: inpType.value, category: inpCategory.value, title: inpTitle.value.trim() || inpCategory.value, dateTimestamp: inpDate.valueAsDate.getTime(), date: inpDate.valueAsDate.toLocaleDateString(), photo: currentPhotoData }; try { if(editingId) { await updateDoc(doc(db, "users", currentUser.uid, "transactions", editingId), data); } else { await addDoc(collection(db, "users", currentUser.uid, "transactions"), data); await updateDoc(doc(db, "users", currentUser.uid), { boneCoins: increment(10) }); myProfileData.boneCoins += 10; triggerShibaReaction("記帳成功！骨頭幣 +10！(開心)"); } window.closeInputModal(); } catch(e) { alert("錯誤: " + e.message); } });
         window.deleteTransactionCloud = async (id) => { await deleteDoc(doc(db, "users", currentUser.uid, "transactions", id)); };
         
         window.changeFilterMode = () => { const mode = document.getElementById('filter-type').value; document.getElementById('filter-day').classList.add('hidden'); document.getElementById('filter-month').classList.add('hidden'); document.getElementById('filter-year').classList.add('hidden'); if(mode === 'day') document.getElementById('filter-day').classList.remove('hidden'); if(mode === 'month') document.getElementById('filter-month').classList.remove('hidden'); if(mode === 'year') document.getElementById('filter-year').classList.remove('hidden'); updateUI(); }
         async function loadCustomCategories(user) { const s = await getDoc(doc(db, "users", user.uid)); if(s.exists() && s.data().customCategories) userCustomCategories = s.data().customCategories; updateCategoryOptions(); }
-        
-        window.updateCategoryOptions = () => { 
-            const type = inpType.value; 
-            const cats = [...defaultCategories[type], ...(userCustomCategories[type]||[])]; 
-            inpCategory.innerHTML = cats.map(c => {
-                const icon = categoryIcons[c] || '✨';
-                return `<option value="${c}">${icon} ${c}</option>`;
-            }).join(''); 
-        }
-        
+        window.updateCategoryOptions = () => { const type = inpType.value; const cats = [...defaultCategories[type], ...(userCustomCategories[type]||[])]; inpCategory.innerHTML = cats.map(c => { const icon = categoryIcons[c] || '✨'; return `<option value="${c}">${icon} ${c}</option>`; }).join(''); }
         window.addCustomCategory = async () => { const n = prompt("新分類名稱:"); if(n) { const t = inpType.value; if(!userCustomCategories[t]) userCustomCategories[t] = []; userCustomCategories[t].push(n); await setDoc(doc(db, "users", currentUser.uid), {customCategories: userCustomCategories}, {merge:true}); updateCategoryOptions(); inpCategory.value = n; } }
         document.getElementById('filter-day').addEventListener('input', updateUI); document.getElementById('filter-month').addEventListener('input', updateUI); document.getElementById('filter-year').addEventListener('change', updateUI);
         
         Chart.register(ChartDataLabels);
-        function renderChart(data) {
-            const ctx = document.getElementById('expenseChart').getContext('2d');
-            const legendContainer = document.getElementById('chart-legend');
-            const lbs = Object.keys(data); const vals = Object.values(data);
-            
-            if(myChart) myChart.destroy();
-            if(lbs.length === 0) { document.getElementById('chart-placeholder').classList.remove('hidden'); legendContainer.innerHTML = ''; return; }
-            document.getElementById('chart-placeholder').classList.add('hidden');
-            
-            const colors = ['#F4A261','#E76F51','#E9C46A','#2A9D8F','#264653','#8D6E63','#F4D35E','#DA627D'];
-            
-            myChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: { labels: lbs, datasets: [{ data: vals, backgroundColor: colors, borderWidth: 0 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } } }
-            });
-
-            const total = vals.reduce((a, b) => a + b, 0);
-            legendContainer.innerHTML = lbs.map((label, i) => {
-                const val = vals[i];
-                const percent = Math.round((val / total) * 100);
-                const color = colors[i % colors.length];
-                const icon = categoryIcons[label] || '✨'; 
-                return `<div class="flex items-center justify-between"><div class="flex items-center gap-1.5 min-w-0"><div class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${color}"></div><span class="truncate font-bold text-[#4A3B32]">${icon} ${label}</span></div><div class="text-[#8D6E63] font-mono shrink-0">${percent}%</div></div>`;
-            }).join('');
-        }
+        function renderChart(data) { const ctx = document.getElementById('expenseChart').getContext('2d'); const legendContainer = document.getElementById('chart-legend'); const lbs = Object.keys(data); const vals = Object.values(data); if(myChart) myChart.destroy(); if(lbs.length === 0) { document.getElementById('chart-placeholder').classList.remove('hidden'); legendContainer.innerHTML = ''; return; } document.getElementById('chart-placeholder').classList.add('hidden'); const colors = ['#F4A261','#E76F51','#E9C46A','#2A9D8F','#264653','#8D6E63','#F4D35E','#DA627D']; myChart = new Chart(ctx, { type: 'doughnut', data: { labels: lbs, datasets: [{ data: vals, backgroundColor: colors, borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } } } }); const total = vals.reduce((a, b) => a + b, 0); legendContainer.innerHTML = lbs.map((label, i) => { const val = vals[i]; const percent = Math.round((val / total) * 100); const color = colors[i % colors.length]; const icon = categoryIcons[label] || '✨'; return `<div class="flex items-center justify-between"><div class="flex items-center gap-1.5 min-w-0"><div class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${color}"></div><span class="truncate font-bold text-[#4A3B32]">${icon} ${label}</span></div><div class="text-[#8D6E63] font-mono shrink-0">${percent}%</div></div>`; }).join(''); }
 
         window.toggleChart = () => { document.getElementById('chart-container').classList.toggle('hidden'); }
         window.toggleFriendModal = () => document.getElementById('friend-modal').classList.toggle('hidden');
+        window.toggleProfileModal = () => document.getElementById('profile-modal').classList.toggle('hidden');
         window.handlePhotoSelect = (e) => processImage(e.target.files[0], (data) => { currentPhotoData = data; document.getElementById('img-preview').src = data; document.getElementById('preview-container').classList.remove('hidden'); document.getElementById('btn-camera').classList.add('hidden'); });
         window.handleProfilePhotoSelect = (e) => processImage(e.target.files[0], (data) => { currentProfilePhotoData = data; document.getElementById('profile-avatar').src = data; });
         function processImage(file, cb) { if(!file) return; const r = new FileReader(); r.onload = (e) => { const i = new Image(); i.onload = () => { const c = document.createElement('canvas'); const scale = 600/i.width; c.width = 600; c.height = i.height*scale; c.getContext('2d').drawImage(i,0,0,c.width,c.height); cb(c.toDataURL('image/jpeg', 0.6)); }; i.src = e.target.result; }; r.readAsDataURL(file); }
         window.clearPhoto = () => { document.getElementById('inp-photo').value=''; currentPhotoData=null; document.getElementById('preview-container').classList.add('hidden'); document.getElementById('btn-camera').classList.remove('hidden'); };
-        window.toggleProfileModal = () => document.getElementById('profile-modal').classList.toggle('hidden');
         window.saveProfile = async () => { await updateDoc(doc(db,"users",currentUser.uid), {name:document.getElementById('profile-name-input').value, photo:currentProfilePhotoData}); alert('已儲存'); window.toggleProfileModal(); };
         window.toggleStoreModal = async () => { const modal = document.getElementById('store-modal'); const isHidden = modal.classList.contains('hidden'); if (isHidden) { const userRef = doc(db, "users", currentUser.uid); const snap = await getDoc(userRef); if (snap.exists()) { myProfileData.boneCoins = snap.data().boneCoins || 0; document.getElementById('store-coin-count').innerText = myProfileData.boneCoins; } modal.classList.remove('hidden'); } else { modal.classList.add('hidden'); } };
         window.buyItem = async (price, itemName) => { if (myProfileData.boneCoins >= price) { if(confirm(`確定花費 ${price} 骨頭幣購買 ${itemName} 嗎？`)) { await updateDoc(doc(db, "users", currentUser.uid), { boneCoins: increment(-price) }); myProfileData.boneCoins -= price; document.getElementById('store-coin-count').innerText = myProfileData.boneCoins; triggerShibaReaction(`謝謝惠顧！你買了 ${itemName} (汪!)`); } } else { triggerShibaReaction("骨頭幣不夠啦！快去記帳！(氣)"); } };
-        
-        window.setMoney = async (amount) => {
-            if (!currentUser) return alert("請先登入");
-            try {
-                await updateDoc(doc(db, "users", currentUser.uid), { boneCoins: Number(amount) });
-                if(myProfileData) myProfileData.boneCoins = Number(amount);
-                const storeCountEl = document.getElementById('store-coin-count');
-                if(storeCountEl) storeCountEl.innerText = amount;
-                alert(`🐶 測試模式：骨頭幣已修改為 ${amount}`);
-            } catch (e) { console.error(e); alert("修改失敗"); }
-        };
-        
-        window.switchView = (uid, name) => { 
-            currentViewUid = uid; 
-            document.getElementById('current-view-label').innerText = uid===currentUser.uid ? '個人' : name; 
-            updateViewMode(); 
-            loadDataRealtime(uid); 
-            document.getElementById('friend-modal').classList.add('hidden'); 
-        }
-        function updateViewMode() { 
-            const isMe = currentViewUid === currentUser.uid; 
-            document.getElementById('fab-btn').classList.toggle('hidden', !isMe); 
-        }
+        window.setMoney = async (amount) => { if (!currentUser) return alert("請先登入"); try { await updateDoc(doc(db, "users", currentUser.uid), { boneCoins: Number(amount) }); if(myProfileData) myProfileData.boneCoins = Number(amount); const storeCountEl = document.getElementById('store-coin-count'); if(storeCountEl) storeCountEl.innerText = amount; alert(`🐶 測試模式：骨頭幣已修改為 ${amount}`); } catch (e) { console.error(e); alert("修改失敗"); } };
+        window.switchView = (uid, name) => { currentViewUid = uid; document.getElementById('current-view-label').innerText = uid===currentUser.uid ? '個人' : name; updateViewMode(); loadDataRealtime(uid); document.getElementById('friend-modal').classList.add('hidden'); }
+        function updateViewMode() { const isMe = currentViewUid === currentUser.uid; document.getElementById('fab-btn').classList.toggle('hidden', !isMe); }
     </script>
 </body>
 </html>
