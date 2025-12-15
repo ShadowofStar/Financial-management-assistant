@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 互動柴犬版</title>
+    <title>柴管家 - 透明柴犬版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -27,15 +27,13 @@
         
         :root { --shiba-bg: #FFFCF5; --shiba-orange: #F4A261; --shiba-brown: #4A3B32; }
 
-        /* 🔥 新增：柴犬互動動畫 */
-        /* 待機漂浮 */
+        /* 柴犬互動動畫 */
         @keyframes shiba-float {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-6px); }
         }
         .animate-shiba-float { animation: shiba-float 3s ease-in-out infinite; }
         
-        /* 點擊Q彈 */
         @keyframes shiba-bounce {
             0%, 100% { transform: scale(1) rotate(0deg); }
             40% { transform: scale(1.15) rotate(5deg); }
@@ -73,7 +71,7 @@
                  汪！今天也要加油喔！
                  <div class="absolute -bottom-1.5 right-6 w-3 h-3 bg-white border-b-2 border-r-2 border-[#FFE8D6] rotate-45"></div>
              </div>
-             <img src="./Shiba Logo.png" id="shiba-assistant" class="w-20 h-20 object-contain animate-shiba-float cursor-pointer drop-shadow-md hover:scale-105 transition-transform" onclick="triggerShibaClick()">
+             <img src="https://cdn-icons-png.flaticon.com/512/616/616554.png" id="shiba-assistant" class="w-24 h-24 object-contain animate-shiba-float cursor-pointer drop-shadow-lg hover:scale-105 transition-transform" onclick="triggerShibaClick()">
         </div>
 
         <nav class="fixed bottom-0 w-full max-w-md bg-[#FFFCF5]/95 backdrop-blur-md border-t-2 border-[#FFE8D6] pb-safe pt-2 px-8 flex justify-between items-end z-30 h-[88px] rounded-t-[2rem]">
@@ -115,7 +113,6 @@
                 await ensureUserHasId(user); await loadCustomCategories(user);
                 document.getElementById('login-screen').classList.add('hidden'); document.getElementById('app-screen').classList.remove('hidden');
                 loadDataRealtime(user.uid); loadFriends(); updateViewMode();
-                // 登入後觸發一次歡迎
                 setTimeout(() => triggerShibaReaction("歡迎回來，主人！汪！"), 1000);
             } else {
                 document.getElementById('login-screen').classList.remove('hidden'); document.getElementById('app-screen').classList.add('hidden');
@@ -123,49 +120,27 @@
             }
         });
 
-        // 🔥 新增：柴犬互動邏輯
+        // 柴犬互動
         const shibaEl = document.getElementById('shiba-assistant');
         const speechEl = document.getElementById('shiba-speech');
         let speechTimeout;
         const randomMessages = ["汪！今天花了多少錢？", "骨頭幣不夠用了嗎？", "我是不是很可愛？🐕", "努力存錢買罐罐！", "今天也要加油喔！"];
 
-        // 點擊互動
         window.triggerShibaClick = () => {
-            // 播放動畫
-            shibaEl.classList.remove('animate-shiba-float');
-            void shibaEl.offsetWidth; // trigger reflow
-            shibaEl.classList.add('animate-shiba-bounce');
-            setTimeout(() => {
-                shibaEl.classList.remove('animate-shiba-bounce');
-                shibaEl.classList.add('animate-shiba-float');
-            }, 400);
-
-            // 顯示隨機訊息
-            const msg = randomMessages[Math.floor(Math.random() * randomMessages.length)];
-            showSpeechBubble(msg);
+            shibaEl.classList.remove('animate-shiba-float'); void shibaEl.offsetWidth; shibaEl.classList.add('animate-shiba-bounce');
+            setTimeout(() => { shibaEl.classList.remove('animate-shiba-bounce'); shibaEl.classList.add('animate-shiba-float'); }, 400);
+            const msg = randomMessages[Math.floor(Math.random() * randomMessages.length)]; showSpeechBubble(msg);
         };
 
-        // 事件觸發互動 (例如記帳成功)
         function triggerShibaReaction(message) {
-            // 播放動畫
-            shibaEl.classList.remove('animate-shiba-float');
-            void shibaEl.offsetWidth;
-            shibaEl.classList.add('animate-shiba-bounce');
-            setTimeout(() => {
-                 shibaEl.classList.remove('animate-shiba-bounce');
-                 shibaEl.classList.add('animate-shiba-float');
-            }, 400);
-            // 顯示特定訊息
+            shibaEl.classList.remove('animate-shiba-float'); void shibaEl.offsetWidth; shibaEl.classList.add('animate-shiba-bounce');
+            setTimeout(() => { shibaEl.classList.remove('animate-shiba-bounce'); shibaEl.classList.add('animate-shiba-float'); }, 400);
             showSpeechBubble(message);
         }
 
         function showSpeechBubble(text) {
-            clearTimeout(speechTimeout);
-            speechEl.innerText = text;
-            speechEl.classList.remove('hidden');
-            speechTimeout = setTimeout(() => {
-                speechEl.classList.add('hidden');
-            }, 3000); // 3秒後消失
+            clearTimeout(speechTimeout); speechEl.innerText = text; speechEl.classList.remove('hidden');
+            speechTimeout = setTimeout(() => { speechEl.classList.add('hidden'); }, 3000);
         }
 
         // 手勢
@@ -256,16 +231,11 @@
         window.resetForm = () => { editingId = null; document.getElementById('form-title').innerText = "記一筆"; inpAmount.value = ''; inpTitle.value = ''; inpDate.valueAsDate = new Date(); window.clearPhoto(); };
         window.editTransaction = (id) => { const tx = transactions.find(t => t.id === id); if (!tx) return; editingId = id; inpTitle.value = tx.title; inpAmount.value = tx.amount; inpType.value = tx.type; updateCategoryOptions(); inpCategory.value = tx.category; inpDate.valueAsDate = new Date(tx.dateTimestamp); currentPhotoData = tx.photo || null; if (currentPhotoData) { document.getElementById('img-preview').src = currentPhotoData; document.getElementById('preview-container').classList.remove('hidden'); document.getElementById('btn-camera').classList.add('hidden'); } else window.clearPhoto(); document.getElementById('form-title').innerText = "編輯"; window.openInputModal(); };
         
-        // 🔥 更新：記帳提交時觸發柴犬反應
         document.getElementById('transaction-form').addEventListener('submit', async (e) => { 
             e.preventDefault(); if(currentViewUid !== currentUser.uid) return alert("只能編輯自己的帳本喔"); const amount = Number(inpAmount.value); if(amount <= 0) return alert("金額錯誤"); const data = { amount, type: inpType.value, category: inpCategory.value, title: inpTitle.value.trim() || inpCategory.value, dateTimestamp: inpDate.valueAsDate.getTime(), date: inpDate.valueAsDate.toLocaleDateString(), photo: currentPhotoData }; 
             try { 
                 if(editingId) { await updateDoc(doc(db, "users", currentUser.uid, "transactions", editingId), data); } 
-                else { 
-                    await addDoc(collection(db, "users", currentUser.uid, "transactions"), data); await updateDoc(doc(db, "users", currentUser.uid), { boneCoins: increment(10) }); myProfileData.boneCoins += 10; 
-                    // 觸發柴犬反應
-                    triggerShibaReaction("記帳成功！骨頭幣 +10！(開心)");
-                } 
+                else { await addDoc(collection(db, "users", currentUser.uid, "transactions"), data); await updateDoc(doc(db, "users", currentUser.uid), { boneCoins: increment(10) }); myProfileData.boneCoins += 10; triggerShibaReaction("記帳成功！骨頭幣 +10！(開心)"); } 
                 window.closeInputModal(); 
             } catch(e) { alert("錯誤: " + e.message); } 
         });
@@ -329,22 +299,7 @@
         window.toggleProfileModal = () => document.getElementById('profile-modal').classList.toggle('hidden');
         window.saveProfile = async () => { await updateDoc(doc(db,"users",currentUser.uid), {name:document.getElementById('profile-name-input').value, photo:currentProfilePhotoData}); alert('已儲存'); window.toggleProfileModal(); };
         window.toggleStoreModal = async () => { const modal = document.getElementById('store-modal'); const isHidden = modal.classList.contains('hidden'); if (isHidden) { const userRef = doc(db, "users", currentUser.uid); const snap = await getDoc(userRef); if (snap.exists()) { myProfileData.boneCoins = snap.data().boneCoins || 0; document.getElementById('store-coin-count').innerText = myProfileData.boneCoins; } modal.classList.remove('hidden'); } else { modal.classList.add('hidden'); } };
-        
-        // 🔥 更新：購買時觸發柴犬反應
-        window.buyItem = async (price, itemName) => { 
-            if (myProfileData.boneCoins >= price) { 
-                if(confirm(`確定花費 ${price} 骨頭幣購買 ${itemName} 嗎？`)) { 
-                    await updateDoc(doc(db, "users", currentUser.uid), { boneCoins: increment(-price) }); 
-                    myProfileData.boneCoins -= price; 
-                    document.getElementById('store-coin-count').innerText = myProfileData.boneCoins; 
-                    // 觸發柴犬反應
-                    triggerShibaReaction(`謝謝惠顧！你買了 ${itemName} (汪!)`);
-                } 
-            } else { 
-                triggerShibaReaction("骨頭幣不夠啦！快去記帳！(氣)");
-            } 
-        };
+        window.buyItem = async (price, itemName) => { if (myProfileData.boneCoins >= price) { if(confirm(`確定花費 ${price} 骨頭幣購買 ${itemName} 嗎？`)) { await updateDoc(doc(db, "users", currentUser.uid), { boneCoins: increment(-price) }); myProfileData.boneCoins -= price; document.getElementById('store-coin-count').innerText = myProfileData.boneCoins; triggerShibaReaction(`謝謝惠顧！你買了 ${itemName} (汪!)`); } } else { triggerShibaReaction("骨頭幣不夠啦！快去記帳！(氣)"); } };
     </script>
 </body>
 </html>
-
