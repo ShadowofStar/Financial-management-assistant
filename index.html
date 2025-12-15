@@ -3,7 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 好友瀏覽修復</title>
+    <title>柴管家</title>
+    
+    <link rel="icon" type="image/png" href="./Shiba Logo.png">
+    <link rel="shortcut icon" href="./Shiba Logo.png">
+    <link rel="apple-touch-icon" href="./Shiba Logo.png"> <meta name="theme-color" content="#FFFCF5"> <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="柴管家">
+    <meta name="mobile-web-app-capable" content="yes">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -113,17 +121,13 @@
                 
                 <div class="space-y-3">
                     <input type="text" id="profile-name-input" class="w-full bg-white border-2 border-[#FFE8D6] rounded-xl px-4 py-3 text-sm font-bold text-center outline-none focus:border-[#F4A261] disabled:bg-gray-50 disabled:text-gray-500" placeholder="顯示名稱">
-                    
                     <div id="profile-actions" class="space-y-3">
                         <button onclick="saveProfile()" class="w-full bg-[#F4A261] hover:bg-[#E76F51] text-white font-bold py-3.5 rounded-xl shadow-md transition">儲存變更</button>
                         <button onclick="window.setMoney(10000)" class="w-full bg-green-100 text-green-600 font-bold py-3.5 rounded-xl hover:bg-green-200 transition border-2 border-green-200">💰 領取測試經費</button>
                         <button onclick="logout()" class="w-full bg-white border-2 border-[#FFCDD2] text-[#E76F51] font-bold py-3.5 rounded-xl hover:bg-[#FFEBEE] transition">登出帳號</button>
                     </div>
-                    
                     <div id="profile-friend-actions" class="hidden space-y-3">
-                        <button id="btn-view-ledger" onclick="" class="w-full bg-[#F4A261] text-white font-black py-4 rounded-xl shadow-[0_4px_0_#E76F51] active:translate-y-1 active:shadow-none transition hover:bg-[#E76F51]">
-                            📖 查看他的帳本
-                        </button>
+                        <button id="btn-view-ledger" onclick="" class="w-full bg-[#F4A261] text-white font-black py-4 rounded-xl shadow-[0_4px_0_#E76F51] active:translate-y-1 active:shadow-none transition hover:bg-[#E76F51]">📖 查看他的帳本</button>
                         <button onclick="toggleProfileModal()" class="w-full bg-[#FFE8D6] text-[#8D6E63] font-bold py-3 rounded-xl hover:bg-[#F4A261] hover:text-white transition">關閉</button>
                     </div>
                 </div>
@@ -184,7 +188,7 @@
             }
         });
 
-        // 🔥 更新：開啟通用個人檔案 (包含「查看帳本」按鈕)
+        // 🔥 更新：開啟通用個人檔案
         window.openUserProfile = async (targetUid) => {
             const isMe = (targetUid === currentUser.uid);
             let userData = null;
@@ -198,11 +202,7 @@
                 } catch (e) { console.error("抓取資料失敗", e); }
             }
 
-            // 如果從資料庫抓不到，嘗試從好友列表的緩存抓 (Fallback)
-            if (!userData) {
-                // 這裡可以做更細緻的處理，目前先用默認
-                userData = { name: "神秘柴友", photo: DEFAULT_AVATAR, shortId: "???", email: "" };
-            }
+            if (!userData) userData = { name: "神秘柴友", photo: DEFAULT_AVATAR, shortId: "???", email: "" };
 
             document.getElementById('profile-avatar').src = userData.photo || DEFAULT_AVATAR;
             document.getElementById('profile-name-input').value = userData.name || "神秘柴友";
@@ -226,11 +226,11 @@
                 cameraBtn.classList.add('hidden');
                 nameInput.disabled = true;
                 
-                // 設定「查看帳本」按鈕的功能
+                // 🔥 設定「查看帳本」按鈕的功能
                 viewLedgerBtn.onclick = () => {
                     switchView(targetUid, userData.name || "好友");
-                    toggleProfileModal(); // 關閉個人檔案
-                    toggleFriendModal();  // 關閉好友列表 (如果有的話)
+                    toggleProfileModal(); 
+                    toggleFriendModal();  
                 };
             }
 
@@ -262,8 +262,7 @@
                         const fName = f.name || "神秘柴友";
                         const fPhoto = f.photo || DEFAULT_AVATAR;
                         const fId = f.shortId || "???";
-                        // 🔥 修正：點擊整列除了刪除鈕以外的地方，都直接切換帳本
-                        // 如果要看 Profile，請點上方的「個人」標籤
+                        // 🔥 點擊整列直接開啟帳本
                         div.innerHTML = `
                             <div class="flex items-center gap-3 flex-1" onclick="openUserProfile('${f.uid}')">
                                 <img src="${fPhoto}" class="w-10 h-10 rounded-full bg-white object-cover border border-[#FFE8D6]">
@@ -271,7 +270,11 @@
                             </div>
                             <button onclick="event.stopPropagation();deleteFriend('${f.uid}')" class="text-[#8D6E63] hover:text-[#E76F51] p-2">×</button>
                         `;
-                        // 點擊事件綁定在內層 div (openUserProfile)，這裡不需要額外綁定
+                        div.onclick = (e) => { 
+                            if(e.target.tagName !== 'BUTTON' && !e.target.closest('.flex-1')) { 
+                                switchView(f.uid, fName); toggleFriendModal(); 
+                            }
+                        };
                         el.appendChild(div);
                     } catch(e) { console.error("好友渲染錯誤:", e); }
                 });
