@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 音量設定版</title>
+    <title>柴管家 - 音量完美版</title>
     
     <link rel="icon" type="image/png" href="./Shiba Logo.png">
     <link rel="shortcut icon" href="./Shiba Logo.png">
@@ -45,15 +45,15 @@
         .music-playing { animation: pulse-music 1.2s infinite; border-color: #F4A261 !important; color: #F4A261 !important; background: #FFF !important; }
         @keyframes pulse-music { 0% { box-shadow: 0 0 0 0 rgba(244, 162, 97, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(244, 162, 97, 0); } 100% { box-shadow: 0 0 0 0 rgba(244, 162, 97, 0); } }
 
-        /* 滑桿樣式優化 */
+        /* 滑桿樣式 */
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: #F4A261; cursor: pointer; margin-top: -8px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #FFE8D6; border-radius: 2px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #F4A261; cursor: pointer; margin-top: -10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); border: 2px solid white; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #FFE8D6; border-radius: 4px; }
     </style>
 </head>
 <body class="bg-[#FFFCF5] text-[#4A3B32] min-h-screen selection:bg-[#F4A261] selection:text-white">
 
-    <audio id="bg-music" loop preload="auto">
+    <audio id="bg-music" loop crossorigin="anonymous">
         <source src="https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg">
     </audio>
 
@@ -116,28 +116,10 @@
         <div id="settings-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm">
             <div class="absolute inset-0" onclick="toggleSettingsModal()"></div>
             <div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-6 relative z-10 shadow-2xl scale-in border-4 border-white">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-black text-[#4A3B32]">系統設定</h2>
-                    <button onclick="toggleSettingsModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full flex items-center justify-center">×</button>
-                </div>
-                
-                <div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="font-bold text-[#4A3B32] text-sm">🎵 背景音樂</span>
-                        <span class="text-xs text-[#8D6E63] font-bold" id="bgm-val-display">50%</span>
-                    </div>
-                    <input type="range" min="0" max="1" step="0.1" value="0.5" oninput="updateBGMVolume(this.value)">
-                </div>
-
-                <div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-6">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="font-bold text-[#4A3B32] text-sm">🔊 按鈕音效</span>
-                        <span class="text-xs text-[#8D6E63] font-bold" id="sfx-val-display">50%</span>
-                    </div>
-                    <input type="range" min="0" max="1" step="0.1" value="0.5" oninput="updateSFXVolume(this.value)">
-                </div>
-
-                <div class="text-center text-xs text-[#8D6E63] opacity-60 font-bold">ShibaManager v4.0</div>
+                <div class="flex items-center justify-between mb-6"><h2 class="text-2xl font-black text-[#4A3B32]">系統設定</h2><button onclick="toggleSettingsModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full flex items-center justify-center">×</button></div>
+                <div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-4"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🎵 背景音樂</span><span class="text-xs text-[#8D6E63] font-bold" id="bgm-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateBGMVolume(this.value)"></div>
+                <div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-6"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🔊 按鈕音效</span><span class="text-xs text-[#8D6E63] font-bold" id="sfx-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateSFXVolume(this.value)"></div>
+                <div class="text-center text-xs text-[#8D6E63] opacity-60 font-bold">ShibaManager v4.1</div>
             </div>
         </div>
 
@@ -158,62 +140,90 @@
         const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app); const provider = new GoogleAuthProvider();
         const DEFAULT_AVATAR = './Shiba Logo.png';
         
-        // 🔥 音量管理
+        // 🔥 Web Audio API 初始化
+        let audioCtx, bgmGainNode, bgmSource;
         let globalBGMVolume = 0.5;
         let globalSFXVolume = 0.5;
-        const bgMusic = document.getElementById('bg-music');
-        bgMusic.volume = globalBGMVolume;
-
-        const popSound = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="); 
-        // 修正 SFX 函數，加入音量控制
-        const playPop = () => { const ctx = new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='sine'; o.frequency.setValueAtTime(800,ctx.currentTime); o.frequency.exponentialRampToValueAtTime(100,ctx.currentTime+0.1); g.gain.setValueAtTime(0.1 * globalSFXVolume, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.1); o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.1); };
-        const playBark = () => { const ctx = new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='triangle'; o.frequency.setValueAtTime(400,ctx.currentTime); o.frequency.linearRampToValueAtTime(300,ctx.currentTime+0.1); g.gain.setValueAtTime(0.1 * globalSFXVolume, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.15); o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.15); };
-        const playCoin = () => { const ctx = new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='sine'; o.frequency.setValueAtTime(1200,ctx.currentTime); o.frequency.exponentialRampToValueAtTime(2000,ctx.currentTime+0.1); g.gain.setValueAtTime(0.1 * globalSFXVolume, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.3); o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.3); };
-
         let isMusicPlaying = false;
-        
+
+        // 初始化音訊環境
+        window.initAudio = () => {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+                bgmGainNode = audioCtx.createGain();
+                bgmGainNode.gain.value = globalBGMVolume;
+                bgmGainNode.connect(audioCtx.destination);
+                
+                // 連接背景音樂
+                const bgMusic = document.getElementById('bg-music');
+                bgmSource = audioCtx.createMediaElementSource(bgMusic);
+                bgmSource.connect(bgmGainNode);
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        };
+
+        // 播放 SFX (使用 Web Audio API)
+        const playPop = () => {
+            if (!audioCtx) window.initAudio();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.1 * globalSFXVolume, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        };
+        const playBark = () => {
+            if (!audioCtx) window.initAudio();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = 'triangle'; osc.frequency.setValueAtTime(400, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(300, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.1 * globalSFXVolume, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+        };
+        const playCoin = () => {
+            if (!audioCtx) window.initAudio();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = 'sine'; osc.frequency.setValueAtTime(1200, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(2000, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.1 * globalSFXVolume, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        };
+
         window.startApp = () => {
+            window.initAudio(); // 初始化音效
             const overlay = document.getElementById('start-overlay');
             overlay.classList.add('opacity-0', 'pointer-events-none');
             
-            // 嘗試播放並設置音量
-            bgMusic.volume = globalBGMVolume;
+            const bgMusic = document.getElementById('bg-music');
             bgMusic.play().then(() => {
                 isMusicPlaying = true;
                 const btn = document.getElementById('music-btn');
-                btn.innerText = "🎵";
-                btn.classList.add('music-playing');
-            }).catch(e => console.log("Music play failed:", e));
+                btn.innerText = "🎵"; btn.classList.add('music-playing');
+            }).catch(e => console.log("Play failed:", e));
             
             if(currentUser) document.getElementById('app-screen').classList.remove('hidden');
             else document.getElementById('login-screen').classList.remove('hidden');
         };
 
         window.toggleMusic = () => {
+            const bgMusic = document.getElementById('bg-music');
             const btn = document.getElementById('music-btn');
+            if(!audioCtx) window.initAudio();
+            
             if (isMusicPlaying) { 
-                bgMusic.pause(); 
-                btn.innerText = "🔇"; 
-                btn.classList.remove('music-playing');
-                isMusicPlaying = false; 
+                bgMusic.pause(); btn.innerText = "🔇"; btn.classList.remove('music-playing'); isMusicPlaying = false; 
             } else { 
-                bgMusic.play().then(() => { 
-                    btn.innerText = "🎵"; 
-                    btn.classList.add('music-playing');
-                    isMusicPlaying = true; 
-                }); 
+                bgMusic.play().then(() => { btn.innerText = "🎵"; btn.classList.add('music-playing'); isMusicPlaying = true; }); 
             }
         };
 
-        // 🔥 設定功能邏輯
         window.toggleSettingsModal = () => document.getElementById('settings-modal').classList.toggle('hidden');
         
         window.updateBGMVolume = (val) => {
             globalBGMVolume = parseFloat(val);
-            bgMusic.volume = globalBGMVolume;
+            if(bgmGainNode) bgmGainNode.gain.value = globalBGMVolume;
             document.getElementById('bgm-val-display').innerText = Math.round(globalBGMVolume * 100) + '%';
             
-            // 如果音量歸零，圖示自動變靜音；如果有聲音且在播放，恢復圖示
             const btn = document.getElementById('music-btn');
             if(globalBGMVolume === 0) { btn.innerText = "🔇"; btn.classList.remove('music-playing'); }
             else if(isMusicPlaying) { btn.innerText = "🎵"; btn.classList.add('music-playing'); }
@@ -222,14 +232,11 @@
         window.updateSFXVolume = (val) => {
             globalSFXVolume = parseFloat(val);
             document.getElementById('sfx-val-display').innerText = Math.round(globalSFXVolume * 100) + '%';
-            playPop(); // 播放音效確認
+            playPop();
         };
 
         document.addEventListener('click', (e) => { 
-            // 排除 slider 避免重複觸發
-            if((e.target.closest('button') || e.target.closest('.cursor-pointer')) && e.target.type !== 'range') { 
-                playPop(); 
-            } 
+            if((e.target.closest('button') || e.target.closest('.cursor-pointer')) && e.target.type !== 'range') { playPop(); } 
         });
 
         let currentUser=null, currentViewUid=null, transactions=[], unsubscribe=null, currentDetailId=null, friendUnsubscribe=null;
