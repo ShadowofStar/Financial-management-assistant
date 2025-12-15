@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 社交強化版</title>
+    <title>柴管家 - 按鈕交換版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -69,9 +69,24 @@
         </div>
 
         <nav class="fixed bottom-0 w-full max-w-md bg-[#FFFCF5]/95 backdrop-blur-md border-t-2 border-[#FFE8D6] pb-safe pt-2 px-8 flex justify-between items-end z-30 h-[88px] rounded-t-[2rem]">
-            <button onclick="toggleStoreModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#4A3B32] transition hover:scale-105 active:scale-95 group"><div class="relative"><svg class="w-6 h-6 group-hover:text-[#F4A261] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg><div class="absolute -top-1 -right-1 w-2 h-2 bg-[#E76F51] rounded-full hidden"></div></div><span class="text-[11px] font-black group-hover:text-[#F4A261] transition">商店</span></button>
-            <button id="fab-btn" onclick="openInputModal()" class="mb-6 bg-[#F4A261] text-white rounded-2xl w-14 h-14 shadow-[0_6px_20px_rgba(244,162,97,0.4)] flex items-center justify-center transform transition active:scale-90 hover:bg-[#E76F51] hover:-translate-y-1 border-4 border-[#FFFCF5]"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg></button>
-            <button onclick="toggleFriendModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#8D6E63] hover:text-[#4A3B32] transition hover:scale-105 active:scale-95"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z"></path></svg><span class="text-[11px] font-black">好友</span></button>
+            
+            <button onclick="toggleFriendModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#8D6E63] hover:text-[#4A3B32] transition hover:scale-105 active:scale-95">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <span class="text-[11px] font-black">好友</span>
+            </button>
+
+            <button id="fab-btn" onclick="openInputModal()" class="mb-6 bg-[#F4A261] text-white rounded-2xl w-14 h-14 shadow-[0_6px_20px_rgba(244,162,97,0.4)] flex items-center justify-center transform transition active:scale-90 hover:bg-[#E76F51] hover:-translate-y-1 border-4 border-[#FFFCF5]">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+            </button>
+
+            <button onclick="toggleStoreModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#4A3B32] transition hover:scale-105 active:scale-95 group">
+                <div class="relative">
+                    <svg class="w-6 h-6 group-hover:text-[#F4A261] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                    <div class="absolute -top-1 -right-1 w-2 h-2 bg-[#E76F51] rounded-full hidden"></div>
+                </div>
+                <span class="text-[11px] font-black group-hover:text-[#F4A261] transition">商店</span>
+            </button>
+
         </nav>
 
         <div id="daily-bonus-modal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm">
@@ -92,40 +107,14 @@
             <div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl scale-in relative flex flex-col max-h-[90vh]" onclick="event.stopPropagation()">
                 <div class="relative w-full bg-[#FFE8D6] aspect-square group shrink-0">
                     <img id="detail-img" src="" class="w-full h-full object-cover">
-                    <div id="detail-no-img" class="hidden w-full h-full flex flex-col items-center justify-center bg-[#FFF0D4] text-[#F4A261]">
-                        <span class="text-8xl" id="detail-icon">🐕</span>
-                        <span class="text-sm font-bold mt-4 text-[#8D6E63]">沒有照片</span>
-                    </div>
+                    <div id="detail-no-img" class="hidden w-full h-full flex flex-col items-center justify-center bg-[#FFF0D4] text-[#F4A261]"><span class="text-8xl" id="detail-icon">🐕</span><span class="text-sm font-bold mt-4 text-[#8D6E63]">沒有照片</span></div>
                     <button onclick="closeDetailModal()" class="absolute top-4 right-4 bg-white/80 text-[#4A3B32] w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md shadow-md font-bold">✕</button>
                 </div>
-                
                 <div class="p-6 flex-1 overflow-y-auto no-scrollbar">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <span id="detail-date" class="text-xs font-bold text-[#8D6E63] uppercase tracking-wide bg-[#FFE8D6] px-2 py-0.5 rounded-md">...</span>
-                            <h2 id="detail-title" class="text-xl font-black text-[#4A3B32] mt-2">...</h2>
-                        </div>
-                        <div id="detail-amount" class="text-2xl font-black text-[#4A3B32]">...</div>
-                    </div>
-                    <div class="flex items-center gap-2 mb-6">
-                        <span id="detail-category" class="bg-[#F4A261]/20 text-[#E76F51] px-3 py-1 rounded-lg text-xs font-bold">...</span>
-                        <span id="detail-type" class="text-xs font-bold text-[#8D6E63]">...</span>
-                    </div>
-
-                    <div id="detail-actions" class="grid grid-cols-2 gap-3 mb-6 hidden">
-                        <button onclick="editCurrentDetail()" class="flex-1 bg-[#FFF0D4] text-[#4A3B32] py-3.5 rounded-xl font-bold hover:bg-[#FFE8D6] transition">✎ 編輯</button>
-                        <button onclick="deleteCurrentDetail()" class="flex-1 bg-white border-2 border-[#FFCDD2] text-[#E76F51] py-3.5 rounded-xl font-bold hover:bg-[#FFEBEE] transition">🗑️ 刪除</button>
-                    </div>
-
-                    <div class="border-t border-[#FFE8D6] pt-4">
-                        <div class="text-xs font-bold text-[#F4A261] mb-2 uppercase tracking-wider">留言板</div>
-                        <div id="detail-comments-list" class="space-y-3 mb-4 min-h-[60px]"></div>
-                        
-                        <div class="flex gap-2">
-                            <input type="text" id="detail-comment-input" placeholder="說點好聽的..." class="flex-1 bg-white border border-[#FFE8D6] rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#F4A261] shadow-sm">
-                            <button onclick="submitDetailComment()" class="bg-[#F4A261] text-white rounded-xl px-4 font-bold shadow-[0_3px_0_#E76F51] active:shadow-none active:translate-y-1 transition hover:bg-[#E76F51]">傳送</button>
-                        </div>
-                    </div>
+                    <div class="flex justify-between items-start mb-2"><div><span id="detail-date" class="text-xs font-bold text-[#8D6E63] uppercase tracking-wide bg-[#FFE8D6] px-2 py-0.5 rounded-md">...</span><h2 id="detail-title" class="text-xl font-black text-[#4A3B32] mt-2">...</h2></div><div id="detail-amount" class="text-2xl font-black text-[#4A3B32]">...</div></div>
+                    <div class="flex items-center gap-2 mb-6"><span id="detail-category" class="bg-[#F4A261]/20 text-[#E76F51] px-3 py-1 rounded-lg text-xs font-bold">...</span><span id="detail-type" class="text-xs font-bold text-[#8D6E63]">...</span></div>
+                    <div id="detail-actions" class="grid grid-cols-2 gap-3 mb-6 hidden"><button onclick="editCurrentDetail()" class="flex-1 bg-[#FFF0D4] text-[#4A3B32] py-3.5 rounded-xl font-bold hover:bg-[#FFE8D6] transition">✎ 編輯</button><button onclick="deleteCurrentDetail()" class="flex-1 bg-white border-2 border-[#FFCDD2] text-[#E76F51] py-3.5 rounded-xl font-bold hover:bg-[#FFEBEE] transition">🗑️ 刪除</button></div>
+                    <div class="border-t border-[#FFE8D6] pt-4"><div class="text-xs font-bold text-[#F4A261] mb-2 uppercase tracking-wider">留言板</div><div id="detail-comments-list" class="space-y-3 mb-4 min-h-[60px]"></div><div class="flex gap-2"><input type="text" id="detail-comment-input" placeholder="說點好聽的..." class="flex-1 bg-white border border-[#FFE8D6] rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#F4A261] shadow-sm"><button onclick="submitDetailComment()" class="bg-[#F4A261] text-white rounded-xl px-4 font-bold shadow-[0_3px_0_#E76F51] active:shadow-none active:translate-y-1 transition hover:bg-[#E76F51]">傳送</button></div></div>
                 </div>
             </div>
         </div>
@@ -161,7 +150,6 @@
                 await ensureUserHasId(user); await loadCustomCategories(user);
                 document.getElementById('login-screen').classList.add('hidden'); document.getElementById('app-screen').classList.remove('hidden');
                 loadDataRealtime(user.uid); loadFriends(); updateViewMode();
-                
                 await checkDailyBonus(user.uid);
                 setTimeout(() => triggerShibaReaction("歡迎回來，主人！汪！"), 1500);
             } else {
@@ -170,7 +158,7 @@
             }
         });
 
-        // AddFriend (修復版)
+        // AddFriend
         window.addFriend = async () => { 
             const id = document.getElementById('friend-id-input').value; 
             if(id.length !== 6) return alert("ID 錯誤"); 
@@ -280,7 +268,7 @@
             document.getElementById('display-balance').innerText=(inc-exp).toLocaleString(); document.getElementById('display-income').innerText=inc.toLocaleString(); document.getElementById('display-expense').innerText=exp.toLocaleString(); renderChart(expData);
         };
 
-        // 🔥 更新：Detail Modal 邏輯 (開放所有人留言)
+        // Detail Modal
         window.openDetailModal = (id) => {
             const t = transactions.find(x => x.id === id); if(!t) return; currentDetailId = id;
             document.getElementById('detail-title').innerText = t.title || t.category; 
@@ -292,12 +280,10 @@
             if(t.photo) { imgEl.src = t.photo; imgEl.classList.remove('hidden'); noImgEl.classList.add('hidden'); } 
             else { imgEl.classList.add('hidden'); noImgEl.classList.remove('hidden'); detailIconEl.innerText = categoryIcons[t.category] || '🐕'; }
             
-            // 權限判斷：操作按鈕只給主人看
             const actionsEl = document.getElementById('detail-actions');
             if(currentViewUid === currentUser.uid) actionsEl.classList.remove('hidden'); 
             else actionsEl.classList.add('hidden');
             
-            // 留言區：所有人可見
             renderDetailComments(t);
             document.getElementById('detail-modal').classList.remove('hidden');
         };
