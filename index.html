@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 手勢修復版</title>
+    <title>柴管家 - 手勢終極修復</title>
     
     <link rel="icon" type="image/png" href="./Shiba Logo.png">
     <link rel="shortcut icon" href="./Shiba Logo.png">
@@ -110,7 +110,7 @@
             <button onclick="toggleStoreModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#4A3B32] transition hover:scale-105 active:scale-95 group"><div class="relative"><svg class="w-6 h-6 group-hover:text-[#F4A261] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg><div class="absolute -top-1 -right-1 w-2 h-2 bg-[#E76F51] rounded-full hidden"></div></div><span class="text-[11px] font-black group-hover:text-[#F4A261] transition">商店</span></button>
         </nav>
 
-        <div id="settings-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleSettingsModal()"></div><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-6 relative z-10 shadow-2xl scale-in border-4 border-white"><div class="flex items-center justify-between mb-6"><h2 class="text-2xl font-black text-[#4A3B32]">系統設定</h2><button onclick="toggleSettingsModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full flex items-center justify-center">×</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-4"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🎵 背景音樂</span><span class="text-xs text-[#8D6E63] font-bold" id="bgm-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateBGMVolume(this.value)"></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-6"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🔊 按鈕音效</span><span class="text-xs text-[#8D6E63] font-bold" id="sfx-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateSFXVolume(this.value)"></div><div class="text-center text-xs text-[#8D6E63] opacity-60 font-bold">ShibaManager v4.6</div></div></div>
+        <div id="settings-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleSettingsModal()"></div><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-6 relative z-10 shadow-2xl scale-in border-4 border-white"><div class="flex items-center justify-between mb-6"><h2 class="text-2xl font-black text-[#4A3B32]">系統設定</h2><button onclick="toggleSettingsModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full flex items-center justify-center">×</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-4"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🎵 背景音樂</span><span class="text-xs text-[#8D6E63] font-bold" id="bgm-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateBGMVolume(this.value)"></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-6"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🔊 按鈕音效</span><span class="text-xs text-[#8D6E63] font-bold" id="sfx-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateSFXVolume(this.value)"></div><div class="text-center text-xs text-[#8D6E63] opacity-60 font-bold">ShibaManager v4.7</div></div></div>
         
         <div id="input-modal" class="fixed inset-0 bg-[#4A3B32]/40 z-50 hidden flex flex-col justify-end fade-in backdrop-blur-sm">
             <div class="absolute inset-0" onclick="closeInputModal()"></div>
@@ -123,8 +123,7 @@
 
         <div id="friend-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-start justify-start fade-in backdrop-blur-sm">
             <div class="absolute inset-0" onclick="toggleFriendModal()"></div>
-            <div id="friend-panel" class="bg-[#FFFCF5] w-4/5 max-w-sm h-full p-6 flex flex-col relative z-10 slide-in-left shadow-2xl rounded-r-[2rem] transition-transform duration-200">
-                <div class="flex justify-between items-center mb-6">
+            <div id="friend-panel" class="bg-[#FFFCF5] w-4/5 max-w-sm h-full p-6 flex flex-col relative z-10 slide-in-left shadow-2xl rounded-r-[2rem] transition-transform duration-200" style="touch-action: pan-y;"> <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-black text-[#4A3B32]">柴友列表</h2>
                     <div class="flex gap-2"><button onclick="loadFriends(true)" class="text-[#2A9D8F] text-sm font-bold bg-[#E0F2F1] px-2 py-1 rounded-lg">🔄 刷新</button><button onclick="toggleFriendModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full">×</button></div>
                 </div>
@@ -177,51 +176,59 @@
         window.updateSFXVolume = (val) => { globalSFXVolume = parseFloat(val); document.getElementById('sfx-val-display').innerText = Math.round(globalSFXVolume * 100) + '%'; playPop(); };
         document.addEventListener('click', (e) => { if((e.target.closest('button') || e.target.closest('.cursor-pointer')) && e.target.type !== 'range') { playPop(); } });
 
-        // 🔥 Slide Down Logic (Input)
+        // 🔥 Slide Down Logic (Input) - 保持不變
         const inputPanel = document.getElementById('input-panel');
         let panelStartY = 0; let isDragging = false;
         inputPanel.addEventListener('touchstart', (e) => { if(inputPanel.scrollTop <= 0) { panelStartY = e.touches[0].clientY; isDragging = false; } }, {passive: true});
         inputPanel.addEventListener('touchmove', (e) => { const diff = e.touches[0].clientY - panelStartY; if(inputPanel.scrollTop <= 0 && diff > 0) { if(e.cancelable) e.preventDefault(); isDragging = true; inputPanel.style.transform = `translateY(${diff}px)`; inputPanel.style.transition = 'none'; } }, {passive: false});
         inputPanel.addEventListener('touchend', (e) => { if(!isDragging) return; if((e.changedTouches[0].clientY - panelStartY) > 100) closeInputModal(); else { inputPanel.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; inputPanel.style.transform = ''; } isDragging = false; });
 
-        // 🔥 Slide Left Logic (Friend Panel) - 關鍵修復
+        // 🔥 Slide Left Logic (Friend Panel) - 終極修復
         const friendPanel = document.getElementById('friend-panel');
-        let friendStartX = 0; let friendStartY = 0; let isFriendDragging = false;
-        
+        let friendStartX = 0; let friendStartY = 0; 
+        let isFriendClosing = false; // 是否正在執行關閉動作
+        let isScrollingList = false; // 是否正在捲動列表
+
         friendPanel.addEventListener('touchstart', (e) => {
             friendStartX = e.touches[0].clientX;
             friendStartY = e.touches[0].clientY;
-            isFriendDragging = false;
+            isFriendClosing = false;
+            isScrollingList = false;
+            friendPanel.style.transition = 'none'; // 移除動畫以獲得即時回饋
         }, {passive: true});
 
         friendPanel.addEventListener('touchmove', (e) => {
+            if (isScrollingList) return; // 如果已經判定為捲動，就不再檢查滑動
+
             const currentX = e.touches[0].clientX;
             const currentY = e.touches[0].clientY;
-            const xDiff = currentX - friendStartX; // 向左滑是負數
+            const xDiff = currentX - friendStartX;
             const yDiff = currentY - friendStartY;
 
-            // 判斷是否為「水平滑動」且「向左」
-            if (xDiff < 0 && Math.abs(xDiff) > Math.abs(yDiff)) {
-                if (e.cancelable) e.preventDefault(); // 阻止瀏覽器預設捲動
-                isFriendDragging = true;
-                friendPanel.style.transform = `translateX(${xDiff}px)`; // 跟隨手指移動
-                friendPanel.style.transition = 'none';
+            // 判斷意圖：如果已經鎖定為關閉動作，或者 (向左滑 且 水平位移大於垂直位移)
+            if (isFriendClosing || (xDiff < -10 && Math.abs(xDiff) > Math.abs(yDiff))) {
+                if (e.cancelable) e.preventDefault(); // 🔥 關鍵：阻止垂直捲動
+                isFriendClosing = true;
+                friendPanel.style.transform = `translateX(${xDiff}px)`;
+            } else if (Math.abs(yDiff) > Math.abs(xDiff)) {
+                // 判定為垂直捲動，鎖定狀態，不再檢查水平滑動
+                isScrollingList = true;
             }
-        }, {passive: false}); // 必須為 false 才能 preventDefault
+        }, {passive: false});
 
         friendPanel.addEventListener('touchend', (e) => {
-            if (!isFriendDragging) return;
-            const xDiff = e.changedTouches[0].clientX - friendStartX;
-            
-            // 如果向左滑超過 80px，就關閉
-            if (xDiff < -80) {
-                toggleFriendModal();
-            } else {
-                // 回彈
-                friendPanel.style.transition = 'transform 0.3s ease-out';
-                friendPanel.style.transform = '';
+            if (isFriendClosing) {
+                const xDiff = e.changedTouches[0].clientX - friendStartX;
+                if (xDiff < -100) { // 滑動超過 100px 則關閉
+                    toggleFriendModal();
+                } else {
+                    // 回彈
+                    friendPanel.style.transition = 'transform 0.3s ease-out';
+                    friendPanel.style.transform = '';
+                }
             }
-            isFriendDragging = false;
+            isFriendClosing = false;
+            isScrollingList = false;
         });
 
         // 鎖定背景捲動的 helper
