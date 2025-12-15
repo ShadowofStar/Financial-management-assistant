@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 暖心版</title>
+    <title>柴管家 - 圖表優化版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -11,7 +11,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/zh-tw.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* 引入圓潤字體配合可愛風格 */
         body { font-family: 'Zen Maru Gothic', 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; touch-action: pan-y; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -26,14 +25,10 @@
         .slide-in-left { animation: slideInLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes slideInLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }
         
-        /* 柴犬色系變數 */
         :root {
-            --shiba-bg: #FFFCF5; /* 奶油白 */
-            --shiba-orange: #F4A261; /* 柴犬橘 */
-            --shiba-brown: #4A3B32; /* 焦糖深棕 */
-            --shiba-light-brown: #8D6E63; /* 淺棕 */
-            --shiba-accent: #E9C46A; /* 領巾黃 */
-            --shiba-card: #FFFFFF;
+            --shiba-bg: #FFFCF5;
+            --shiba-orange: #F4A261;
+            --shiba-brown: #4A3B32;
         }
     </style>
 </head>
@@ -75,7 +70,6 @@
                     <option value="all">全</option>
                 </select>
                 <div class="pr-2 text-[#F4A261]">▼</div>
-                
                 <input type="month" id="filter-month" class="absolute inset-0 opacity-0 cursor-pointer">
                 <input type="date" id="filter-day" class="absolute inset-0 opacity-0 cursor-pointer hidden">
                 <select id="filter-year" class="absolute inset-0 opacity-0 cursor-pointer hidden"></select>
@@ -86,7 +80,6 @@
             <div class="px-5 mt-2 mb-4">
                 <div class="bg-white rounded-[1.5rem] p-5 shadow-sm border-2 border-[#FFE8D6] flex justify-between items-center relative overflow-hidden" onclick="toggleChart()">
                     <div class="absolute -right-4 -top-4 w-16 h-16 bg-[#FFF0D4] rounded-full opacity-50"></div>
-                    
                     <div class="relative z-10">
                         <div class="text-[10px] text-[#8D6E63] font-bold uppercase tracking-wider mb-1">本月結餘</div>
                         <div class="text-3xl font-black text-[#4A3B32] flex items-baseline"><span class="text-sm font-bold mr-1 text-[#F4A261]">$</span><span id="display-balance">0</span></div>
@@ -96,8 +89,16 @@
                         <div><div class="text-[10px] text-[#8D6E63] mb-0.5">支</div><div class="font-bold text-[#E76F51] text-sm" id="display-expense">0</div></div>
                     </div>
                 </div>
+
                 <div id="chart-container" class="hidden bg-white mt-2 rounded-[1.5rem] p-4 border-2 border-[#FFE8D6] fade-in">
-                     <div class="h-40 w-full flex justify-center items-center relative"><canvas id="expenseChart"></canvas><p id="chart-placeholder" class="hidden absolute text-[#8D6E63] text-xs font-bold">無數據</p></div>
+                     <div class="flex items-center gap-3">
+                        <div class="w-[45%] h-32 relative">
+                            <canvas id="expenseChart"></canvas>
+                            <p id="chart-placeholder" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#8D6E63] text-xs font-bold">無數據</p>
+                        </div>
+                        <div id="chart-legend" class="w-[55%] space-y-1.5 max-h-32 overflow-y-auto text-xs pr-1">
+                            </div>
+                     </div>
                 </div>
             </div>
 
@@ -115,11 +116,9 @@
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                 <span class="text-[11px] font-black">相簿</span>
             </button>
-            
             <button id="fab-btn" onclick="openInputModal()" class="mb-6 bg-[#F4A261] text-white rounded-2xl w-14 h-14 shadow-[0_6px_20px_rgba(244,162,97,0.4)] flex items-center justify-center transform transition active:scale-90 hover:bg-[#E76F51] hover:-translate-y-1 border-4 border-[#FFFCF5]">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
             </button>
-
             <button onclick="toggleFriendModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#8D6E63] hover:text-[#4A3B32] transition hover:scale-105 active:scale-95">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                 <span class="text-[11px] font-black">好友</span>
@@ -130,94 +129,25 @@
             <div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl scale-in relative" onclick="event.stopPropagation()">
                 <div class="relative w-full bg-[#FFE8D6] aspect-square group">
                     <img id="detail-img" src="" class="w-full h-full object-cover">
-                    <div id="detail-no-img" class="hidden w-full h-full flex flex-col items-center justify-center bg-[#FFF0D4] text-[#F4A261]">
-                        <span class="text-6xl">🐕</span>
-                        <span class="text-sm font-bold mt-2">沒照片汪</span>
-                    </div>
+                    <div id="detail-no-img" class="hidden w-full h-full flex flex-col items-center justify-center bg-[#FFF0D4] text-[#F4A261]"><span class="text-6xl">🐕</span><span class="text-sm font-bold mt-2">沒照片汪</span></div>
                     <button onclick="closeDetailModal()" class="absolute top-4 right-4 bg-white/80 text-[#4A3B32] w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md shadow-md font-bold">✕</button>
                 </div>
                 <div class="p-6">
                     <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <span id="detail-date" class="text-xs font-bold text-[#8D6E63] uppercase tracking-wide bg-[#FFE8D6] px-2 py-0.5 rounded-md">...</span>
-                            <h2 id="detail-title" class="text-xl font-black text-[#4A3B32] mt-2">...</h2>
-                        </div>
+                        <div><span id="detail-date" class="text-xs font-bold text-[#8D6E63] uppercase tracking-wide bg-[#FFE8D6] px-2 py-0.5 rounded-md">...</span><h2 id="detail-title" class="text-xl font-black text-[#4A3B32] mt-2">...</h2></div>
                         <div id="detail-amount" class="text-2xl font-black text-[#4A3B32]">...</div>
                     </div>
-                    <div class="flex items-center gap-2 mb-6">
-                        <span id="detail-category" class="bg-[#F4A261]/20 text-[#E76F51] px-3 py-1 rounded-lg text-xs font-bold">...</span>
-                        <span id="detail-type" class="text-xs font-bold text-[#8D6E63]">...</span>
-                    </div>
-                    <div id="detail-actions" class="grid grid-cols-2 gap-3">
-                        <button onclick="editCurrentDetail()" class="flex-1 bg-[#FFF0D4] text-[#4A3B32] py-3.5 rounded-xl font-bold hover:bg-[#FFE8D6] transition">✎ 編輯</button>
-                        <button onclick="deleteCurrentDetail()" class="flex-1 bg-white border-2 border-[#FFCDD2] text-[#E76F51] py-3.5 rounded-xl font-bold hover:bg-[#FFEBEE] transition">🗑️ 刪除</button>
-                    </div>
-                    <div id="detail-comments-section" class="hidden mt-4 pt-4 border-t border-[#FFE8D6]">
-                        <div id="detail-comments-list" class="space-y-2 mb-3 max-h-32 overflow-y-auto"></div>
-                        <div class="flex gap-2">
-                            <input type="text" id="detail-comment-input" placeholder="汪汪..." class="flex-1 bg-white border border-[#FFE8D6] rounded-full px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-[#F4A261]">
-                            <button onclick="submitDetailComment()" class="bg-[#F4A261] text-white rounded-full w-9 h-9 flex items-center justify-center shadow-md">➤</button>
-                        </div>
-                    </div>
+                    <div class="flex items-center gap-2 mb-6"><span id="detail-category" class="bg-[#F4A261]/20 text-[#E76F51] px-3 py-1 rounded-lg text-xs font-bold">...</span><span id="detail-type" class="text-xs font-bold text-[#8D6E63]">...</span></div>
+                    <div id="detail-actions" class="grid grid-cols-2 gap-3"><button onclick="editCurrentDetail()" class="flex-1 bg-[#FFF0D4] text-[#4A3B32] py-3.5 rounded-xl font-bold hover:bg-[#FFE8D6] transition">✎ 編輯</button><button onclick="deleteCurrentDetail()" class="flex-1 bg-white border-2 border-[#FFCDD2] text-[#E76F51] py-3.5 rounded-xl font-bold hover:bg-[#FFEBEE] transition">🗑️ 刪除</button></div>
+                    <div id="detail-comments-section" class="hidden mt-4 pt-4 border-t border-[#FFE8D6]"><div id="detail-comments-list" class="space-y-2 mb-3 max-h-32 overflow-y-auto"></div><div class="flex gap-2"><input type="text" id="detail-comment-input" placeholder="汪汪..." class="flex-1 bg-white border border-[#FFE8D6] rounded-full px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-[#F4A261]"><button onclick="submitDetailComment()" class="bg-[#F4A261] text-white rounded-full w-9 h-9 flex items-center justify-center shadow-md">➤</button></div></div>
                 </div>
             </div>
         </div>
 
-        <div id="input-modal" class="fixed inset-0 bg-[#4A3B32]/40 z-50 hidden flex flex-col justify-end fade-in backdrop-blur-sm">
-            <div class="absolute inset-0" onclick="closeInputModal()"></div>
-            <div class="bg-[#FFFCF5] w-full rounded-t-[2.5rem] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] slide-up relative z-10 pb-safe">
-                <div class="w-12 h-1.5 bg-[#FFE8D6] rounded-full mx-auto mb-6"></div>
-                <div class="flex justify-between items-center mb-6">
-                    <button onclick="closeInputModal()" class="text-[#8D6E63] text-sm font-bold p-2 hover:bg-[#FFE8D6] rounded-lg">取消</button>
-                    <h2 class="text-sm font-black text-[#F4A261] uppercase tracking-widest" id="form-title">記一筆</h2>
-                    <button onclick="triggerSubmit()" class="text-[#E76F51] text-sm font-bold p-2 hover:bg-[#FFE8D6] rounded-lg">完成</button>
-                </div>
-                <form id="transaction-form" class="flex flex-col gap-5">
-                    <div class="relative group">
-                        <span class="absolute left-6 top-1/2 -translate-y-1/2 text-2xl text-[#F4A261] font-bold">$</span>
-                        <input type="number" id="inp-amount" placeholder="0" class="w-full bg-white border-2 border-[#FFE8D6] rounded-2xl py-4 pl-12 pr-4 text-4xl font-black text-[#4A3B32] text-center focus:ring-4 focus:ring-[#F4A261]/20 focus:border-[#F4A261] transition-all outline-none" required inputmode="decimal">
-                    </div>
-                    <div class="bg-[#FFF0D4] p-1.5 rounded-2xl flex">
-                        <select id="inp-type" onchange="updateCategoryOptions()" class="bg-white rounded-xl shadow-sm w-24 text-center text-sm font-bold text-[#4A3B32] focus:outline-none py-3 border border-[#FFE8D6]"><option value="expense">支出</option><option value="income">收入</option></select>
-                        <select id="inp-category" class="flex-1 bg-transparent px-4 text-sm font-bold text-[#4A3B32] focus:outline-none text-center"></select>
-                        <button type="button" onclick="addCustomCategory()" class="px-3 text-[#E76F51] font-black text-lg hover:bg-white/50 rounded-lg">+</button>
-                    </div>
-                    <div class="flex gap-3">
-                        <input type="date" id="inp-date" class="bg-white border-2 border-[#FFE8D6] rounded-2xl px-4 py-3.5 text-sm font-bold text-[#4A3B32] w-1/3 focus:border-[#F4A261] outline-none">
-                        <input type="text" id="inp-title" placeholder="買了什麼好吃..." class="flex-1 bg-white border-2 border-[#FFE8D6] rounded-2xl px-4 py-3.5 text-sm font-bold text-[#4A3B32] focus:border-[#F4A261] outline-none placeholder-[#D7CCC8]">
-                    </div>
-                    <div class="flex gap-3">
-                        <input type="file" id="inp-photo" accept="image/*" onchange="handlePhotoSelect(event)" class="hidden">
-                        <label for="inp-photo" id="btn-camera" class="w-full border-2 border-dashed border-[#F4A261]/50 bg-[#FFF8E1] rounded-2xl py-3 flex items-center justify-center gap-2 text-[#F4A261] cursor-pointer hover:bg-[#F4A261] hover:text-white transition">
-                            <span class="text-xl">📷</span><span class="text-xs font-bold">拍張照</span>
-                        </label>
-                        <div id="preview-container" class="hidden relative w-full h-24">
-                            <img id="img-preview" class="w-full h-full object-cover rounded-2xl border-2 border-[#F4A261]">
-                            <button type="button" onclick="clearPhoto()" class="absolute -top-2 -right-2 bg-[#E76F51] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md">×</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <div id="input-modal" class="fixed inset-0 bg-[#4A3B32]/40 z-50 hidden flex flex-col justify-end fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="closeInputModal()"></div><div class="bg-[#FFFCF5] w-full rounded-t-[2.5rem] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] slide-up relative z-10 pb-safe"><div class="w-12 h-1.5 bg-[#FFE8D6] rounded-full mx-auto mb-6"></div><div class="flex justify-between items-center mb-6"><button onclick="closeInputModal()" class="text-[#8D6E63] text-sm font-bold p-2 hover:bg-[#FFE8D6] rounded-lg">取消</button><h2 class="text-sm font-black text-[#F4A261] uppercase tracking-widest" id="form-title">記一筆</h2><button onclick="triggerSubmit()" class="text-[#E76F51] text-sm font-bold p-2 hover:bg-[#FFE8D6] rounded-lg">完成</button></div><form id="transaction-form" class="flex flex-col gap-5"><div class="relative group"><span class="absolute left-6 top-1/2 -translate-y-1/2 text-2xl text-[#F4A261] font-bold">$</span><input type="number" id="inp-amount" placeholder="0" class="w-full bg-white border-2 border-[#FFE8D6] rounded-2xl py-4 pl-12 pr-4 text-4xl font-black text-[#4A3B32] text-center focus:ring-4 focus:ring-[#F4A261]/20 focus:border-[#F4A261] transition-all outline-none" required inputmode="decimal"></div><div class="bg-[#FFF0D4] p-1.5 rounded-2xl flex"><select id="inp-type" onchange="updateCategoryOptions()" class="bg-white rounded-xl shadow-sm w-24 text-center text-sm font-bold text-[#4A3B32] focus:outline-none py-3 border border-[#FFE8D6]"><option value="expense">支出</option><option value="income">收入</option></select><select id="inp-category" class="flex-1 bg-transparent px-4 text-sm font-bold text-[#4A3B32] focus:outline-none text-center"></select><button type="button" onclick="addCustomCategory()" class="px-3 text-[#E76F51] font-black text-lg hover:bg-white/50 rounded-lg">+</button></div><div class="flex gap-3"><input type="date" id="inp-date" class="bg-white border-2 border-[#FFE8D6] rounded-2xl px-4 py-3.5 text-sm font-bold text-[#4A3B32] w-1/3 focus:border-[#F4A261] outline-none"><input type="text" id="inp-title" placeholder="買了什麼好吃..." class="flex-1 bg-white border-2 border-[#FFE8D6] rounded-2xl px-4 py-3.5 text-sm font-bold text-[#4A3B32] focus:border-[#F4A261] outline-none placeholder-[#D7CCC8]"></div><div class="flex gap-3"><input type="file" id="inp-photo" accept="image/*" onchange="handlePhotoSelect(event)" class="hidden"><label for="inp-photo" id="btn-camera" class="w-full border-2 border-dashed border-[#F4A261]/50 bg-[#FFF8E1] rounded-2xl py-3 flex items-center justify-center gap-2 text-[#F4A261] cursor-pointer hover:bg-[#F4A261] hover:text-white transition"><span class="text-xl">📷</span><span class="text-xs font-bold">拍張照</span></label><div id="preview-container" class="hidden relative w-full h-24"><img id="img-preview" class="w-full h-full object-cover rounded-2xl border-2 border-[#F4A261]"><button type="button" onclick="clearPhoto()" class="absolute -top-2 -right-2 bg-[#E76F51] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md">×</button></div></div></form></div></div>
 
-        <div id="friend-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-start justify-start fade-in backdrop-blur-sm">
-            <div class="absolute inset-0" onclick="toggleFriendModal()"></div>
-            <div class="bg-[#FFFCF5] w-4/5 max-w-sm h-full p-6 flex flex-col relative z-10 slide-in-left shadow-2xl rounded-r-[2rem]">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-black text-[#4A3B32]">柴友列表</h2>
-                    <button onclick="toggleFriendModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full">×</button>
-                </div>
-                <div class="mb-6 bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] shadow-sm">
-                    <label class="text-xs font-bold text-[#F4A261] block mb-2 uppercase tracking-wide">加入好友 (輸入 ID)</label>
-                    <div class="flex gap-2">
-                        <input type="tel" maxlength="6" id="friend-id-input" placeholder="000000" class="flex-1 bg-[#FFF8E1] border-none rounded-xl px-4 py-3 text-lg font-mono font-bold tracking-widest text-center text-[#4A3B32] outline-none focus:ring-2 focus:ring-[#F4A261]">
-                        <button onclick="addFriend()" class="bg-[#F4A261] text-white px-4 rounded-xl text-lg font-bold hover:bg-[#E76F51] transition shadow-md">+</button>
-                    </div>
-                </div>
-                <div class="flex-1 overflow-y-auto space-y-2" id="friend-list-container"></div>
-            </div>
-        </div>
-
+        <div id="friend-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-start justify-start fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleFriendModal()"></div><div class="bg-[#FFFCF5] w-4/5 max-w-sm h-full p-6 flex flex-col relative z-10 slide-in-left shadow-2xl rounded-r-[2rem]"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-[#4A3B32]">柴友列表</h2><button onclick="toggleFriendModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full">×</button></div><div class="mb-6 bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] shadow-sm"><label class="text-xs font-bold text-[#F4A261] block mb-2 uppercase tracking-wide">加入好友 (輸入 ID)</label><div class="flex gap-2"><input type="tel" maxlength="6" id="friend-id-input" placeholder="000000" class="flex-1 bg-[#FFF8E1] border-none rounded-xl px-4 py-3 text-lg font-mono font-bold tracking-widest text-center text-[#4A3B32] outline-none focus:ring-2 focus:ring-[#F4A261]"><button onclick="addFriend()" class="bg-[#F4A261] text-white px-4 rounded-xl text-lg font-bold hover:bg-[#E76F51] transition shadow-md">+</button></div></div><div class="flex-1 overflow-y-auto space-y-2" id="friend-list-container"></div></div></div>
+        
         <div id="profile-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center fade-in p-6 backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleProfileModal()"></div><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-6 relative z-10 shadow-2xl scale-95 transition-transform duration-200 border-4 border-white"><div class="flex flex-col items-center mb-6"><div class="relative"><img id="profile-avatar" src="./Shiba Logo.png" class="w-24 h-24 rounded-full border-[6px] border-white shadow-lg mb-4 object-cover bg-white"><label for="inp-profile-photo" class="absolute bottom-4 right-0 bg-[#4A3B32] text-white p-2 rounded-full shadow-md cursor-pointer hover:bg-[#F4A261] transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></label><input type="file" id="inp-profile-photo" accept="image/*" onchange="handleProfilePhotoSelect(event)" class="hidden"></div><div class="text-xs font-bold text-[#8D6E63] uppercase tracking-widest mb-1">我的 ID</div><div id="profile-short-id" class="font-mono font-black text-3xl text-[#F4A261] tracking-wider mb-1 select-all">...</div><div id="profile-email" class="text-xs text-[#8D6E63] font-bold">...</div></div><div class="space-y-3"><input type="text" id="profile-name-input" class="w-full bg-white border-2 border-[#FFE8D6] rounded-xl px-4 py-3 text-sm font-bold text-center outline-none focus:border-[#F4A261]" placeholder="顯示名稱"><button onclick="saveProfile()" class="w-full bg-[#F4A261] hover:bg-[#E76F51] text-white font-bold py-3.5 rounded-xl shadow-md transition">儲存變更</button><button onclick="logout()" class="w-full bg-white border-2 border-[#FFCDD2] text-[#E76F51] font-bold py-3.5 rounded-xl hover:bg-[#FFEBEE] transition">登出帳號</button></div></div></div>
     </div>
 
@@ -252,20 +182,17 @@
             }
         });
 
-        // 🔥 手勢偵測
+        // 手勢
         let touchStartX = 0; let touchStartY = 0;
         document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, false);
         document.addEventListener('touchend', e => {
             let touchEndX = e.changedTouches[0].screenX; let touchEndY = e.changedTouches[0].screenY;
-            handleGesture(touchStartX, touchStartY, touchEndX, touchEndY);
-        }, false);
-        function handleGesture(startX, startY, endX, endY) {
-            let xDiff = endX - startX; let yDiff = endY - startY;
+            let xDiff = touchEndX - touchStartX; let yDiff = touchEndY - touchStartY;
             if (Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff) > 50) {
                 if (xDiff > 0) document.getElementById('friend-modal').classList.remove('hidden');
                 else document.getElementById('friend-modal').classList.add('hidden');
             }
-        }
+        }, false);
 
         window.updateUI = () => {
             const listEl = document.getElementById('transaction-list');
@@ -311,7 +238,6 @@
         // Core & Auth
         async function ensureUserHasId(user) { const ref = doc(db, "users", user.uid); const snap = await getDoc(ref); const userPhoto = user.photoURL || DEFAULT_AVATAR; if(snap.exists()) { const d = snap.data(); myShortId = d.shortId; myProfileData = {...d, photo: d.photo || userPhoto}; } else { let id = Math.floor(100000 + Math.random()*900000).toString(); const newData = { shortId: id, name: user.displayName, email: user.email, photo: userPhoto }; await setDoc(doc(db, "public_codes", id), {uid: user.uid, email: user.email, photo: userPhoto}); await setDoc(ref, newData); myShortId = id; myProfileData = newData; } document.getElementById('my-short-id').innerText = `ID: ${myShortId}`; document.getElementById('profile-short-id').innerText = myShortId; document.getElementById('profile-email').innerText = user.email; document.getElementById('profile-name-input').value = myProfileData.name; document.getElementById('profile-avatar').src = myProfileData.photo; }
         function loadDataRealtime(targetUid) { if(unsubscribe) unsubscribe(); const q = query(collection(db, "users", targetUid, "transactions"), orderBy("dateTimestamp", "desc")); unsubscribe = onSnapshot(q, (snap) => { transactions = snap.docs.map(d => ({id: d.id, ...d.data()})); const years = new Set([new Date().getFullYear()]); transactions.forEach(t => years.add(new Date(t.dateTimestamp).getFullYear())); const ySelect = document.getElementById('filter-year'); const currY = ySelect.value; ySelect.innerHTML = Array.from(years).sort((a,b)=>b-a).map(y => `<option value="${y}">${y} 年</option>`).join(''); if(currY) ySelect.value = currY; updateUI(); }); }
-        
         window.openInputModal = () => { if(!editingId) window.resetForm(); document.getElementById('input-modal').classList.remove('hidden'); };
         window.closeInputModal = () => { document.getElementById('input-modal').classList.add('hidden'); setTimeout(() => window.resetForm(), 300); };
         window.triggerSubmit = () => { document.getElementById('transaction-form').dispatchEvent(new Event('submit', {cancelable: true, bubbles: true})); };
@@ -325,7 +251,6 @@
         window.updateCategoryOptions = () => { const type = inpType.value; const cats = [...defaultCategories[type], ...(userCustomCategories[type]||[])]; inpCategory.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join(''); }
         window.addCustomCategory = async () => { const n = prompt("新分類名稱:"); if(n) { const t = inpType.value; if(!userCustomCategories[t]) userCustomCategories[t] = []; userCustomCategories[t].push(n); await setDoc(doc(db, "users", currentUser.uid), {customCategories: userCustomCategories}, {merge:true}); updateCategoryOptions(); inpCategory.value = n; } }
         document.getElementById('filter-day').addEventListener('input', updateUI); document.getElementById('filter-month').addEventListener('input', updateUI); document.getElementById('filter-year').addEventListener('change', updateUI);
-        Chart.register(ChartDataLabels); function renderChart(data) { const ctx = document.getElementById('expenseChart').getContext('2d'); const lbs = Object.keys(data); const vals = Object.values(data); if(myChart) myChart.destroy(); if(lbs.length === 0) { document.getElementById('chart-placeholder').classList.remove('hidden'); return; } document.getElementById('chart-placeholder').classList.add('hidden'); myChart = new Chart(ctx, { type: 'doughnut', data: { labels: lbs, datasets: [{data: vals, backgroundColor: ['#F4A261','#E76F51','#E9C46A','#2A9D8F','#264653'], borderWidth: 2, borderColor: '#ffffff'}] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display: false}, datalabels: {color:'#4A3B32', font:{weight:'bold'}, formatter: (v,c)=> { let sum=c.chart.data.datasets[0].data.reduce((a,b)=>a+b,0); return (v/sum*100)>5 ? (v/sum*100).toFixed(0)+'%' : ''; } } } } }); }
         window.toggleChart = () => { document.getElementById('chart-container').classList.toggle('hidden'); }
         window.toggleFriendModal = () => document.getElementById('friend-modal').classList.toggle('hidden');
         window.addFriend = async () => { const id = document.getElementById('friend-id-input').value; if(id.length!==6) return alert("ID 錯誤"); try { const target = await getDoc(doc(db, "public_codes", id)); if(!target.exists()) return alert("找不到"); const td = target.data(); await setDoc(doc(db, "users", currentUser.uid, "friends", td.uid), {uid: td.uid, shortId: id, name: td.name, photo: td.photo}); await setDoc(doc(db, "users", td.uid, "friends", currentUser.uid), {uid: currentUser.uid, shortId: myShortId, name: myProfileData.name, photo: myProfileData.photo}); alert("添加成功"); document.getElementById('friend-id-input').value=''; } catch(e) { alert(e.message); } }
@@ -339,6 +264,43 @@
         window.clearPhoto = () => { document.getElementById('inp-photo').value=''; currentPhotoData=null; document.getElementById('preview-container').classList.add('hidden'); document.getElementById('btn-camera').classList.remove('hidden'); };
         window.toggleProfileModal = () => document.getElementById('profile-modal').classList.toggle('hidden');
         window.saveProfile = async () => { await updateDoc(doc(db,"users",currentUser.uid), {name:document.getElementById('profile-name-input').value, photo:currentProfilePhotoData}); alert('已儲存'); window.toggleProfileModal(); };
+        
+        // 🔥 Custom Render Chart
+        Chart.register(ChartDataLabels);
+        function renderChart(data) {
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+            const legendContainer = document.getElementById('chart-legend');
+            const lbs = Object.keys(data); const vals = Object.values(data);
+            
+            if(myChart) myChart.destroy();
+            if(lbs.length === 0) { document.getElementById('chart-placeholder').classList.remove('hidden'); legendContainer.innerHTML = ''; return; }
+            document.getElementById('chart-placeholder').classList.add('hidden');
+            
+            const colors = ['#F4A261','#E76F51','#E9C46A','#2A9D8F','#264653','#8D6E63','#F4D35E','#DA627D'];
+            
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: { labels: lbs, datasets: [{ data: vals, backgroundColor: colors, borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } } }
+            });
+
+            // 生成右側列表
+            const total = vals.reduce((a, b) => a + b, 0);
+            legendContainer.innerHTML = lbs.map((label, i) => {
+                const val = vals[i];
+                const percent = Math.round((val / total) * 100);
+                const color = colors[i % colors.length];
+                return `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1.5 min-w-0">
+                            <div class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${color}"></div>
+                            <span class="truncate font-bold text-[#4A3B32]">${label}</span>
+                        </div>
+                        <div class="text-[#8D6E63] font-mono shrink-0">${percent}%</div>
+                    </div>
+                `;
+            }).join('');
+        }
     </script>
 </body>
 </html>
