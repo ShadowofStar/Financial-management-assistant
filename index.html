@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 音樂修復版</title>
+    <title>柴管家 - 音量設定版</title>
     
     <link rel="icon" type="image/png" href="./Shiba Logo.png">
     <link rel="shortcut icon" href="./Shiba Logo.png">
@@ -42,9 +42,13 @@
         @keyframes coin-drop { 0% { transform: translateY(-50px); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(0); opacity: 1; } }
         .animate-coin { animation: coin-drop 0.5s ease-out forwards; }
         
-        /* 音樂波浪動畫 */
         .music-playing { animation: pulse-music 1.2s infinite; border-color: #F4A261 !important; color: #F4A261 !important; background: #FFF !important; }
         @keyframes pulse-music { 0% { box-shadow: 0 0 0 0 rgba(244, 162, 97, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(244, 162, 97, 0); } 100% { box-shadow: 0 0 0 0 rgba(244, 162, 97, 0); } }
+
+        /* 滑桿樣式優化 */
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: #F4A261; cursor: pointer; margin-top: -8px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #FFE8D6; border-radius: 2px; }
     </style>
 </head>
 <body class="bg-[#FFFCF5] text-[#4A3B32] min-h-screen selection:bg-[#F4A261] selection:text-white">
@@ -57,9 +61,7 @@
         <img src="./Shiba Logo.png" class="w-32 h-32 rounded-[2rem] shadow-xl mb-6 animate-shiba-float border-4 border-white">
         <h2 class="text-2xl font-black text-[#4A3B32] mb-2">歡迎來到柴管家</h2>
         <p class="text-[#8D6E63] text-sm font-bold mb-8">點擊下方按鈕開啟音效體驗 🎵</p>
-        <button onclick="startApp()" class="bg-[#F4A261] text-white text-lg font-black py-4 px-12 rounded-2xl shadow-[0_4px_0_#E76F51] active:translate-y-1 active:shadow-none transition-all animate-bounce">
-            進入 App
-        </button>
+        <button onclick="startApp()" class="bg-[#F4A261] text-white text-lg font-black py-4 px-12 rounded-2xl shadow-[0_4px_0_#E76F51] active:translate-y-1 active:shadow-none transition-all animate-bounce">進入 App</button>
     </div>
 
     <div id="login-screen" class="hidden fixed inset-0 bg-[#FFFCF5] z-50 flex flex-col items-center justify-center p-6 text-center fade-in">
@@ -73,18 +75,17 @@
             <button onclick="toggleMusic()" id="music-btn" class="text-xl w-9 h-9 flex items-center justify-center rounded-full bg-[#FFF0D4] text-[#8D6E63] border-2 border-[#FFE8D6] shadow-sm transition active:scale-95">🔇</button>
 
             <div class="flex flex-col items-center">
-                <div class="flex items-center gap-2">
-                    <h1 class="text-2xl font-black text-[#4A3B32] tracking-tight">我的相簿</h1>
-                </div>
-                <div class="flex items-center gap-1 mt-1 text-xs text-[#8D6E63] font-bold cursor-pointer bg-[#FFF0D4] px-2 py-1 rounded-lg w-fit transition active:scale-95" onclick="openUserProfile(currentViewUid)">
-                    <span id="current-view-label">個人</span><span class="text-[#F4A261]">|</span><span id="my-short-id" class="font-mono">ID...</span>
-                </div>
+                <div class="flex items-center gap-2"><h1 class="text-2xl font-black text-[#4A3B32] tracking-tight">我的相簿</h1></div>
+                <div class="flex items-center gap-1 mt-1 text-xs text-[#8D6E63] font-bold cursor-pointer bg-[#FFF0D4] px-2 py-1 rounded-lg w-fit transition active:scale-95" onclick="openUserProfile(currentViewUid)"><span id="current-view-label">個人</span><span class="text-[#F4A261]">|</span><span id="my-short-id" class="font-mono">ID...</span></div>
             </div>
             
-            <div class="bg-white border-2 border-[#FFE8D6] p-0.5 rounded-xl flex text-xs font-bold relative shadow-sm">
-                <select id="filter-type" onchange="changeFilterMode()" class="bg-transparent appearance-none px-3 py-1.5 text-[#8D6E63] focus:outline-none z-10 relative cursor-pointer"><option value="day">日</option><option value="month" selected>月</option><option value="year">年</option><option value="all">全</option></select>
-                <div class="pr-2 text-[#F4A261]">▼</div>
-                <input type="month" id="filter-month" class="absolute inset-0 opacity-0 cursor-pointer"><input type="date" id="filter-day" class="absolute inset-0 opacity-0 cursor-pointer hidden"><select id="filter-year" class="absolute inset-0 opacity-0 cursor-pointer hidden"></select>
+            <div class="flex gap-2">
+                <div class="bg-white border-2 border-[#FFE8D6] p-0.5 rounded-xl flex text-xs font-bold relative shadow-sm">
+                    <select id="filter-type" onchange="changeFilterMode()" class="bg-transparent appearance-none px-2 py-1.5 text-[#8D6E63] focus:outline-none z-10 relative cursor-pointer"><option value="day">日</option><option value="month" selected>月</option><option value="year">年</option><option value="all">全</option></select>
+                    <div class="pr-1 text-[#F4A261]">▼</div>
+                    <input type="month" id="filter-month" class="absolute inset-0 opacity-0 cursor-pointer"><input type="date" id="filter-day" class="absolute inset-0 opacity-0 cursor-pointer hidden"><select id="filter-year" class="absolute inset-0 opacity-0 cursor-pointer hidden"></select>
+                </div>
+                <button onclick="toggleSettingsModal()" class="w-8 h-8 flex items-center justify-center rounded-xl bg-white border-2 border-[#FFE8D6] text-[#8D6E63] shadow-sm active:scale-95 text-lg">⚙️</button>
             </div>
         </header>
 
@@ -102,10 +103,7 @@
         </main>
 
         <div id="shiba-assistant-container" class="fixed bottom-[100px] right-4 z-40 pointer-events-auto group">
-             <div id="shiba-speech" class="hidden absolute bottom-full mb-3 right-0 bg-white p-3 rounded-2xl shadow-lg border-2 border-[#FFE8D6] text-xs font-black text-[#4A3B32] whitespace-nowrap scale-in origin-bottom-right">
-                 汪！今天也要加油喔！
-                 <div class="absolute -bottom-1.5 right-6 w-3 h-3 bg-white border-b-2 border-r-2 border-[#FFE8D6] rotate-45"></div>
-             </div>
+             <div id="shiba-speech" class="hidden absolute bottom-full mb-3 right-0 bg-white p-3 rounded-2xl shadow-lg border-2 border-[#FFE8D6] text-xs font-black text-[#4A3B32] whitespace-nowrap scale-in origin-bottom-right">汪！今天也要加油喔！<div class="absolute -bottom-1.5 right-6 w-3 h-3 bg-white border-b-2 border-r-2 border-[#FFE8D6] rotate-45"></div></div>
              <img src="./Shiba Logo.png" id="shiba-assistant" class="w-20 h-20 rounded-full border-2 border-white shadow-md object-cover animate-shiba-float cursor-pointer hover:scale-105 transition-transform" onclick="triggerShibaClick()">
         </div>
 
@@ -114,6 +112,34 @@
             <button id="fab-btn" onclick="openInputModal()" class="mb-6 bg-[#F4A261] text-white rounded-2xl w-14 h-14 shadow-[0_6px_20px_rgba(244,162,97,0.4)] flex items-center justify-center transform transition active:scale-90 hover:bg-[#E76F51] hover:-translate-y-1 border-4 border-[#FFFCF5]"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg></button>
             <button onclick="toggleStoreModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#4A3B32] transition hover:scale-105 active:scale-95 group"><div class="relative"><svg class="w-6 h-6 group-hover:text-[#F4A261] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg><div class="absolute -top-1 -right-1 w-2 h-2 bg-[#E76F51] rounded-full hidden"></div></div><span class="text-[11px] font-black group-hover:text-[#F4A261] transition">商店</span></button>
         </nav>
+
+        <div id="settings-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm">
+            <div class="absolute inset-0" onclick="toggleSettingsModal()"></div>
+            <div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-6 relative z-10 shadow-2xl scale-in border-4 border-white">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-black text-[#4A3B32]">系統設定</h2>
+                    <button onclick="toggleSettingsModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full flex items-center justify-center">×</button>
+                </div>
+                
+                <div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-[#4A3B32] text-sm">🎵 背景音樂</span>
+                        <span class="text-xs text-[#8D6E63] font-bold" id="bgm-val-display">50%</span>
+                    </div>
+                    <input type="range" min="0" max="1" step="0.1" value="0.5" oninput="updateBGMVolume(this.value)">
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-[#4A3B32] text-sm">🔊 按鈕音效</span>
+                        <span class="text-xs text-[#8D6E63] font-bold" id="sfx-val-display">50%</span>
+                    </div>
+                    <input type="range" min="0" max="1" step="0.1" value="0.5" oninput="updateSFXVolume(this.value)">
+                </div>
+
+                <div class="text-center text-xs text-[#8D6E63] opacity-60 font-bold">ShibaManager v4.0</div>
+            </div>
+        </div>
 
         <div id="daily-bonus-modal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm"><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl scale-in relative border-4 border-[#F4A261]"><div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#FFF0D4] w-24 h-24 rounded-full flex items-center justify-center border-4 border-[#F4A261] shadow-md"><span class="text-5xl animate-coin">🦴</span></div><h2 class="text-2xl font-black text-[#4A3B32] mt-10 mb-1">每日簽到成功！</h2><p class="text-[#8D6E63] text-sm font-bold mb-6">連續登入第 <span id="streak-days" class="text-[#E76F51] text-lg">1</span> 天</p><div class="bg-[#FFF8E1] rounded-2xl p-4 mb-6 border-2 border-[#FFE8D6]"><div class="text-xs text-[#F4A261] font-bold uppercase tracking-wider mb-1">獲得獎勵</div><div class="text-4xl font-black text-[#4A3B32] flex items-center justify-center gap-2">+<span id="bonus-amount">10</span> 🦴</div></div><div class="flex justify-between items-end mb-6 px-2 h-16"><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-2 rounded-t-sm" id="bar-1"></div><span class="text-[10px] font-bold text-[#BDBDBD]">1天</span></div><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-4 rounded-t-sm" id="bar-2"></div><span class="text-[10px] font-bold text-[#BDBDBD]">2天</span></div><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-6 rounded-t-sm" id="bar-3"></div><span class="text-[10px] font-bold text-[#BDBDBD]">3天</span></div><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-8 rounded-t-sm" id="bar-4"></div><span class="text-[10px] font-bold text-[#BDBDBD]">4天</span></div><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-10 rounded-t-sm" id="bar-5"></div><span class="text-[10px] font-bold text-[#BDBDBD]">5+</span></div></div><button onclick="closeBonusModal()" class="w-full bg-[#F4A261] text-white font-black py-3.5 rounded-xl shadow-[0_4px_0_#E76F51] active:shadow-none active:translate-y-1 transition-all hover:bg-[#E76F51]">開心收下！</button></div></div>
         <div id="store-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center p-4 fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleStoreModal()"></div><div class="bg-[#FFFCF5] w-full max-w-sm h-[85vh] rounded-[2rem] flex flex-col relative z-10 scale-in shadow-2xl border-4 border-white"><div class="p-6 pb-2 flex justify-between items-center border-b-2 border-[#FFE8D6]"><div><h2 class="text-2xl font-black text-[#4A3B32]">柴柴雜貨舖</h2><p class="text-xs text-[#8D6E63] font-bold">消費讓生活更美好</p></div><div class="bg-[#FFF0D4] px-3 py-1.5 rounded-xl flex items-center gap-2 border border-[#F4A261]"><span class="text-xl">🦴</span><span id="store-coin-count" class="font-black text-[#F4A261] text-lg">0</span></div></div><div class="flex-1 overflow-y-auto p-4 grid grid-cols-2 gap-3 no-scrollbar"><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] flex flex-col items-center text-center shadow-sm"><div class="text-4xl mb-2">🥩</div><h3 class="font-black text-[#4A3B32] mb-1">高級肉罐頭</h3><p class="text-[10px] text-[#8D6E63] mb-3">心情+100</p><button onclick="buyItem(50, '高級肉罐頭')" class="w-full bg-[#F4A261] text-white py-1.5 rounded-lg text-xs font-bold hover:bg-[#E76F51] transition">50 🦴 購買</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] flex flex-col items-center text-center shadow-sm"><div class="text-4xl mb-2">🎩</div><h3 class="font-black text-[#4A3B32] mb-1">紳士帽子</h3><p class="text-[10px] text-[#8D6E63] mb-3">看起來很聰明</p><button onclick="buyItem(200, '紳士帽子')" class="w-full bg-[#2A9D8F] text-white py-1.5 rounded-lg text-xs font-bold hover:bg-[#264653] transition">200 🦴 購買</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] flex flex-col items-center text-center shadow-sm"><div class="text-4xl mb-2">🎨</div><h3 class="font-black text-[#4A3B32] mb-1">黑柴主題</h3><p class="text-[10px] text-[#8D6E63] mb-3">帥氣的風格</p><button onclick="buyItem(500, '黑柴主題')" class="w-full bg-[#4A3B32] text-white py-1.5 rounded-lg text-xs font-bold hover:bg-black transition">500 🦴 購買</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] flex flex-col items-center text-center shadow-sm"><div class="text-4xl mb-2">🚫</div><h3 class="font-black text-[#4A3B32] mb-1">去除廣告</h3><p class="text-[10px] text-[#8D6E63] mb-3">永久清爽介面</p><button onclick="buyItem(1000, '去除廣告')" class="w-full bg-[#E76F51] text-white py-1.5 rounded-lg text-xs font-bold hover:bg-red-600 transition">1000 🦴 購買</button></div></div><div class="p-4 border-t border-[#FFE8D6]"><button onclick="toggleStoreModal()" class="w-full bg-[#FFE8D6] text-[#8D6E63] py-3 rounded-xl font-bold hover:bg-[#F4A261] hover:text-white transition">關閉商店</button></div></div></div>
@@ -132,28 +158,33 @@
         const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app); const provider = new GoogleAuthProvider();
         const DEFAULT_AVATAR = './Shiba Logo.png';
         
-        // 🔥 音效 (縮短版Base64)
+        // 🔥 音量管理
+        let globalBGMVolume = 0.5;
+        let globalSFXVolume = 0.5;
+        const bgMusic = document.getElementById('bg-music');
+        bgMusic.volume = globalBGMVolume;
+
         const popSound = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="); 
-        const playPop = () => { const ctx = new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='sine'; o.frequency.setValueAtTime(800,ctx.currentTime); o.frequency.exponentialRampToValueAtTime(100,ctx.currentTime+0.1); g.gain.setValueAtTime(0.1,ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.1); o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.1); };
-        const playBark = () => { const ctx = new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='triangle'; o.frequency.setValueAtTime(400,ctx.currentTime); o.frequency.linearRampToValueAtTime(300,ctx.currentTime+0.1); g.gain.setValueAtTime(0.1,ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.15); o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.15); };
-        const playCoin = () => { const ctx = new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='sine'; o.frequency.setValueAtTime(1200,ctx.currentTime); o.frequency.exponentialRampToValueAtTime(2000,ctx.currentTime+0.1); g.gain.setValueAtTime(0.1,ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.3); o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.3); };
+        // 修正 SFX 函數，加入音量控制
+        const playPop = () => { const ctx = new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='sine'; o.frequency.setValueAtTime(800,ctx.currentTime); o.frequency.exponentialRampToValueAtTime(100,ctx.currentTime+0.1); g.gain.setValueAtTime(0.1 * globalSFXVolume, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.1); o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.1); };
+        const playBark = () => { const ctx = new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='triangle'; o.frequency.setValueAtTime(400,ctx.currentTime); o.frequency.linearRampToValueAtTime(300,ctx.currentTime+0.1); g.gain.setValueAtTime(0.1 * globalSFXVolume, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.15); o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.15); };
+        const playCoin = () => { const ctx = new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='sine'; o.frequency.setValueAtTime(1200,ctx.currentTime); o.frequency.exponentialRampToValueAtTime(2000,ctx.currentTime+0.1); g.gain.setValueAtTime(0.1 * globalSFXVolume, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.3); o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.3); };
 
         let isMusicPlaying = false;
-        const bgMusic = document.getElementById('bg-music');
         
-        // 🔥 核心修復：強制啟動音樂
         window.startApp = () => {
             const overlay = document.getElementById('start-overlay');
-            overlay.classList.add('opacity-0', 'pointer-events-none'); // 淡出遮罩
+            overlay.classList.add('opacity-0', 'pointer-events-none');
             
-            // 嘗試播放音樂
+            // 嘗試播放並設置音量
+            bgMusic.volume = globalBGMVolume;
             bgMusic.play().then(() => {
                 isMusicPlaying = true;
-                document.getElementById('music-btn').innerText = "🎵";
-                document.getElementById('music-btn').classList.add('music-playing');
+                const btn = document.getElementById('music-btn');
+                btn.innerText = "🎵";
+                btn.classList.add('music-playing');
             }).catch(e => console.log("Music play failed:", e));
             
-            // 如果已登入，顯示 App
             if(currentUser) document.getElementById('app-screen').classList.remove('hidden');
             else document.getElementById('login-screen').classList.remove('hidden');
         };
@@ -173,7 +204,33 @@
                 }); 
             }
         };
-        document.addEventListener('click', (e) => { if(e.target.closest('button') || e.target.closest('.cursor-pointer')) { playPop(); } });
+
+        // 🔥 設定功能邏輯
+        window.toggleSettingsModal = () => document.getElementById('settings-modal').classList.toggle('hidden');
+        
+        window.updateBGMVolume = (val) => {
+            globalBGMVolume = parseFloat(val);
+            bgMusic.volume = globalBGMVolume;
+            document.getElementById('bgm-val-display').innerText = Math.round(globalBGMVolume * 100) + '%';
+            
+            // 如果音量歸零，圖示自動變靜音；如果有聲音且在播放，恢復圖示
+            const btn = document.getElementById('music-btn');
+            if(globalBGMVolume === 0) { btn.innerText = "🔇"; btn.classList.remove('music-playing'); }
+            else if(isMusicPlaying) { btn.innerText = "🎵"; btn.classList.add('music-playing'); }
+        };
+
+        window.updateSFXVolume = (val) => {
+            globalSFXVolume = parseFloat(val);
+            document.getElementById('sfx-val-display').innerText = Math.round(globalSFXVolume * 100) + '%';
+            playPop(); // 播放音效確認
+        };
+
+        document.addEventListener('click', (e) => { 
+            // 排除 slider 避免重複觸發
+            if((e.target.closest('button') || e.target.closest('.cursor-pointer')) && e.target.type !== 'range') { 
+                playPop(); 
+            } 
+        });
 
         let currentUser=null, currentViewUid=null, transactions=[], unsubscribe=null, currentDetailId=null, friendUnsubscribe=null;
         let myShortId=null, myProfileData=null, editingId=null, currentPhotoData=null, currentProfilePhotoData=null, myChart=null;
@@ -191,11 +248,7 @@
             if (user) {
                 currentUser = user; currentViewUid = user.uid;
                 await ensureUserHasId(user); await loadCustomCategories(user);
-                // 這裡不再直接顯示 app-screen，而是等待 startApp() 觸發
-                // document.getElementById('login-screen').classList.add('hidden'); 
-                // document.getElementById('app-screen').classList.remove('hidden');
                 
-                // 如果已經點過開始，直接顯示
                 if (document.getElementById('start-overlay').classList.contains('opacity-0')) {
                     document.getElementById('app-screen').classList.remove('hidden');
                     document.getElementById('login-screen').classList.add('hidden');
@@ -215,7 +268,6 @@
             }
         });
 
-        // 🔥 核心更新：openUserProfile
         window.openUserProfile = async (targetUid) => {
             const isMe = (targetUid === currentUser.uid);
             let userData = null;
@@ -243,7 +295,6 @@
                 editGroup.classList.remove('hidden'); friendGroup.classList.add('hidden'); cameraBtn.classList.remove('hidden'); nameInput.disabled = false;
             } else {
                 editGroup.classList.add('hidden'); friendGroup.classList.remove('hidden'); cameraBtn.classList.add('hidden'); nameInput.disabled = true;
-                // 🔥 設定按鈕功能：跳轉帳本
                 viewLedgerBtn.onclick = () => {
                     switchView(targetUid, userData.name || "好友");
                     toggleProfileModal(); 
@@ -272,9 +323,7 @@
                         const div = document.createElement('div');
                         div.className = `p-4 rounded-2xl flex items-center justify-between cursor-pointer mt-2 ${currentViewUid===f.uid ? 'bg-[#E1F5FE] border-2 border-[#81D4FA]' : 'bg-white hover:bg-[#FFF8E1] border-2 border-[#FFE8D6]'}`;
                         const fName = f.name || "神秘柴友"; const fPhoto = f.photo || DEFAULT_AVATAR; const fId = f.shortId || "???";
-                        // 🔥 修正：點擊整列直接開啟 Profile
                         div.innerHTML = `<div class="flex items-center gap-3 flex-1" onclick="openUserProfile('${f.uid}')"><img src="${fPhoto}" class="w-10 h-10 rounded-full bg-white object-cover border border-[#FFE8D6]"><div><div class="font-bold text-sm text-[#4A3B32]">${fName}</div><div class="text-xs text-[#8D6E63]">ID: ${fId}</div></div></div><button onclick="event.stopPropagation();deleteFriend('${f.uid}')" class="text-[#8D6E63] hover:text-[#E76F51] p-2">×</button>`;
-                        // 點擊右側空白處，預設也是看 Profile (或你要改成直接進帳本也可以，這裡設定為進 Profile 比較符合邏輯)
                         div.onclick = (e) => { if(e.target.tagName !== 'BUTTON' && !e.target.closest('.flex-1')) { openUserProfile(f.uid); } };
                         el.appendChild(div);
                     } catch(e) { console.error(e); }
