@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 每日簽到版</title>
+    <title>柴管家 - 完整修復版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -18,7 +18,7 @@
         .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .scale-in { animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); } /* 彈性放大效果 */
+        .scale-in { animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
         @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -27,13 +27,11 @@
         
         :root { --shiba-bg: #FFFCF5; --shiba-orange: #F4A261; --shiba-brown: #4A3B32; }
 
-        /* 柴犬互動動畫 */
+        /* 動畫區 */
         @keyframes shiba-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
         .animate-shiba-float { animation: shiba-float 3s ease-in-out infinite; }
         @keyframes shiba-bounce { 0%, 100% { transform: scale(1) rotate(0deg); } 40% { transform: scale(1.15) rotate(5deg); } 80% { transform: scale(0.95) rotate(-3deg); } }
         .animate-shiba-bounce { animation: shiba-bounce 0.4s ease-out; }
-        
-        /* 骨頭幣掉落動畫 */
         @keyframes coin-drop { 0% { transform: translateY(-50px); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(0); opacity: 1; } }
         .animate-coin { animation: coin-drop 0.5s ease-out forwards; }
     </style>
@@ -78,32 +76,18 @@
 
         <div id="daily-bonus-modal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm">
             <div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl scale-in relative border-4 border-[#F4A261]">
-                <div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#FFF0D4] w-24 h-24 rounded-full flex items-center justify-center border-4 border-[#F4A261] shadow-md">
-                    <span class="text-5xl animate-coin">🦴</span>
-                </div>
-                <h2 class="text-2xl font-black text-[#4A3B32] mt-10 mb-1">每日簽到成功！</h2>
-                <p class="text-[#8D6E63] text-sm font-bold mb-6">連續登入第 <span id="streak-days" class="text-[#E76F51] text-lg">1</span> 天</p>
-                
-                <div class="bg-[#FFF8E1] rounded-2xl p-4 mb-6 border-2 border-[#FFE8D6]">
-                    <div class="text-xs text-[#F4A261] font-bold uppercase tracking-wider mb-1">獲得獎勵</div>
-                    <div class="text-4xl font-black text-[#4A3B32] flex items-center justify-center gap-2">
-                        +<span id="bonus-amount">10</span> 🦴
-                    </div>
-                </div>
-                
+                <div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#FFF0D4] w-24 h-24 rounded-full flex items-center justify-center border-4 border-[#F4A261] shadow-md"><span class="text-5xl animate-coin">🦴</span></div>
+                <h2 class="text-2xl font-black text-[#4A3B32] mt-10 mb-1">每日簽到成功！</h2><p class="text-[#8D6E63] text-sm font-bold mb-6">連續登入第 <span id="streak-days" class="text-[#E76F51] text-lg">1</span> 天</p>
+                <div class="bg-[#FFF8E1] rounded-2xl p-4 mb-6 border-2 border-[#FFE8D6]"><div class="text-xs text-[#F4A261] font-bold uppercase tracking-wider mb-1">獲得獎勵</div><div class="text-4xl font-black text-[#4A3B32] flex items-center justify-center gap-2">+<span id="bonus-amount">10</span> 🦴</div></div>
                 <div class="flex justify-between items-end mb-6 px-2 h-16">
-                    <div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-2 rounded-t-sm" id="bar-1"></div><span class="text-[10px] font-bold text-[#BDBDBD]">1天</span></div>
-                    <div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-4 rounded-t-sm" id="bar-2"></div><span class="text-[10px] font-bold text-[#BDBDBD]">2天</span></div>
-                    <div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-6 rounded-t-sm" id="bar-3"></div><span class="text-[10px] font-bold text-[#BDBDBD]">3天</span></div>
-                    <div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-8 rounded-t-sm" id="bar-4"></div><span class="text-[10px] font-bold text-[#BDBDBD]">4天</span></div>
-                    <div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-10 rounded-t-sm" id="bar-5"></div><span class="text-[10px] font-bold text-[#BDBDBD]">5+</span></div>
+                    <div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-2 rounded-t-sm" id="bar-1"></div><span class="text-[10px] font-bold text-[#BDBDBD]">1天</span></div><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-4 rounded-t-sm" id="bar-2"></div><span class="text-[10px] font-bold text-[#BDBDBD]">2天</span></div><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-6 rounded-t-sm" id="bar-3"></div><span class="text-[10px] font-bold text-[#BDBDBD]">3天</span></div><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-8 rounded-t-sm" id="bar-4"></div><span class="text-[10px] font-bold text-[#BDBDBD]">4天</span></div><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-10 rounded-t-sm" id="bar-5"></div><span class="text-[10px] font-bold text-[#BDBDBD]">5+</span></div>
                 </div>
-
                 <button onclick="closeBonusModal()" class="w-full bg-[#F4A261] text-white font-black py-3.5 rounded-xl shadow-[0_4px_0_#E76F51] active:shadow-none active:translate-y-1 transition-all hover:bg-[#E76F51]">開心收下！</button>
             </div>
         </div>
 
         <div id="store-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center p-4 fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleStoreModal()"></div><div class="bg-[#FFFCF5] w-full max-w-sm h-[85vh] rounded-[2rem] flex flex-col relative z-10 scale-in shadow-2xl border-4 border-white"><div class="p-6 pb-2 flex justify-between items-center border-b-2 border-[#FFE8D6]"><div><h2 class="text-2xl font-black text-[#4A3B32]">柴柴雜貨舖</h2><p class="text-xs text-[#8D6E63] font-bold">消費讓生活更美好</p></div><div class="bg-[#FFF0D4] px-3 py-1.5 rounded-xl flex items-center gap-2 border border-[#F4A261]"><span class="text-xl">🦴</span><span id="store-coin-count" class="font-black text-[#F4A261] text-lg">0</span></div></div><div class="flex-1 overflow-y-auto p-4 grid grid-cols-2 gap-3 no-scrollbar"><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] flex flex-col items-center text-center shadow-sm"><div class="text-4xl mb-2">🥩</div><h3 class="font-black text-[#4A3B32] mb-1">高級肉罐頭</h3><p class="text-[10px] text-[#8D6E63] mb-3">心情+100</p><button onclick="buyItem(50, '高級肉罐頭')" class="w-full bg-[#F4A261] text-white py-1.5 rounded-lg text-xs font-bold hover:bg-[#E76F51] transition">50 🦴 購買</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] flex flex-col items-center text-center shadow-sm"><div class="text-4xl mb-2">🎩</div><h3 class="font-black text-[#4A3B32] mb-1">紳士帽子</h3><p class="text-[10px] text-[#8D6E63] mb-3">看起來很聰明</p><button onclick="buyItem(200, '紳士帽子')" class="w-full bg-[#2A9D8F] text-white py-1.5 rounded-lg text-xs font-bold hover:bg-[#264653] transition">200 🦴 購買</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] flex flex-col items-center text-center shadow-sm"><div class="text-4xl mb-2">🎨</div><h3 class="font-black text-[#4A3B32] mb-1">黑柴主題</h3><p class="text-[10px] text-[#8D6E63] mb-3">帥氣的風格</p><button onclick="buyItem(500, '黑柴主題')" class="w-full bg-[#4A3B32] text-white py-1.5 rounded-lg text-xs font-bold hover:bg-black transition">500 🦴 購買</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] flex flex-col items-center text-center shadow-sm"><div class="text-4xl mb-2">🚫</div><h3 class="font-black text-[#4A3B32] mb-1">去除廣告</h3><p class="text-[10px] text-[#8D6E63] mb-3">永久清爽介面</p><button onclick="buyItem(1000, '去除廣告')" class="w-full bg-[#E76F51] text-white py-1.5 rounded-lg text-xs font-bold hover:bg-red-600 transition">1000 🦴 購買</button></div></div><div class="p-4 border-t border-[#FFE8D6]"><button onclick="toggleStoreModal()" class="w-full bg-[#FFE8D6] text-[#8D6E63] py-3 rounded-xl font-bold hover:bg-[#F4A261] hover:text-white transition">關閉商店</button></div></div></div>
+        
         <div id="detail-modal" class="fixed inset-0 bg-[#4A3B32]/60 z-50 hidden flex items-center justify-center p-4 fade-in backdrop-blur-sm" onclick="closeDetailModal()"><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl scale-in relative" onclick="event.stopPropagation()"><div class="relative w-full bg-[#FFE8D6] aspect-square group"><img id="detail-img" src="" class="w-full h-full object-cover"><div id="detail-no-img" class="hidden w-full h-full flex flex-col items-center justify-center bg-[#FFF0D4] text-[#F4A261]"><span class="text-8xl" id="detail-icon">🐕</span><span class="text-sm font-bold mt-4 text-[#8D6E63]">沒有照片</span></div><button onclick="closeDetailModal()" class="absolute top-4 right-4 bg-white/80 text-[#4A3B32] w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md shadow-md font-bold">✕</button></div><div class="p-6"><div class="flex justify-between items-start mb-2"><div><span id="detail-date" class="text-xs font-bold text-[#8D6E63] uppercase tracking-wide bg-[#FFE8D6] px-2 py-0.5 rounded-md">...</span><h2 id="detail-title" class="text-xl font-black text-[#4A3B32] mt-2">...</h2></div><div id="detail-amount" class="text-2xl font-black text-[#4A3B32]">...</div></div><div class="flex items-center gap-2 mb-6"><span id="detail-category" class="bg-[#F4A261]/20 text-[#E76F51] px-3 py-1 rounded-lg text-xs font-bold">...</span><span id="detail-type" class="text-xs font-bold text-[#8D6E63]">...</span></div><div id="detail-actions" class="grid grid-cols-2 gap-3"><button onclick="editCurrentDetail()" class="flex-1 bg-[#FFF0D4] text-[#4A3B32] py-3.5 rounded-xl font-bold hover:bg-[#FFE8D6] transition">✎ 編輯</button><button onclick="deleteCurrentDetail()" class="flex-1 bg-white border-2 border-[#FFCDD2] text-[#E76F51] py-3.5 rounded-xl font-bold hover:bg-[#FFEBEE] transition">🗑️ 刪除</button></div><div id="detail-comments-section" class="hidden mt-4 pt-4 border-t border-[#FFE8D6]"><div id="detail-comments-list" class="space-y-2 mb-3 max-h-32 overflow-y-auto"></div><div class="flex gap-2"><input type="text" id="detail-comment-input" placeholder="汪汪..." class="flex-1 bg-white border border-[#FFE8D6] rounded-full px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-[#F4A261]"><button onclick="submitDetailComment()" class="bg-[#F4A261] text-white rounded-full w-9 h-9 flex items-center justify-center shadow-md">➤</button></div></div></div></div></div>
         <div id="input-modal" class="fixed inset-0 bg-[#4A3B32]/40 z-50 hidden flex flex-col justify-end fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="closeInputModal()"></div><div class="bg-[#FFFCF5] w-full rounded-t-[2.5rem] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] slide-up relative z-10 pb-safe"><div class="w-12 h-1.5 bg-[#FFE8D6] rounded-full mx-auto mb-6"></div><div class="flex justify-between items-center mb-6"><button onclick="closeInputModal()" class="text-[#8D6E63] text-sm font-bold p-2 hover:bg-[#FFE8D6] rounded-lg">取消</button><h2 class="text-sm font-black text-[#F4A261] uppercase tracking-widest" id="form-title">記一筆</h2><button onclick="triggerSubmit()" class="text-[#E76F51] text-sm font-bold p-2 hover:bg-[#FFE8D6] rounded-lg">完成</button></div><form id="transaction-form" class="flex flex-col gap-5"><div class="relative group"><span class="absolute left-6 top-1/2 -translate-y-1/2 text-2xl text-[#F4A261] font-bold">$</span><input type="number" id="inp-amount" placeholder="0" class="w-full bg-white border-2 border-[#FFE8D6] rounded-2xl py-4 pl-12 pr-4 text-4xl font-black text-[#4A3B32] text-center focus:ring-4 focus:ring-[#F4A261]/20 focus:border-[#F4A261] transition-all outline-none" required inputmode="decimal"></div><div class="bg-[#FFF0D4] p-1.5 rounded-2xl flex"><select id="inp-type" onchange="updateCategoryOptions()" class="bg-white rounded-xl shadow-sm w-24 text-center text-sm font-bold text-[#4A3B32] focus:outline-none py-3 border border-[#FFE8D6]"><option value="expense">支出</option><option value="income">收入</option></select><select id="inp-category" class="flex-1 bg-transparent px-4 text-sm font-bold text-[#4A3B32] focus:outline-none text-center"></select><button type="button" onclick="addCustomCategory()" class="px-3 text-[#E76F51] font-black text-lg hover:bg-white/50 rounded-lg">+</button></div><div class="flex gap-3"><input type="date" id="inp-date" class="bg-white border-2 border-[#FFE8D6] rounded-2xl px-4 py-3.5 text-sm font-bold text-[#4A3B32] w-1/3 focus:border-[#F4A261] outline-none"><input type="text" id="inp-title" placeholder="備註..." class="flex-1 bg-white border-2 border-[#FFE8D6] rounded-2xl px-4 py-3.5 text-sm font-bold text-[#4A3B32] focus:border-[#F4A261] outline-none placeholder-[#D7CCC8]"></div><div class="flex gap-3"><input type="file" id="inp-photo" accept="image/*" onchange="handlePhotoSelect(event)" class="hidden"><label for="inp-photo" id="btn-camera" class="w-full border-2 border-dashed border-[#F4A261]/50 bg-[#FFF8E1] rounded-2xl py-3 flex items-center justify-center gap-2 text-[#F4A261] cursor-pointer hover:bg-[#F4A261] hover:text-white transition"><span class="text-xl">📷</span><span class="text-xs font-bold">拍張照</span></label><div id="preview-container" class="hidden relative w-full h-24"><img id="img-preview" class="w-full h-full object-cover rounded-2xl border-2 border-[#F4A261]"><button type="button" onclick="clearPhoto()" class="absolute -top-2 -right-2 bg-[#E76F51] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md">×</button></div></div></form></div></div>
         <div id="friend-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-start justify-start fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleFriendModal()"></div><div class="bg-[#FFFCF5] w-4/5 max-w-sm h-full p-6 flex flex-col relative z-10 slide-in-left shadow-2xl rounded-r-[2rem]"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-[#4A3B32]">柴友列表</h2><button onclick="toggleFriendModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full">×</button></div><div class="mb-6 bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] shadow-sm"><label class="text-xs font-bold text-[#F4A261] block mb-2 uppercase tracking-wide">加入好友 (輸入 ID)</label><div class="flex gap-2"><input type="tel" maxlength="6" id="friend-id-input" placeholder="000000" class="flex-1 bg-[#FFF8E1] border-none rounded-xl px-4 py-3 text-lg font-mono font-bold tracking-widest text-center text-[#4A3B32] outline-none focus:ring-2 focus:ring-[#F4A261]"><button onclick="addFriend()" class="bg-[#F4A261] text-white px-4 rounded-xl text-lg font-bold hover:bg-[#E76F51] transition shadow-md">+</button></div></div><div class="flex-1 overflow-y-auto space-y-2" id="friend-list-container"></div></div></div>
@@ -137,28 +121,65 @@
                 document.getElementById('login-screen').classList.add('hidden'); document.getElementById('app-screen').classList.remove('hidden');
                 loadDataRealtime(user.uid); loadFriends(); updateViewMode();
                 
-                // 🔥 登入成功後，檢查每日簽到
+                // 每日簽到
                 await checkDailyBonus(user.uid);
+                setTimeout(() => triggerShibaReaction("歡迎回來，主人！汪！"), 1500);
             } else {
                 document.getElementById('login-screen').classList.remove('hidden'); document.getElementById('app-screen').classList.add('hidden');
                 if(unsubscribe) unsubscribe();
             }
         });
 
+        // 🔥 修復版 addFriend (解決 undefined 錯誤)
+        window.addFriend = async () => { 
+            const id = document.getElementById('friend-id-input').value; 
+            if(id.length !== 6) return alert("ID 錯誤"); 
+            
+            try { 
+                const target = await getDoc(doc(db, "public_codes", id)); 
+                if(!target.exists()) return alert("找不到此 ID"); 
+                const td = target.data(); 
+
+                // ⚠️ 防呆：確保照片不是 undefined
+                const targetPhoto = td.photo || DEFAULT_AVATAR;
+                const myPhoto = myProfileData.photo || DEFAULT_AVATAR;
+                const targetName = td.name || "神秘柴友";
+                const myName = myProfileData.name || "神秘柴友";
+
+                await setDoc(doc(db, "users", currentUser.uid, "friends", td.uid), {
+                    uid: td.uid, 
+                    shortId: id, 
+                    name: targetName, 
+                    photo: targetPhoto 
+                }); 
+
+                await setDoc(doc(db, "users", td.uid, "friends", currentUser.uid), {
+                    uid: currentUser.uid, 
+                    shortId: myShortId, 
+                    name: myName, 
+                    photo: myPhoto 
+                }); 
+
+                alert("添加成功"); 
+                document.getElementById('friend-id-input').value=''; 
+            } catch(e) { 
+                console.error(e); 
+                alert("添加失敗: " + e.message); 
+            } 
+        }
+
         // 🔥 每日簽到邏輯
         async function checkDailyBonus(uid) {
-            const todayStr = new Date().toDateString(); // E.g. "Mon Dec 15 2025" (只比對日期，不比對時間)
+            const todayStr = new Date().toDateString(); 
             const userRef = doc(db, "users", uid);
             const snap = await getDoc(userRef);
             
             if (!snap.exists()) return;
             const data = snap.data();
             
-            // 如果今天已經領過了，就直接結束
             if (data.lastLoginDate === todayStr) return;
 
             let newStreak = 1;
-            // 檢查是否是連續登入 (比對昨天)
             if (data.lastLoginDate) {
                 const yesterday = new Date();
                 yesterday.setDate(yesterday.getDate() - 1);
@@ -167,50 +188,36 @@
                 }
             }
 
-            // 計算獎勵 (上限 50)
             const reward = Math.min(newStreak * 10, 50);
 
-            // 更新資料庫
             await updateDoc(userRef, {
                 lastLoginDate: todayStr,
                 loginStreak: newStreak,
                 boneCoins: increment(reward)
             });
 
-            // 更新本地資料與介面
             myProfileData.boneCoins = (myProfileData.boneCoins || 0) + reward;
             document.getElementById('store-coin-count').innerText = myProfileData.boneCoins;
-
-            // 顯示簽到彈窗
             showDailyBonusModal(newStreak, reward);
         }
 
-        // 顯示簽到 Modal
         function showDailyBonusModal(streak, reward) {
             document.getElementById('streak-days').innerText = streak;
             document.getElementById('bonus-amount').innerText = reward;
             
-            // 更新進度條樣式
             const max = 5;
             const current = Math.min(streak, max);
             for(let i=1; i<=max; i++) {
                 const bar = document.getElementById(`bar-${i}`);
-                if(i <= current) {
-                    bar.classList.remove('bg-[#E0E0E0]');
-                    bar.classList.add('bg-[#F4A261]'); // 點亮
-                } else {
-                    bar.classList.add('bg-[#E0E0E0]');
-                    bar.classList.remove('bg-[#F4A261]');
-                }
+                if(i <= current) { bar.classList.remove('bg-[#E0E0E0]'); bar.classList.add('bg-[#F4A261]'); } 
+                else { bar.classList.add('bg-[#E0E0E0]'); bar.classList.remove('bg-[#F4A261]'); }
             }
             
             document.getElementById('daily-bonus-modal').classList.remove('hidden');
             triggerShibaReaction(`早安！簽到成功！領取 ${reward} 骨頭幣！`);
         }
 
-        window.closeBonusModal = () => {
-            document.getElementById('daily-bonus-modal').classList.add('hidden');
-        };
+        window.closeBonusModal = () => document.getElementById('daily-bonus-modal').classList.add('hidden');
 
         // 柴犬互動
         const shibaEl = document.getElementById('shiba-assistant');
@@ -275,7 +282,6 @@
             document.getElementById('display-balance').innerText=(inc-exp).toLocaleString(); document.getElementById('display-income').innerText=inc.toLocaleString(); document.getElementById('display-expense').innerText=exp.toLocaleString(); renderChart(expData);
         };
 
-        // Modal Logic
         window.openDetailModal = (id) => {
             const t = transactions.find(x => x.id === id); if(!t) return; currentDetailId = id;
             document.getElementById('detail-title').innerText = t.title || t.category; 
@@ -300,7 +306,6 @@
         function renderDetailComments(t) { const list = document.getElementById('detail-comments-list'); list.innerHTML = ''; const comms = (t.comments||[]).filter(c => Date.now()-c.timestamp < 86400000); if(comms.length===0) list.innerHTML = '<div class="text-xs text-[#8D6E63] text-center py-2">還沒有留言</div>'; comms.forEach(c => { const d = document.createElement('div'); d.className="text-xs bg-white border border-[#FFE8D6] p-2 rounded-lg mb-1 shadow-sm"; d.innerHTML = `<span class="font-bold text-[#F4A261]">${c.authorName}</span>: ${c.text}`; list.appendChild(d); }); }
         window.submitDetailComment = async () => { const txt = document.getElementById('detail-comment-input').value.trim(); if(!txt) return; const ref = doc(db,"users",currentViewUid,"transactions",currentDetailId); const snap = await getDoc(ref); let arr = snap.data().comments || []; arr.push({text:txt, authorName:myProfileData.name, timestamp:Date.now()}); await updateDoc(ref, {comments:arr}); document.getElementById('detail-comment-input').value=''; renderDetailComments({...snap.data(), comments:arr}); };
 
-        // Core & Auth
         async function ensureUserHasId(user) { 
             const ref = doc(db, "users", user.uid); const snap = await getDoc(ref); const userPhoto = user.photoURL || DEFAULT_AVATAR; 
             if(snap.exists()) { 
@@ -379,7 +384,6 @@
 
         window.toggleChart = () => { document.getElementById('chart-container').classList.toggle('hidden'); }
         window.toggleFriendModal = () => document.getElementById('friend-modal').classList.toggle('hidden');
-        window.addFriend = async () => { const id = document.getElementById('friend-id-input').value; if(id.length!==6) return alert("ID 錯誤"); try { const target = await getDoc(doc(db, "public_codes", id)); if(!target.exists()) return alert("找不到"); const td = target.data(); await setDoc(doc(db, "users", currentUser.uid, "friends", td.uid), {uid: td.uid, shortId: id, name: td.name, photo: td.photo}); await setDoc(doc(db, "users", td.uid, "friends", currentUser.uid), {uid: currentUser.uid, shortId: myShortId, name: myProfileData.name, photo: myProfileData.photo}); alert("添加成功"); document.getElementById('friend-id-input').value=''; } catch(e) { alert(e.message); } }
         function loadFriends() { onSnapshot(query(collection(db, "users", currentUser.uid, "friends")), s => { const el = document.getElementById('friend-list-container'); el.innerHTML = ''; const me = document.createElement('div'); me.className = `p-4 rounded-2xl flex items-center gap-3 cursor-pointer ${currentViewUid===currentUser.uid ? 'bg-[#FFF0D4] border-2 border-[#F4A261]' : 'bg-white hover:bg-[#FFF8E1] border-2 border-[#FFE8D6]'}`; me.innerHTML = `<img src="${myProfileData?.photo || DEFAULT_AVATAR}" class="w-10 h-10 rounded-full bg-white object-cover border border-[#FFE8D6]"><div class="font-bold text-[#4A3B32]">我的相簿</div>`; me.onclick = () => switchView(currentUser.uid, '我的帳本'); el.appendChild(me); s.forEach(d => { const f = d.data(); const div = document.createElement('div'); div.className = `p-4 rounded-2xl flex items-center justify-between cursor-pointer mt-2 ${currentViewUid===f.uid ? 'bg-[#E1F5FE] border-2 border-[#81D4FA]' : 'bg-white hover:bg-[#FFF8E1] border-2 border-[#FFE8D6]'}`; div.innerHTML = `<div class="flex items-center gap-3"><img src="${f.photo || DEFAULT_AVATAR}" class="w-10 h-10 rounded-full bg-white object-cover border border-[#FFE8D6]"><div><div class="font-bold text-sm text-[#4A3B32]">${f.name}</div><div class="text-xs text-[#8D6E63]">ID: ${f.shortId}</div></div></div><button onclick="event.stopPropagation();deleteFriend('${f.uid}')" class="text-[#8D6E63] hover:text-[#E76F51]">×</button>`; div.onclick = () => switchView(f.uid, f.name); el.appendChild(div); }); }); }
         window.switchView = (uid, name) => { currentViewUid = uid; document.getElementById('current-view-label').innerText = uid===currentUser.uid ? '個人' : name; updateViewMode(); loadDataRealtime(uid); document.getElementById('friend-modal').classList.add('hidden'); }
         function updateViewMode() { const isMe = currentViewUid === currentUser.uid; document.getElementById('fab-btn').classList.toggle('hidden', !isMe); }
