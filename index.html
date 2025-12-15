@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 按鈕交換版</title>
+    <title>柴管家 - 好友修復版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -69,24 +69,20 @@
         </div>
 
         <nav class="fixed bottom-0 w-full max-w-md bg-[#FFFCF5]/95 backdrop-blur-md border-t-2 border-[#FFE8D6] pb-safe pt-2 px-8 flex justify-between items-end z-30 h-[88px] rounded-t-[2rem]">
-            
-            <button onclick="toggleFriendModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#8D6E63] hover:text-[#4A3B32] transition hover:scale-105 active:scale-95">
+            <button onclick="toggleFriendModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#4A3B32] transition hover:scale-105 active:scale-95">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                 <span class="text-[11px] font-black">好友</span>
             </button>
-
             <button id="fab-btn" onclick="openInputModal()" class="mb-6 bg-[#F4A261] text-white rounded-2xl w-14 h-14 shadow-[0_6px_20px_rgba(244,162,97,0.4)] flex items-center justify-center transform transition active:scale-90 hover:bg-[#E76F51] hover:-translate-y-1 border-4 border-[#FFFCF5]">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
             </button>
-
-            <button onclick="toggleStoreModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#4A3B32] transition hover:scale-105 active:scale-95 group">
+            <button onclick="toggleStoreModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#8D6E63] hover:text-[#4A3B32] transition hover:scale-105 active:scale-95 group">
                 <div class="relative">
                     <svg class="w-6 h-6 group-hover:text-[#F4A261] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                     <div class="absolute -top-1 -right-1 w-2 h-2 bg-[#E76F51] rounded-full hidden"></div>
                 </div>
                 <span class="text-[11px] font-black group-hover:text-[#F4A261] transition">商店</span>
             </button>
-
         </nav>
 
         <div id="daily-bonus-modal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm">
@@ -107,7 +103,9 @@
             <div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl scale-in relative flex flex-col max-h-[90vh]" onclick="event.stopPropagation()">
                 <div class="relative w-full bg-[#FFE8D6] aspect-square group shrink-0">
                     <img id="detail-img" src="" class="w-full h-full object-cover">
-                    <div id="detail-no-img" class="hidden w-full h-full flex flex-col items-center justify-center bg-[#FFF0D4] text-[#F4A261]"><span class="text-8xl" id="detail-icon">🐕</span><span class="text-sm font-bold mt-4 text-[#8D6E63]">沒有照片</span></div>
+                    <div id="detail-no-img" class="hidden w-full h-full flex flex-col items-center justify-center bg-[#FFF0D4] text-[#F4A261]">
+                        <span class="text-8xl" id="detail-icon">🐕</span><span class="text-sm font-bold mt-4 text-[#8D6E63]">沒有照片</span>
+                    </div>
                     <button onclick="closeDetailModal()" class="absolute top-4 right-4 bg-white/80 text-[#4A3B32] w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md shadow-md font-bold">✕</button>
                 </div>
                 <div class="p-6 flex-1 overflow-y-auto no-scrollbar">
@@ -120,7 +118,25 @@
         </div>
 
         <div id="input-modal" class="fixed inset-0 bg-[#4A3B32]/40 z-50 hidden flex flex-col justify-end fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="closeInputModal()"></div><div class="bg-[#FFFCF5] w-full rounded-t-[2.5rem] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] slide-up relative z-10 pb-safe"><div class="w-12 h-1.5 bg-[#FFE8D6] rounded-full mx-auto mb-6"></div><div class="flex justify-between items-center mb-6"><button onclick="closeInputModal()" class="text-[#8D6E63] text-sm font-bold p-2 hover:bg-[#FFE8D6] rounded-lg">取消</button><h2 class="text-sm font-black text-[#F4A261] uppercase tracking-widest" id="form-title">記一筆</h2><button onclick="triggerSubmit()" class="text-[#E76F51] text-sm font-bold p-2 hover:bg-[#FFE8D6] rounded-lg">完成</button></div><form id="transaction-form" class="flex flex-col gap-5"><div class="relative group"><span class="absolute left-6 top-1/2 -translate-y-1/2 text-2xl text-[#F4A261] font-bold">$</span><input type="number" id="inp-amount" placeholder="0" class="w-full bg-white border-2 border-[#FFE8D6] rounded-2xl py-4 pl-12 pr-4 text-4xl font-black text-[#4A3B32] text-center focus:ring-4 focus:ring-[#F4A261]/20 focus:border-[#F4A261] transition-all outline-none" required inputmode="decimal"></div><div class="bg-[#FFF0D4] p-1.5 rounded-2xl flex"><select id="inp-type" onchange="updateCategoryOptions()" class="bg-white rounded-xl shadow-sm w-24 text-center text-sm font-bold text-[#4A3B32] focus:outline-none py-3 border border-[#FFE8D6]"><option value="expense">支出</option><option value="income">收入</option></select><select id="inp-category" class="flex-1 bg-transparent px-4 text-sm font-bold text-[#4A3B32] focus:outline-none text-center"></select><button type="button" onclick="addCustomCategory()" class="px-3 text-[#E76F51] font-black text-lg hover:bg-white/50 rounded-lg">+</button></div><div class="flex gap-3"><input type="date" id="inp-date" class="bg-white border-2 border-[#FFE8D6] rounded-2xl px-4 py-3.5 text-sm font-bold text-[#4A3B32] w-1/3 focus:border-[#F4A261] outline-none"><input type="text" id="inp-title" placeholder="備註..." class="flex-1 bg-white border-2 border-[#FFE8D6] rounded-2xl px-4 py-3.5 text-sm font-bold text-[#4A3B32] focus:border-[#F4A261] outline-none placeholder-[#D7CCC8]"></div><div class="flex gap-3"><input type="file" id="inp-photo" accept="image/*" onchange="handlePhotoSelect(event)" class="hidden"><label for="inp-photo" id="btn-camera" class="w-full border-2 border-dashed border-[#F4A261]/50 bg-[#FFF8E1] rounded-2xl py-3 flex items-center justify-center gap-2 text-[#F4A261] cursor-pointer hover:bg-[#F4A261] hover:text-white transition"><span class="text-xl">📷</span><span class="text-xs font-bold">拍張照</span></label><div id="preview-container" class="hidden relative w-full h-24"><img id="img-preview" class="w-full h-full object-cover rounded-2xl border-2 border-[#F4A261]"><button type="button" onclick="clearPhoto()" class="absolute -top-2 -right-2 bg-[#E76F51] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md">×</button></div></div></form></div></div>
-        <div id="friend-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-start justify-start fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleFriendModal()"></div><div class="bg-[#FFFCF5] w-4/5 max-w-sm h-full p-6 flex flex-col relative z-10 slide-in-left shadow-2xl rounded-r-[2rem]"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-[#4A3B32]">柴友列表</h2><button onclick="toggleFriendModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full">×</button></div><div class="mb-6 bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] shadow-sm"><label class="text-xs font-bold text-[#F4A261] block mb-2 uppercase tracking-wide">加入好友 (輸入 ID)</label><div class="flex gap-2"><input type="tel" maxlength="6" id="friend-id-input" placeholder="000000" class="flex-1 bg-[#FFF8E1] border-none rounded-xl px-4 py-3 text-lg font-mono font-bold tracking-widest text-center text-[#4A3B32] outline-none focus:ring-2 focus:ring-[#F4A261]"><button onclick="addFriend()" class="bg-[#F4A261] text-white px-4 rounded-xl text-lg font-bold hover:bg-[#E76F51] transition shadow-md">+</button></div></div><div class="flex-1 overflow-y-auto space-y-2" id="friend-list-container"></div></div></div>
+        
+        <div id="friend-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-start justify-start fade-in backdrop-blur-sm">
+            <div class="absolute inset-0" onclick="toggleFriendModal()"></div>
+            <div class="bg-[#FFFCF5] w-4/5 max-w-sm h-full p-6 flex flex-col relative z-10 slide-in-left shadow-2xl rounded-r-[2rem]">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-black text-[#4A3B32]">柴友列表</h2>
+                    <button onclick="toggleFriendModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full">×</button>
+                </div>
+                <div class="mb-6 bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] shadow-sm">
+                    <label class="text-xs font-bold text-[#F4A261] block mb-2 uppercase tracking-wide">加入好友 (輸入 ID)</label>
+                    <div class="flex gap-2">
+                        <input type="tel" maxlength="6" id="friend-id-input" placeholder="000000" class="flex-1 bg-[#FFF8E1] border-none rounded-xl px-4 py-3 text-lg font-mono font-bold tracking-widest text-center text-[#4A3B32] outline-none focus:ring-2 focus:ring-[#F4A261]">
+                        <button onclick="addFriend()" class="bg-[#F4A261] text-white px-4 rounded-xl text-lg font-bold hover:bg-[#E76F51] transition shadow-md">+</button>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto space-y-2" id="friend-list-container"></div>
+            </div>
+        </div>
+
         <div id="profile-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center fade-in p-6 backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleProfileModal()"></div><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-6 relative z-10 shadow-2xl scale-95 transition-transform duration-200 border-4 border-white"><div class="flex flex-col items-center mb-6"><div class="relative"><img id="profile-avatar" src="./Shiba Logo.png" class="w-24 h-24 rounded-full border-[6px] border-white shadow-lg mb-4 object-cover bg-white"><label for="inp-profile-photo" class="absolute bottom-4 right-0 bg-[#4A3B32] text-white p-2 rounded-full shadow-md cursor-pointer hover:bg-[#F4A261] transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></label><input type="file" id="inp-profile-photo" accept="image/*" onchange="handleProfilePhotoSelect(event)" class="hidden"></div><div class="text-xs font-bold text-[#8D6E63] uppercase tracking-widest mb-1">我的 ID</div><div id="profile-short-id" class="font-mono font-black text-3xl text-[#F4A261] tracking-wider mb-1 select-all">...</div><div id="profile-email" class="text-xs text-[#8D6E63] font-bold">...</div></div><div class="space-y-3"><input type="text" id="profile-name-input" class="w-full bg-white border-2 border-[#FFE8D6] rounded-xl px-4 py-3 text-sm font-bold text-center outline-none focus:border-[#F4A261]" placeholder="顯示名稱"><button onclick="saveProfile()" class="w-full bg-[#F4A261] hover:bg-[#E76F51] text-white font-bold py-3.5 rounded-xl shadow-md transition">儲存變更</button><button onclick="window.setMoney(10000)" class="w-full bg-green-100 text-green-600 font-bold py-3.5 rounded-xl hover:bg-green-200 transition border-2 border-green-200">💰 領取測試經費 (10000)</button><button onclick="logout()" class="w-full bg-white border-2 border-[#FFCDD2] text-[#E76F51] font-bold py-3.5 rounded-xl hover:bg-[#FFEBEE] transition">登出帳號</button></div></div></div>
     </div>
 
@@ -158,25 +174,65 @@
             }
         });
 
-        // AddFriend
+        // 🔥 關鍵修復：好友列表讀取邏輯
+        function loadFriends() { 
+            // 監聽好友集合
+            onSnapshot(query(collection(db, "users", currentUser.uid, "friends")), s => { 
+                const el = document.getElementById('friend-list-container'); 
+                el.innerHTML = ''; 
+                
+                // 1. 強制加入「我的相簿」
+                const me = document.createElement('div'); 
+                me.className = `p-4 rounded-2xl flex items-center gap-3 cursor-pointer ${currentViewUid===currentUser.uid ? 'bg-[#FFF0D4] border-2 border-[#F4A261]' : 'bg-white hover:bg-[#FFF8E1] border-2 border-[#FFE8D6]'}`; 
+                // 防呆：如果 myProfileData 還沒載入，使用預設圖
+                const myPhoto = myProfileData?.photo || DEFAULT_AVATAR;
+                me.innerHTML = `<img src="${myPhoto}" class="w-10 h-10 rounded-full bg-white object-cover border border-[#FFE8D6]"><div class="font-bold text-[#4A3B32]">我的相簿</div>`; 
+                me.onclick = () => switchView(currentUser.uid, '我的帳本'); 
+                el.appendChild(me); 
+                
+                // 2. 渲染好友
+                s.forEach(d => { 
+                    try {
+                        const f = d.data(); 
+                        const div = document.createElement('div'); 
+                        div.className = `p-4 rounded-2xl flex items-center justify-between cursor-pointer mt-2 ${currentViewUid===f.uid ? 'bg-[#E1F5FE] border-2 border-[#81D4FA]' : 'bg-white hover:bg-[#FFF8E1] border-2 border-[#FFE8D6]'}`; 
+                        
+                        // 防呆：防止好友資料缺損導致當機
+                        const fName = f.name || "神秘柴友";
+                        const fPhoto = f.photo || DEFAULT_AVATAR;
+                        const fId = f.shortId || "???";
+
+                        div.innerHTML = `<div class="flex items-center gap-3"><img src="${fPhoto}" class="w-10 h-10 rounded-full bg-white object-cover border border-[#FFE8D6]"><div><div class="font-bold text-sm text-[#4A3B32]">${fName}</div><div class="text-xs text-[#8D6E63]">ID: ${fId}</div></div></div><button onclick="event.stopPropagation();deleteFriend('${f.uid}')" class="text-[#8D6E63] hover:text-[#E76F51]">×</button>`; 
+                        div.onclick = () => switchView(f.uid, f.name); 
+                        el.appendChild(div); 
+                    } catch(e) { console.error("好友渲染錯誤:", e); }
+                }); 
+            }); 
+        }
+
+        // 🔥 關鍵修復：加好友邏輯 (解決 undefined 錯誤)
         window.addFriend = async () => { 
             const id = document.getElementById('friend-id-input').value; 
             if(id.length !== 6) return alert("ID 錯誤"); 
+            if(id === myShortId) return alert("不能加自己喔 XD");
+
             try { 
                 const target = await getDoc(doc(db, "public_codes", id)); 
                 if(!target.exists()) return alert("找不到此 ID"); 
                 const td = target.data(); 
+                
+                // 防呆：確保寫入資料庫時沒有 undefined
                 const targetPhoto = td.photo || DEFAULT_AVATAR;
                 const myPhoto = myProfileData.photo || DEFAULT_AVATAR;
                 const targetName = td.name || "神秘柴友";
                 const myName = myProfileData.name || "神秘柴友";
+
                 await setDoc(doc(db, "users", currentUser.uid, "friends", td.uid), { uid: td.uid, shortId: id, name: targetName, photo: targetPhoto }); 
                 await setDoc(doc(db, "users", td.uid, "friends", currentUser.uid), { uid: currentUser.uid, shortId: myShortId, name: myName, photo: myPhoto }); 
                 alert("添加成功"); document.getElementById('friend-id-input').value=''; 
             } catch(e) { console.error(e); alert("添加失敗: " + e.message); } 
         }
 
-        // Daily Bonus
         async function checkDailyBonus(uid) {
             const todayStr = new Date().toDateString(); 
             const userRef = doc(db, "users", uid);
@@ -398,6 +454,19 @@
                 alert(`🐶 測試模式：骨頭幣已修改為 ${amount}`);
             } catch (e) { console.error(e); alert("修改失敗"); }
         };
+        
+        // 渲染完畢後呼叫一次好友載入
+        window.switchView = (uid, name) => { 
+            currentViewUid = uid; 
+            document.getElementById('current-view-label').innerText = uid===currentUser.uid ? '個人' : name; 
+            updateViewMode(); 
+            loadDataRealtime(uid); 
+            document.getElementById('friend-modal').classList.add('hidden'); 
+        }
+        function updateViewMode() { 
+            const isMe = currentViewUid === currentUser.uid; 
+            document.getElementById('fab-btn').classList.toggle('hidden', !isMe); 
+        }
     </script>
 </body>
 </html>
