@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 購買終極修復</title>
+    <title>柴管家 - 好友修復版</title>
     
     <link rel="icon" type="image/png" href="./Shiba Logo.png">
     <link rel="shortcut icon" href="./Shiba Logo.png">
@@ -54,17 +54,7 @@
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #FFE8D6; border-radius: 4px; }
         
         .black-shiba-filter { filter: grayscale(100%) brightness(0.6) contrast(1.2); }
-        
-        /* 🔥 售完樣式：確保變灰且不可點擊 */
-        button:disabled, .sold-out { 
-            opacity: 0.5 !important; 
-            pointer-events: none !important; 
-            background-color: #BDBDBD !important; 
-            color: #FFFFFF !important; 
-            box-shadow: none !important; 
-            border: none !important; 
-            cursor: not-allowed !important; 
-        }
+        .sold-out { opacity: 0.6 !important; pointer-events: none !important; background-color: #BDBDBD !important; color: #FFFFFF !important; box-shadow: none !important; border: none !important; cursor: not-allowed !important; }
         
         #friend-panel, #store-panel, #input-panel { will-change: transform; }
     </style>
@@ -92,7 +82,7 @@
         <header class="bg-[#FFFCF5]/95 px-5 pt-12 pb-2 flex items-center justify-between sticky top-0 z-10 backdrop-blur-md">
             <button onclick="toggleMusic()" id="music-btn" class="text-xl w-9 h-9 flex items-center justify-center rounded-full bg-[#FFF0D4] text-[#8D6E63] border-2 border-[#FFE8D6] shadow-sm transition active:scale-95">🔇</button>
             <div class="flex flex-col items-center">
-                <div class="flex items-center gap-2"><h1 class="text-2xl font-black text-[#4A3B32] tracking-tight">我的相簿</h1></div>
+                <div class="flex items-center gap-2"><h1 id="header-title" class="text-2xl font-black text-[#4A3B32] tracking-tight">我的相簿</h1></div>
                 <div class="flex items-center gap-1 mt-1 text-xs text-[#8D6E63] font-bold cursor-pointer bg-[#FFF0D4] px-2 py-1 rounded-lg w-fit transition active:scale-95" onclick="openUserProfile(currentViewUid)"><span id="current-view-label">個人</span><span class="text-[#F4A261]">|</span><span id="my-short-id" class="font-mono">ID...</span></div>
             </div>
             <div class="flex gap-2">
@@ -121,11 +111,13 @@
         <div id="shiba-assistant-container" class="fixed bottom-[100px] right-4 z-40 pointer-events-auto group flex flex-col items-center">
              <div id="shiba-speech" class="hidden absolute bottom-full mb-3 right-0 bg-white p-3 rounded-2xl shadow-lg border-2 border-[#FFE8D6] text-xs font-black text-[#4A3B32] whitespace-nowrap scale-in origin-bottom-right">汪！今天也要加油喔！<div class="absolute -bottom-1.5 right-6 w-3 h-3 bg-white border-b-2 border-r-2 border-[#FFE8D6] rotate-45"></div></div>
              <div class="relative" onclick="triggerShibaClick()">
-                 <div id="shiba-hat" class="hidden absolute -top-8 left-1/2 -translate-x-1/2 text-5xl z-50 pointer-events-none drop-shadow-xl transition-all duration-300" style="transform: rotate(-10deg);">🎩</div>
-                 <img src="./Shiba Logo.png" id="shiba-assistant" class="w-20 h-20 rounded-full border-2 border-white shadow-md object-cover animate-shiba-float cursor-pointer hover:scale-105 transition-transform z-10 relative">
+                 <div id="shiba-hat" class="hidden absolute -top-8 left-1/2 -translate-x-1/2 text-5xl z-50 pointer-events-none drop-shadow-xl" style="transform: rotate(-10deg);">🎩</div>
+                 <img src="./Shiba Logo.png" id="shiba-assistant" class="w-20 h-20 rounded-full border-2 border-white shadow-md object-cover animate-shiba-float cursor-pointer hover:scale-105 transition-transform z-10">
                  <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-white px-2 py-0.5 rounded-full border border-[#FFE8D6] shadow-sm flex items-center gap-1 z-30">
                      <span id="mood-icon" class="text-[10px]">❤️</span>
-                     <div class="w-10 h-1.5 bg-[#E0E0E0] rounded-full overflow-hidden"><div id="mood-bar" class="h-full bg-[#FF7096] w-full transition-all duration-500"></div></div>
+                     <div class="w-10 h-1.5 bg-[#E0E0E0] rounded-full overflow-hidden">
+                         <div id="mood-bar" class="h-full bg-[#FF7096] w-full transition-all duration-500"></div>
+                     </div>
                  </div>
              </div>
         </div>
@@ -151,7 +143,7 @@
             </div>
         </div>
 
-        <div id="input-modal" class="fixed inset-0 bg-[#4A3B32]/40 z-50 hidden flex flex-col justify-end fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="closeInputModal()"></div><div id="input-panel" class="bg-[#FFFCF5] w-full rounded-t-[2.5rem] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] slide-up relative z-10 pb-safe transition-transform duration-100 ease-out"><div class="w-12 h-1.5 bg-[#FFE8D6] rounded-full mx-auto mb-6"><div class="flex justify-between items-center mb-6"><button onclick="closeInputModal()" class="text-[#8D6E63] text-sm font-bold p-2 hover:bg-[#FFE8D6] rounded-lg">取消</button><h2 class="text-sm font-black text-[#F4A261] uppercase tracking-widest" id="form-title">記一筆</h2><button onclick="triggerSubmit()" class="text-[#E76F51] text-sm font-bold p-2 hover:bg-[#FFE8D6] rounded-lg">完成</button></div><form id="transaction-form" class="flex flex-col gap-5"><div class="relative group"><span class="absolute left-6 top-1/2 -translate-y-1/2 text-2xl text-[#F4A261] font-bold">$</span><input type="number" id="inp-amount" placeholder="0" class="w-full bg-white border-2 border-[#FFE8D6] rounded-2xl py-4 pl-12 pr-4 text-4xl font-black text-[#4A3B32] text-center focus:ring-4 focus:ring-[#F4A261]/20 focus:border-[#F4A261] transition-all outline-none" required inputmode="decimal"></div><div class="bg-[#FFF0D4] p-1.5 rounded-2xl flex"><select id="inp-type" onchange="updateCategoryOptions()" class="bg-white rounded-xl shadow-sm w-24 text-center text-sm font-bold text-[#4A3B32] focus:outline-none py-3 border border-[#FFE8D6]"><option value="expense">支出</option><option value="income">收入</option></select><select id="inp-category" class="flex-1 bg-transparent px-4 text-sm font-bold text-[#4A3B32] focus:outline-none text-center"></select><button type="button" onclick="addCustomCategory()" class="px-3 text-[#E76F51] font-black text-lg hover:bg-white/50 rounded-lg">+</button></div><div class="flex gap-3"><input type="date" id="inp-date" class="bg-white border-2 border-[#FFE8D6] rounded-2xl px-4 py-3.5 text-sm font-bold text-[#4A3B32] w-1/3 focus:border-[#F4A261] outline-none"><input type="text" id="inp-title" placeholder="備註..." class="flex-1 bg-white border-2 border-[#FFE8D6] rounded-2xl px-4 py-3.5 text-sm font-bold text-[#4A3B32] focus:border-[#F4A261] outline-none placeholder-[#D7CCC8]"></div><div class="flex gap-3"><input type="file" id="inp-photo" accept="image/*" onchange="handlePhotoSelect(event)" class="hidden"><label for="inp-photo" id="btn-camera" class="w-full border-2 border-dashed border-[#F4A261]/50 bg-[#FFF8E1] rounded-2xl py-3 flex items-center justify-center gap-2 text-[#F4A261] cursor-pointer hover:bg-[#F4A261] hover:text-white transition"><span class="text-xl">📷</span><span class="text-xs font-bold">拍張照</span></label><div id="preview-container" class="hidden relative w-full h-24"><img id="img-preview" class="w-full h-full object-cover rounded-2xl border-2 border-[#F4A261]"><button type="button" onclick="clearPhoto()" class="absolute -top-2 -right-2 bg-[#E76F51] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md">×</button></div></div></form></div></div>
+        <div id="input-modal" class="fixed inset-0 bg-[#4A3B32]/40 z-50 hidden flex flex-col justify-end fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="closeInputModal()"></div><div id="input-panel" class="bg-[#FFFCF5] w-full rounded-t-[2.5rem] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] slide-up relative z-10 pb-safe transition-transform duration-100 ease-out"><div class="w-12 h-1.5 bg-[#FFE8D6] rounded-full mx-auto mb-6"><div class="flex justify-between items-center mb-6"><button onclick="closeInputModal()" class="text-[#8D6E63] text-sm font-bold p-2 hover:bg-[#FFE8D6] rounded-lg">取消</button><h2 class="text-sm font-black text-[#F4A261] uppercase tracking-widest" id="form-title">記一筆</h2><button onclick="triggerSubmit()" class="text-[#E76F51] text-sm font-bold p-2 hover:bg-[#FFE8D6] rounded-lg">完成</button></div><form id="transaction-form" class="flex flex-col gap-5"><div class="relative group"><span class="absolute left-6 top-1/2 -translate-y-1/2 text-2xl text-[#F4A261] font-bold">$</span><input type="number" id="inp-amount" placeholder="0" class="w-full bg-white border-2 border-[#FFE8D6] rounded-2xl py-4 pl-12 pr-4 text-4xl font-black text-[#4A3B32] text-center focus:ring-4 focus:ring-[#F4A261]/20 focus:border-[#F4A261] transition-all outline-none" required inputmode="decimal"></div><div class="bg-[#FFF0D4] p-1.5 rounded-2xl flex"><select id="inp-type" onchange="updateCategoryOptions()" class="bg-white rounded-xl shadow-sm w-24 text-center text-sm font-bold text-[#4A3B32] focus:outline-none py-3 border border-[#FFE8D6]"><option value="expense">支出</option><option value="income">收入</option></select><select id="inp-category" class="flex-1 bg-transparent px-4 text-sm font-bold text-[#4A3B32] focus:outline-none text-center"></select><button type="button" onclick="addCustomCategory()" class="px-3 text-[#E76F51] font-black text-lg hover:bg-white/50 rounded-lg">+</button></div><div class="flex gap-3"><input type="date" id="inp-date" class="bg-white border-2 border-[#FFE8D6] rounded-2xl px-4 py-3.5 text-sm font-bold text-[#4A3B32] w-1/3 focus:border-[#F4A261] outline-none"><input type="text" id="inp-title" placeholder="備註..." class="flex-1 bg-white border-2 border-[#FFE8D6] rounded-2xl px-4 py-3.5 text-sm font-bold text-[#4A3B32] focus:border-[#F4A261] outline-none placeholder-[#D7CCC8]"></div><div class="flex gap-3"><input type="file" id="inp-photo" accept="image/*" onchange="handlePhotoSelect(event)" class="hidden"><label for="inp-photo" id="btn-camera" class="w-full border-2 border-dashed border-[#F4A261]/50 bg-[#FFF8E1] rounded-2xl py-3 flex items-center justify-center gap-2 text-[#F4A261] cursor-pointer hover:bg-[#F4A261] hover:text-white transition"><span class="text-xl">📷</span><span class="text-xs font-bold">拍張照</span></label><div id="preview-container" class="hidden relative w-full h-24"><img id="img-preview" class="w-full h-full object-cover rounded-2xl border-2 border-[#F4A261]"><button type="button" onclick="clearPhoto()" class="absolute -top-2 -right-2 bg-[#E76F51] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md">×</button></div></div></form></div></div></div>
         <div id="friend-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-start justify-start fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleFriendModal()"></div><div id="friend-panel" class="bg-[#FFFCF5] w-4/5 max-w-sm h-full p-6 flex flex-col relative z-10 slide-in-left shadow-2xl rounded-r-[2rem] transition-transform duration-200" style="touch-action: pan-y;"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-[#4A3B32]">柴友列表</h2><div class="flex gap-2"><button onclick="loadFriends(true)" class="text-[#2A9D8F] text-sm font-bold bg-[#E0F2F1] px-2 py-1 rounded-lg">🔄 刷新</button><button onclick="toggleFriendModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full">×</button></div></div><div class="mb-6 bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] shadow-sm"><label class="text-xs font-bold text-[#F4A261] block mb-2 uppercase tracking-wide">加入好友 (輸入 ID)</label><div class="flex gap-2"><input type="tel" maxlength="6" id="friend-id-input" placeholder="000000" class="flex-1 min-w-0 bg-[#FFF8E1] border-none rounded-xl px-4 py-3 text-lg font-mono font-bold tracking-widest text-center text-[#4A3B32] outline-none focus:ring-2 focus:ring-[#F4A261]"><button onclick="addFriend()" class="shrink-0 bg-[#F4A261] text-white px-4 rounded-xl text-lg font-bold hover:bg-[#E76F51] transition shadow-md">+</button></div></div><div class="flex-1 overflow-y-auto space-y-2 h-full" id="friend-list-container"><div class="text-center text-[#8D6E63] text-xs mt-10">載入中...</div></div></div></div>
         <div id="daily-bonus-modal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm"><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl scale-in relative border-4 border-[#F4A261]"><div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#FFF0D4] w-24 h-24 rounded-full flex items-center justify-center border-4 border-[#F4A261] shadow-md"><span class="text-5xl animate-coin">🦴</span></div><h2 class="text-2xl font-black text-[#4A3B32] mt-10 mb-1">每日簽到成功！</h2><p class="text-[#8D6E63] text-sm font-bold mb-6">連續登入第 <span id="streak-days" class="text-[#E76F51] text-lg">1</span> 天</p><div class="bg-[#FFF8E1] rounded-2xl p-4 mb-6 border-2 border-[#FFE8D6]"><div class="text-xs text-[#F4A261] font-bold uppercase tracking-wider mb-1">獲得獎勵</div><div class="text-4xl font-black text-[#4A3B32] flex items-center justify-center gap-2">+<span id="bonus-amount">10</span> 🦴</div></div><div class="flex justify-between items-end mb-6 px-2 h-16"><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-2 rounded-t-sm" id="bar-1"></div><span class="text-[10px] font-bold text-[#BDBDBD]">1天</span></div><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-4 rounded-t-sm" id="bar-2"></div><span class="text-[10px] font-bold text-[#BDBDBD]">2天</span></div><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-6 rounded-t-sm" id="bar-3"></div><span class="text-[10px] font-bold text-[#BDBDBD]">3天</span></div><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-8 rounded-t-sm" id="bar-4"></div><span class="text-[10px] font-bold text-[#BDBDBD]">4天</span></div><div class="flex flex-col items-center gap-1 w-1/5"><div class="w-full bg-[#E0E0E0] h-10 rounded-t-sm" id="bar-5"></div><span class="text-[10px] font-bold text-[#BDBDBD]">5+</span></div></div><button onclick="closeBonusModal()" class="w-full bg-[#F4A261] text-white font-black py-3.5 rounded-xl shadow-[0_4px_0_#E76F51] active:shadow-none active:translate-y-1 transition-all hover:bg-[#E76F51]">開心收下！</button></div></div>
         <div id="detail-modal" class="fixed inset-0 bg-[#4A3B32]/60 z-50 hidden flex items-center justify-center p-4 fade-in backdrop-blur-sm" onclick="closeDetailModal()"><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl scale-in relative flex flex-col max-h-[90vh]" onclick="event.stopPropagation()"><div class="relative w-full bg-[#FFE8D6] aspect-square group shrink-0"><img id="detail-img" src="" class="w-full h-full object-cover"><div id="detail-no-img" class="hidden w-full h-full flex flex-col items-center justify-center bg-[#FFF0D4] text-[#F4A261]"><span class="text-8xl" id="detail-icon">🐕</span><span class="text-sm font-bold mt-4 text-[#8D6E63]">沒有照片</span></div><button onclick="closeDetailModal()" class="absolute top-4 right-4 bg-white/80 text-[#4A3B32] w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md shadow-md font-bold">✕</button></div><div class="p-6 flex-1 overflow-y-auto no-scrollbar"><div class="flex justify-between items-start mb-2"><div><span id="detail-date" class="text-xs font-bold text-[#8D6E63] uppercase tracking-wide bg-[#FFE8D6] px-2 py-0.5 rounded-md">...</span><h2 id="detail-title" class="text-xl font-black text-[#4A3B32] mt-2">...</h2></div><div id="detail-amount" class="text-2xl font-black text-[#4A3B32]">...</div></div><div class="flex items-center gap-2 mb-6"><span id="detail-category" class="bg-[#F4A261]/20 text-[#E76F51] px-3 py-1 rounded-lg text-xs font-bold">...</span><span id="detail-type" class="text-xs font-bold text-[#8D6E63]">...</span></div><div id="detail-actions" class="grid grid-cols-2 gap-3 mb-6 hidden"><button onclick="editCurrentDetail()" class="flex-1 bg-[#FFF0D4] text-[#4A3B32] py-3.5 rounded-xl font-bold hover:bg-[#FFE8D6] transition">✎ 編輯</button><button onclick="deleteCurrentDetail()" class="flex-1 bg-white border-2 border-[#FFCDD2] text-[#E76F51] py-3.5 rounded-xl font-bold hover:bg-[#FFEBEE] transition">🗑️ 刪除</button></div><div class="border-t border-[#FFE8D6] pt-4"><div class="text-xs font-bold text-[#F4A261] mb-2 uppercase tracking-wider">留言板</div><div id="detail-comments-list" class="space-y-3 mb-4 min-h-[60px]"></div><div class="flex gap-2"><input type="text" id="detail-comment-input" placeholder="說點好聽的..." class="flex-1 bg-white border border-[#FFE8D6] rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#F4A261] shadow-sm"><button onclick="submitDetailComment()" class="bg-[#F4A261] text-white rounded-xl px-4 font-bold shadow-[0_3px_0_#E76F51] active:shadow-none active:translate-y-1 transition hover:bg-[#E76F51]">傳送</button></div></div></div></div></div>
@@ -181,19 +173,29 @@
         window.updateSFXVolume = (val) => { globalSFXVolume = parseFloat(val); document.getElementById('sfx-val-display').innerText = Math.round(globalSFXVolume * 100) + '%'; playPop(); };
         document.addEventListener('click', (e) => { if((e.target.closest('button') || e.target.closest('.cursor-pointer')) && e.target.type !== 'range') { playPop(); } });
         
-        const inputPanel = document.getElementById('input-panel'); let panelStartY = 0; let isDragging = false; inputPanel.addEventListener('touchstart', (e) => { if(inputPanel.scrollTop <= 0) { panelStartY = e.touches[0].clientY; isDragging = false; } }, {passive: true}); inputPanel.addEventListener('touchmove', (e) => { const diff = e.touches[0].clientY - panelStartY; if(inputPanel.scrollTop <= 0 && diff > 0) { if(e.cancelable) e.preventDefault(); isDragging = true; inputPanel.style.transform = `translateY(${diff}px)`; inputPanel.style.transition = 'none'; } }, {passive: false}); inputPanel.addEventListener('touchend', (e) => { if(!isDragging) return; if((e.changedTouches[0].clientY - panelStartY) > 100) closeInputModal(); else { inputPanel.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; inputPanel.style.transform = ''; } isDragging = false; });
-        const friendPanel = document.getElementById('friend-panel'); let friendStartX = 0; let friendStartY = 0; let isFriendClosing = false; let isScrollingList = false; friendPanel.addEventListener('touchstart', (e) => { friendStartX = e.touches[0].clientX; friendStartY = e.touches[0].clientY; isFriendClosing = false; isScrollingList = false; friendPanel.style.transition = 'none'; }, {passive: true}); friendPanel.addEventListener('touchmove', (e) => { if (isScrollingList) return; const currentX = e.touches[0].clientX; const currentY = e.touches[0].clientY; const xDiff = currentX - friendStartX; const yDiff = currentY - friendStartY; if (isFriendClosing || (xDiff < -10 && Math.abs(xDiff) > Math.abs(yDiff))) { if (e.cancelable) e.preventDefault(); isFriendClosing = true; friendPanel.style.transform = `translateX(${xDiff}px)`; } else if (Math.abs(yDiff) > Math.abs(xDiff)) { isScrollingList = true; } }, {passive: false}); friendPanel.addEventListener('touchend', (e) => { if (isFriendClosing) { const xDiff = e.changedTouches[0].clientX - friendStartX; if (xDiff < -100) toggleFriendModal(); else { friendPanel.style.transition = 'transform 0.3s ease-out'; friendPanel.style.transform = ''; } } isFriendClosing = false; isScrollingList = false; });
-        const storePanel = document.getElementById('store-panel'); let storeStartX = 0; let storeStartY = 0; let isStoreClosing = false; let isStoreScrolling = false; storePanel.addEventListener('touchstart', (e) => { storeStartX = e.touches[0].clientX; storeStartY = e.touches[0].clientY; isStoreClosing = false; isStoreScrolling = false; storePanel.style.transition = 'none'; }, {passive: true}); storePanel.addEventListener('touchmove', (e) => { if (isStoreScrolling) return; const currentX = e.touches[0].clientX; const currentY = e.touches[0].clientY; const xDiff = currentX - storeStartX; const yDiff = currentY - storeStartY; if (isStoreClosing || (xDiff > 10 && Math.abs(xDiff) > Math.abs(yDiff))) { if (e.cancelable) e.preventDefault(); isStoreClosing = true; storePanel.style.transform = `translateX(${xDiff}px)`; } else if (Math.abs(yDiff) > Math.abs(xDiff)) { isStoreScrolling = true; } }, {passive: false}); storePanel.addEventListener('touchend', (e) => { if (isStoreClosing) { const xDiff = e.changedTouches[0].clientX - storeStartX; if (xDiff > 100) toggleStoreModal(); else { storePanel.style.transition = 'transform 0.3s ease-out'; storePanel.style.transform = ''; } } isStoreClosing = false; isStoreScrolling = false; });
+        const inputPanel = document.getElementById('input-panel'); let panelStartY = 0; let isDragging = false; 
+        inputPanel.addEventListener('touchstart', (e) => { if(inputPanel.scrollTop <= 0) { panelStartY = e.touches[0].clientY; isDragging = false; } }, {passive: true}); 
+        inputPanel.addEventListener('touchmove', (e) => { const diff = e.touches[0].clientY - panelStartY; if(inputPanel.scrollTop <= 0 && diff > 0) { if(e.cancelable) e.preventDefault(); isDragging = true; inputPanel.style.transform = `translateY(${diff}px)`; inputPanel.style.transition = 'none'; } }, {passive: false}); 
+        inputPanel.addEventListener('touchend', (e) => { if(!isDragging) return; if((e.changedTouches[0].clientY - panelStartY) > 100) closeInputModal(); else { inputPanel.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; inputPanel.style.transform = ''; } isDragging = false; });
         
-        // 🔥 移除左滑手勢，避免與商店衝突
+        const friendPanel = document.getElementById('friend-panel'); let friendStartX = 0; let friendStartY = 0; let isFriendClosing = false; let isScrollingList = false; 
+        friendPanel.addEventListener('touchstart', (e) => { friendStartX = e.touches[0].clientX; friendStartY = e.touches[0].clientY; isFriendClosing = false; isScrollingList = false; friendPanel.style.transition = 'none'; }, {passive: true}); 
+        friendPanel.addEventListener('touchmove', (e) => { if (isScrollingList) return; const currentX = e.touches[0].clientX; const currentY = e.touches[0].clientY; const xDiff = currentX - friendStartX; const yDiff = currentY - friendStartY; if (isFriendClosing || (xDiff < -10 && Math.abs(xDiff) > Math.abs(yDiff))) { if (e.cancelable) e.preventDefault(); isFriendClosing = true; friendPanel.style.transform = `translateX(${xDiff}px)`; } else if (Math.abs(yDiff) > Math.abs(xDiff)) { isScrollingList = true; } }, {passive: false}); 
+        friendPanel.addEventListener('touchend', (e) => { if (isFriendClosing) { const xDiff = e.changedTouches[0].clientX - friendStartX; if (xDiff < -100) toggleFriendModal(); else { friendPanel.style.transition = 'transform 0.3s ease-out'; friendPanel.style.transform = ''; } } isFriendClosing = false; isScrollingList = false; });
+        
+        const storePanel = document.getElementById('store-panel'); let storeStartX = 0; let storeStartY = 0; let isStoreClosing = false; let isStoreScrolling = false; 
+        storePanel.addEventListener('touchstart', (e) => { storeStartX = e.touches[0].clientX; storeStartY = e.touches[0].clientY; isStoreClosing = false; isStoreScrolling = false; storePanel.style.transition = 'none'; }, {passive: true}); 
+        storePanel.addEventListener('touchmove', (e) => { if (isStoreScrolling) return; const currentX = e.touches[0].clientX; const currentY = e.touches[0].clientY; const xDiff = currentX - storeStartX; const yDiff = currentY - storeStartY; if (isStoreClosing || (xDiff > 10 && Math.abs(xDiff) > Math.abs(yDiff))) { if (e.cancelable) e.preventDefault(); isStoreClosing = true; storePanel.style.transform = `translateX(${xDiff}px)`; } else if (Math.abs(yDiff) > Math.abs(xDiff)) { isStoreScrolling = true; } }, {passive: false}); 
+        storePanel.addEventListener('touchend', (e) => { if (isStoreClosing) { const xDiff = e.changedTouches[0].clientX - storeStartX; if (xDiff > 100) toggleStoreModal(); else { storePanel.style.transition = 'transform 0.3s ease-out'; storePanel.style.transform = ''; } } isStoreClosing = false; isStoreScrolling = false; });
+        
         let globalStartX = 0; let globalStartY = 0; 
         document.addEventListener('touchstart', e => { globalStartX = e.changedTouches[0].screenX; globalStartY = e.changedTouches[0].screenY; }, false); 
         document.addEventListener('touchend', e => { 
             let touchEndX = e.changedTouches[0].screenX; let touchEndY = e.changedTouches[0].screenY; let xDiff = touchEndX - globalStartX; let yDiff = touchEndY - globalStartY; 
-            // 只有右滑開好友，左滑不開商店
             if (Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff) > 50) { 
                 if(document.getElementById('friend-modal').classList.contains('hidden') && document.getElementById('store-modal').classList.contains('hidden') && document.getElementById('input-modal').classList.contains('hidden')) { 
                     if (xDiff > 0) toggleFriendModal(); 
+                    // 🔥 移除左滑開啟商店
                 } 
             } 
         }, false);
@@ -239,7 +241,6 @@
         };
         window.updateMoodUI = () => { const bar = document.getElementById('mood-bar'); bar.style.width = `${shibaMood}%`; if(shibaMood <= 20) bar.style.backgroundColor = '#9D4EDD'; else if(shibaMood <= 50) bar.style.backgroundColor = '#48CAE4'; else bar.style.backgroundColor = '#FF7096'; };
         
-        // 🔥 應用效果：修正帽子顯示
         window.applyInventoryEffects = () => { 
             myInventory = myProfileData.inventory || {}; 
             const hatEl = document.getElementById('shiba-hat');
@@ -262,30 +263,27 @@
             } else { modal.classList.add('hidden'); panel.style.transform = ''; unlockScroll(); } 
         };
 
-        // 🔥 強制更新按鈕狀態：加上 disabled 屬性
         function updateStoreButtons() { 
             const inv = myProfileData.inventory || {}; const today = new Date().toDateString(); const lastMeat = myProfileData.lastMeatDate; 
-            
             const meatBtn = document.getElementById('btn-buy-meat'); 
             if(lastMeat === today) { meatBtn.classList.add('sold-out'); meatBtn.innerText = "今日已達上限"; meatBtn.disabled = true; } 
             else { meatBtn.classList.remove('sold-out'); meatBtn.innerText = "50 🦴 購買"; meatBtn.disabled = false; } 
             
             const hatBtn = document.getElementById('btn-buy-hat');
-            if(inv.hat) { hatBtn.classList.add('sold-out'); hatBtn.innerText = "已達上限"; hatBtn.disabled = true; }
+            if(inv.hat) { hatBtn.classList.add('sold-out'); hatBtn.innerText = "已擁有"; hatBtn.disabled = true; }
             else { hatBtn.classList.remove('sold-out'); hatBtn.innerText = "200 🦴 購買"; hatBtn.disabled = false; }
             
             const blackBtn = document.getElementById('btn-buy-black');
-            if(inv.black) { blackBtn.classList.add('sold-out'); blackBtn.innerText = "已達上限"; blackBtn.disabled = true; }
+            if(inv.black) { blackBtn.classList.add('sold-out'); blackBtn.innerText = "已擁有"; blackBtn.disabled = true; }
             else { blackBtn.classList.remove('sold-out'); blackBtn.innerText = "500 🦴 購買"; blackBtn.disabled = false; }
             
             const noadsBtn = document.getElementById('btn-buy-noads');
-            if(inv.noads) { noadsBtn.classList.add('sold-out'); noadsBtn.innerText = "已達上限"; noadsBtn.disabled = true; }
+            if(inv.noads) { noadsBtn.classList.add('sold-out'); noadsBtn.innerText = "已擁有"; noadsBtn.disabled = true; }
             else { noadsBtn.classList.remove('sold-out'); noadsBtn.innerText = "1000 🦴 購買"; noadsBtn.disabled = false; }
         }
 
         window.buyItem = async (price, itemType) => {
-            // 🔥 強制防呆：檢查是否已購買
-            if (!myProfileData.inventory) myProfileData.inventory = {}; // 確保不為 null
+            if (!myProfileData.inventory) myProfileData.inventory = {}; 
             if (itemType !== 'meat' && myProfileData.inventory[itemType]) return alert('已經擁有此物品囉！');
             if (itemType === 'meat' && myProfileData.lastMeatDate === new Date().toDateString()) return alert('今天已經吃過大餐了！');
 
@@ -296,40 +294,30 @@
             
             if(!confirm(confirmMsg)) return;
 
-            // 🔥 立即本地更新 & 鎖定按鈕 (Optimistic Update)
-            if(itemType === 'meat') {
-                shibaMood = 100;
-                myProfileData.lastMeatDate = new Date().toDateString();
-            } else {
-                myProfileData.inventory[itemType] = true; 
-            }
-            myProfileData.boneCoins -= price;
-            document.getElementById('store-coin-count').innerText = myProfileData.boneCoins;
-            applyInventoryEffects(); 
-            updateStoreButtons(); // 立即變灰
-            
-            // 處理 DB 更新
             const userRef = doc(db, "users", currentUser.uid);
             let updates = { boneCoins: increment(-price) };
+            let msg = "購買成功！";
+
             if(itemType === 'meat') {
                 updates.mood = 100;
                 updates.lastMeatDate = new Date().toDateString();
+                shibaMood = 100;
+                myProfileData.lastMeatDate = updates.lastMeatDate;
+                msg = "心情補滿了！好好吃！(汪!)";
             } else {
-                updates.inventory = myProfileData.inventory;
+                let newInv = myProfileData.inventory || {};
+                newInv[itemType] = true;
+                updates.inventory = newInv;
+                myProfileData.inventory = newInv; 
+                if(itemType === 'hat') msg = "帶上新帽子了！帥嗎？";
+                if(itemType === 'black') msg = "變身黑柴！帥氣度+100！";
+                if(itemType === 'noads') msg = "廣告消失了！清爽！";
             }
 
-            try {
-                await updateDoc(userRef, updates);
-                playCoin(); 
-                let msg = itemType === 'meat' ? "心情補滿了！(汪!)" : "購買成功！";
-                triggerShibaReaction(msg); 
-                updateMoodUI(); 
-            } catch(e) {
-                // 失敗回滾
-                console.error(e);
-                alert("購買失敗，請檢查網路");
-                window.location.reload(); // 簡單粗暴重整確保資料一致
-            }
+            await updateDoc(userRef, updates);
+            myProfileData.boneCoins -= price;
+            document.getElementById('store-coin-count').innerText = myProfileData.boneCoins;
+            playCoin(); triggerShibaReaction(msg); updateMoodUI(); applyInventoryEffects(); updateStoreButtons();
         };
 
         window.closeBonusModal = () => document.getElementById('daily-bonus-modal').classList.add('hidden');
@@ -352,8 +340,9 @@
             if (friendUnsubscribe) friendUnsubscribe();
             
             const el = document.getElementById('friend-list-container');
-            // 先顯示自己，避免空白
-            el.innerHTML = ''; 
+            el.innerHTML = ''; // 清除 "載入中..."
+            
+            // 優先渲染自己
             const me = document.createElement('div');
             me.className = `p-4 rounded-2xl flex items-center gap-3 cursor-pointer ${currentViewUid===currentUser.uid ? 'bg-[#FFF0D4] border-2 border-[#F4A261]' : 'bg-white hover:bg-[#FFF8E1] border-2 border-[#FFE8D6]'}`;
             const myPhoto = myProfileData?.photo || DEFAULT_AVATAR;
@@ -363,7 +352,7 @@
 
             const q = query(collection(db, "users", currentUser.uid, "friends"));
             friendUnsubscribe = onSnapshot(q, (snapshot) => {
-                // 保留自己，清除舊好友
+                // 清除舊資料（保留第一個自己）
                 while(el.children.length > 1) { el.removeChild(el.lastChild); }
 
                 snapshot.forEach(doc => {
@@ -372,13 +361,32 @@
                         const div = document.createElement('div');
                         div.className = `p-4 rounded-2xl flex items-center justify-between cursor-pointer mt-2 ${currentViewUid===f.uid ? 'bg-[#E1F5FE] border-2 border-[#81D4FA]' : 'bg-white hover:bg-[#FFF8E1] border-2 border-[#FFE8D6]'}`;
                         const fName = f.name || "神秘柴友"; const fPhoto = f.photo || DEFAULT_AVATAR; const fId = f.shortId || "???";
-                        div.innerHTML = `<div class="flex items-center gap-3 flex-1" onclick="openUserProfile('${f.uid}')"><img src="${fPhoto}" class="w-10 h-10 rounded-full bg-white object-cover border border-[#FFE8D6]"><div><div class="font-bold text-sm text-[#4A3B32]">${fName}</div><div class="text-xs text-[#8D6E63]">ID: ${fId}</div></div></div><button onclick="event.stopPropagation();deleteFriend('${f.uid}')" class="text-[#8D6E63] hover:text-[#E76F51] p-2">×</button>`;
-                        div.onclick = (e) => { if(e.target.tagName !== 'BUTTON' && !e.target.closest('.flex-1')) { openUserProfile(f.uid); } };
+                        
+                        // 🔥 關鍵修正：單一監聽器
+                        div.innerHTML = `<div class="flex items-center gap-3 flex-1"><img src="${fPhoto}" class="w-10 h-10 rounded-full bg-white object-cover border border-[#FFE8D6]"><div><div class="font-bold text-sm text-[#4A3B32]">${fName}</div><div class="text-xs text-[#8D6E63]">ID: ${fId}</div></div></div><button id="del-btn-${f.uid}" class="text-[#8D6E63] hover:text-[#E76F51] p-2">×</button>`;
+                        
+                        // 點擊整行 -> 看資料
+                        div.onclick = (e) => { 
+                            if(e.target.id !== `del-btn-${f.uid}`) openUserProfile(f.uid); 
+                        };
+                        
+                        // 點擊刪除 -> 刪好友
+                        setTimeout(() => {
+                            document.getElementById(`del-btn-${f.uid}`).onclick = (e) => {
+                                e.stopPropagation();
+                                deleteFriend(f.uid);
+                            };
+                        }, 0);
+
                         el.appendChild(div);
                     } catch(e) { console.error(e); }
                 });
             }, (error) => {
-                console.error("好友讀取失敗", error);
+                console.error(error);
+                const errDiv = document.createElement('div');
+                errDiv.innerText = "讀取失敗";
+                errDiv.className = "text-center text-red-400 mt-4 text-xs";
+                el.appendChild(errDiv);
             });
         };
 
@@ -420,7 +428,13 @@
         window.toggleStoreModal = async () => { const modal = document.getElementById('store-modal'); const isHidden = modal.classList.contains('hidden'); if (isHidden) { const userRef = doc(db, "users", currentUser.uid); const snap = await getDoc(userRef); if (snap.exists()) { myProfileData.boneCoins = snap.data().boneCoins || 0; document.getElementById('store-coin-count').innerText = myProfileData.boneCoins; } modal.classList.remove('hidden'); } else { modal.classList.add('hidden'); } };
         window.buyItem = async (price, itemName) => { if (myProfileData.boneCoins >= price) { if(confirm(`確定花費 ${price} 骨頭幣購買 ${itemName} 嗎？`)) { await updateDoc(doc(db, "users", currentUser.uid), { boneCoins: increment(-price) }); myProfileData.boneCoins -= price; document.getElementById('store-coin-count').innerText = myProfileData.boneCoins; triggerShibaReaction(`謝謝惠顧！你買了 ${itemName} (汪!)`); playCoin(); } } else { triggerShibaReaction("骨頭幣不夠啦！快去記帳！(氣)"); } };
         window.setMoney = async (amount) => { if (!currentUser) return alert("請先登入"); try { await updateDoc(doc(db, "users", currentUser.uid), { boneCoins: Number(amount) }); if(myProfileData) myProfileData.boneCoins = Number(amount); const storeCountEl = document.getElementById('store-coin-count'); if(storeCountEl) storeCountEl.innerText = amount; alert(`🐶 測試模式：骨頭幣已修改為 ${amount}`); } catch (e) { console.error(e); alert("修改失敗"); } };
-        window.switchView = (uid, name) => { currentViewUid = uid; document.getElementById('current-view-label').innerText = uid===currentUser.uid ? '個人' : name; updateViewMode(); loadDataRealtime(uid); document.getElementById('friend-modal').classList.add('hidden'); }
+        window.switchView = (uid, name) => { 
+            currentViewUid = uid; 
+            document.getElementById('header-title').innerText = uid===currentUser.uid ? '我的相簿' : `${name} 的相簿`;
+            updateViewMode(); 
+            loadDataRealtime(uid); 
+            document.getElementById('friend-modal').classList.add('hidden'); 
+        }
         function updateViewMode() { const isMe = currentViewUid === currentUser.uid; document.getElementById('fab-btn').classList.toggle('hidden', !isMe); }
     </script>
 </body>
