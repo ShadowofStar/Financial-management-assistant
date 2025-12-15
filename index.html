@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 音量完美版</title>
+    <title>柴管家 - 自訂音樂版</title>
     
     <link rel="icon" type="image/png" href="./Shiba Logo.png">
     <link rel="shortcut icon" href="./Shiba Logo.png">
@@ -54,7 +54,7 @@
 <body class="bg-[#FFFCF5] text-[#4A3B32] min-h-screen selection:bg-[#F4A261] selection:text-white">
 
     <audio id="bg-music" loop crossorigin="anonymous">
-        <source src="https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg">
+        <source src="./[J&B No Copyright Music] Yummy Flavor Background Music.mp3" type="audio/mpeg">
     </audio>
 
     <div id="start-overlay" class="fixed inset-0 bg-[#FFFCF5] z-[100] flex flex-col items-center justify-center fade-in">
@@ -119,7 +119,7 @@
                 <div class="flex items-center justify-between mb-6"><h2 class="text-2xl font-black text-[#4A3B32]">系統設定</h2><button onclick="toggleSettingsModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full flex items-center justify-center">×</button></div>
                 <div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-4"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🎵 背景音樂</span><span class="text-xs text-[#8D6E63] font-bold" id="bgm-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateBGMVolume(this.value)"></div>
                 <div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-6"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🔊 按鈕音效</span><span class="text-xs text-[#8D6E63] font-bold" id="sfx-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateSFXVolume(this.value)"></div>
-                <div class="text-center text-xs text-[#8D6E63] opacity-60 font-bold">ShibaManager v4.1</div>
+                <div class="text-center text-xs text-[#8D6E63] opacity-60 font-bold">ShibaManager v4.2</div>
             </div>
         </div>
 
@@ -330,7 +330,9 @@
                         const div = document.createElement('div');
                         div.className = `p-4 rounded-2xl flex items-center justify-between cursor-pointer mt-2 ${currentViewUid===f.uid ? 'bg-[#E1F5FE] border-2 border-[#81D4FA]' : 'bg-white hover:bg-[#FFF8E1] border-2 border-[#FFE8D6]'}`;
                         const fName = f.name || "神秘柴友"; const fPhoto = f.photo || DEFAULT_AVATAR; const fId = f.shortId || "???";
+                        // 🔥 修正：點擊整列直接開啟 Profile
                         div.innerHTML = `<div class="flex items-center gap-3 flex-1" onclick="openUserProfile('${f.uid}')"><img src="${fPhoto}" class="w-10 h-10 rounded-full bg-white object-cover border border-[#FFE8D6]"><div><div class="font-bold text-sm text-[#4A3B32]">${fName}</div><div class="text-xs text-[#8D6E63]">ID: ${fId}</div></div></div><button onclick="event.stopPropagation();deleteFriend('${f.uid}')" class="text-[#8D6E63] hover:text-[#E76F51] p-2">×</button>`;
+                        // 點擊右側空白處，預設也是看 Profile (或你要改成直接進帳本也可以，這裡設定為進 Profile 比較符合邏輯)
                         div.onclick = (e) => { if(e.target.tagName !== 'BUTTON' && !e.target.closest('.flex-1')) { openUserProfile(f.uid); } };
                         el.appendChild(div);
                     } catch(e) { console.error(e); }
