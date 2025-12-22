@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 完美修復版</title>
+    <title>柴管家 - 商店修復版</title>
     
     <link rel="icon" type="image/png" href="./Shiba Logo.png">
     <link rel="shortcut icon" href="./Shiba Logo.png">
@@ -123,7 +123,7 @@
             <button onclick="toggleStoreModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#4A3B32] transition hover:scale-105 active:scale-95 group"><div class="relative"><svg class="w-6 h-6 group-hover:text-[#F4A261] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg><div class="absolute -top-1 -right-1 w-2 h-2 bg-[#E76F51] rounded-full hidden"></div></div><span class="text-[11px] font-black group-hover:text-[#F4A261] transition">商店</span></button>
         </nav>
 
-        <div id="settings-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleSettingsModal()"></div><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-6 relative z-10 shadow-2xl scale-in border-4 border-white"><div class="flex items-center justify-between mb-6"><h2 class="text-2xl font-black text-[#4A3B32]">系統設定</h2><button onclick="toggleSettingsModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full flex items-center justify-center">×</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-4"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🎵 背景音樂</span><span class="text-xs text-[#8D6E63] font-bold" id="bgm-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateBGMVolume(this.value)"></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-6"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🔊 按鈕音效</span><span class="text-xs text-[#8D6E63] font-bold" id="sfx-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateSFXVolume(this.value)"></div><div class="text-center text-xs text-[#8D6E63] opacity-60 font-bold">ShibaManager v6.4 (Stable & Fix)</div></div></div>
+        <div id="settings-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleSettingsModal()"></div><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-6 relative z-10 shadow-2xl scale-in border-4 border-white"><div class="flex items-center justify-between mb-6"><h2 class="text-2xl font-black text-[#4A3B32]">系統設定</h2><button onclick="toggleSettingsModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full flex items-center justify-center">×</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-4"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🎵 背景音樂</span><span class="text-xs text-[#8D6E63] font-bold" id="bgm-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateBGMVolume(this.value)"></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-6"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🔊 按鈕音效</span><span class="text-xs text-[#8D6E63] font-bold" id="sfx-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateSFXVolume(this.value)"></div><div class="text-center text-xs text-[#8D6E63] opacity-60 font-bold">ShibaManager v6.5 (Store Fix)</div></div></div>
         
         <div id="store-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-end fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleStoreModal()"></div>
             <div id="store-panel" class="bg-[#FFFCF5] w-4/5 max-w-sm h-full flex flex-col relative z-10 slide-in-right shadow-2xl rounded-l-[2rem]" style="touch-action: pan-y;">
@@ -336,31 +336,45 @@
             
             if(!confirm(confirmMsg)) return;
 
+            // 🔥 立即鎖定按鈕，防止重複點擊
+            const btnId = 'btn-buy-' + itemType;
+            const btn = document.getElementById(btnId);
+            if(btn) { btn.disabled = true; btn.innerText = "處理中..."; }
+
             const userRef = doc(db, "users", currentUser.uid);
             let updates = { boneCoins: increment(-price) };
             let msg = "購買成功！";
 
-            // 先更新本地狀態
             if(itemType === 'meat') {
                 updates.mood = 100;
                 updates.lastMeatDate = new Date().toDateString();
-                shibaMood = 100;
-                myProfileData.lastMeatDate = updates.lastMeatDate;
                 msg = "心情補滿了！好好吃！(汪!)";
             } else {
-                let newInv = myProfileData.inventory || {};
-                newInv[itemType] = true;
-                updates.inventory = newInv;
-                myProfileData.inventory = newInv; 
+                // 建構更新物件
+                let invKey = "inventory." + itemType;
+                updates[invKey] = true;
+                
                 if(itemType === 'hat') msg = "帶上新帽子了！帥嗎？";
                 if(itemType === 'black') msg = "變身黑柴！帥氣度+100！";
                 if(itemType === 'noads') msg = "廣告消失了！清爽！";
             }
 
-            await updateDoc(userRef, updates);
-            myProfileData.boneCoins -= price;
-            document.getElementById('store-coin-count').innerText = myProfileData.boneCoins;
-            playCoin(); triggerShibaReaction(msg); updateMoodUI(); applyInventoryEffects(); updateStoreButtons(); // 購買後立即更新按鈕
+            try {
+                await updateDoc(userRef, updates);
+                
+                // 🔥 關鍵修復：強制從伺服器拉取最新資料，確保本地狀態絕對同步
+                const snap = await getDoc(userRef);
+                myProfileData = snap.data(); 
+
+                playCoin(); 
+                triggerShibaReaction(msg); 
+                updateMoodUI(); 
+                applyInventoryEffects(); 
+                updateStoreButtons(); // 根據最新資料刷新按鈕狀態
+            } catch (e) {
+                alert("購買失敗，請稍後再試");
+                updateStoreButtons(); // 恢復按鈕
+            }
         };
 
         window.closeBonusModal = () => document.getElementById('daily-bonus-modal').classList.add('hidden');
@@ -580,3 +594,5 @@
     </script>
 </body>
 </html>
+</html>
+
