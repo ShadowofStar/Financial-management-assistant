@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 強制鎖定修復版</title>
+    <title>柴管家 - 強力鎖定版</title>
     
     <link rel="icon" type="image/png" href="./Shiba Logo.png">
     <link rel="shortcut icon" href="./Shiba Logo.png">
@@ -122,7 +122,7 @@
             <button onclick="toggleStoreModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#4A3B32] transition hover:scale-105 active:scale-95 group"><div class="relative"><svg class="w-6 h-6 group-hover:text-[#F4A261] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg><div class="absolute -top-1 -right-1 w-2 h-2 bg-[#E76F51] rounded-full hidden"></div></div><span class="text-[11px] font-black group-hover:text-[#F4A261] transition">商店</span></button>
         </nav>
 
-        <div id="settings-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleSettingsModal()"></div><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-6 relative z-10 shadow-2xl scale-in border-4 border-white"><div class="flex items-center justify-between mb-6"><h2 class="text-2xl font-black text-[#4A3B32]">系統設定</h2><button onclick="toggleSettingsModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full flex items-center justify-center">×</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-4"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🎵 背景音樂</span><span class="text-xs text-[#8D6E63] font-bold" id="bgm-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateBGMVolume(this.value)"></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-6"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🔊 按鈕音效</span><span class="text-xs text-[#8D6E63] font-bold" id="sfx-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateSFXVolume(this.value)"></div><div class="text-center text-xs text-[#8D6E63] opacity-60 font-bold">ShibaManager v7.1 (Forced)</div></div></div>
+        <div id="settings-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleSettingsModal()"></div><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-6 relative z-10 shadow-2xl scale-in border-4 border-white"><div class="flex items-center justify-between mb-6"><h2 class="text-2xl font-black text-[#4A3B32]">系統設定</h2><button onclick="toggleSettingsModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full flex items-center justify-center">×</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-4"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🎵 背景音樂</span><span class="text-xs text-[#8D6E63] font-bold" id="bgm-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateBGMVolume(this.value)"></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-6"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🔊 按鈕音效</span><span class="text-xs text-[#8D6E63] font-bold" id="sfx-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateSFXVolume(this.value)"></div><div class="text-center text-xs text-[#8D6E63] opacity-60 font-bold">ShibaManager v8.0 (Hard Lock)</div></div></div>
         
         <div id="store-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-end fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleStoreModal()"></div>
             <div id="store-panel" class="bg-[#FFFCF5] w-4/5 max-w-sm h-full flex flex-col relative z-10 slide-in-right shadow-2xl rounded-l-[2rem]" style="touch-action: pan-y;">
@@ -237,7 +237,7 @@
         let currentUser=null, currentViewUid=null, transactions=[], unsubscribe=null, currentDetailId=null, friendUnsubscribe=null;
         let myShortId=null, myProfileData=null, editingId=null, currentPhotoData=null, currentProfilePhotoData=null, myChart=null;
         let shibaMood = 100; let myInventory = {}; 
-        let userUnsubscribe = null; // 🔥 用來存儲使用者監聽器
+        let userUnsubscribe = null; 
 
         const defaultCategories = { expense: ['餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他'], income: ['薪資', '獎金', '投資', '兼職', '其他'] };
         let userCustomCategories = { expense: [], income: [] };
@@ -254,7 +254,6 @@
                 currentUser = user; currentViewUid = user.uid;
                 await ensureUserHasId(user); await loadCustomCategories(user);
                 
-                // 🔥 啟動即時監聽器：只要資料庫有變動，馬上更新 UI
                 startUserListener(user.uid);
 
                 if (document.getElementById('start-overlay').classList.contains('opacity-0')) {
@@ -262,37 +261,27 @@
                     document.getElementById('login-screen').classList.add('hidden');
                 }
                 loadDataRealtime(user.uid); window.loadFriends(true); updateViewMode(); await checkDailyBonus(user.uid); initMoodSystem(); 
-                // applyInventoryEffects(); // 這裡不用呼叫，監聽器會處理
                 setTimeout(() => triggerShibaReaction("歡迎回來，主人！汪！"), 1500);
             } else {
                 if (document.getElementById('start-overlay').classList.contains('opacity-0')) {
                     document.getElementById('login-screen').classList.remove('hidden'); document.getElementById('app-screen').classList.add('hidden');
                 }
                 if(unsubscribe) unsubscribe();
-                if(userUnsubscribe) userUnsubscribe(); // 登出時關閉監聽
+                if(userUnsubscribe) userUnsubscribe(); 
             }
         });
 
-        // 🔥 全新監聽器函式
         function startUserListener(uid) {
             if(userUnsubscribe) userUnsubscribe();
             userUnsubscribe = onSnapshot(doc(db, "users", uid), (docSnap) => {
                 if (docSnap.exists()) {
                     myProfileData = docSnap.data();
-                    
-                    // 1. 更新骨頭幣顯示
                     const coinEl = document.getElementById('store-coin-count');
                     if(coinEl) coinEl.innerText = myProfileData.boneCoins || 0;
-
-                    // 2. 更新商店按鈕狀態 (這就是解決 BUG 的關鍵)
                     if(!document.getElementById('store-modal').classList.contains('hidden')) {
                         updateStoreButtons();
                     }
-
-                    // 3. 更新背包特效
                     applyInventoryEffects();
-
-                    // 4. 更新心情
                     shibaMood = myProfileData.mood || 100;
                     updateMoodUI();
                 }
@@ -319,12 +308,10 @@
             else shibaEl.classList.remove('black-shiba-filter'); 
         };
         
-        // 🔥 商店修復：確保打開商店時，按鈕狀態正確更新
         window.toggleStoreModal = async () => { 
             const modal = document.getElementById('store-modal'); const panel = document.getElementById('store-panel');
             const isHidden = modal.classList.contains('hidden'); 
             if (isHidden) { 
-                // 打開時，其實監聽器已經準備好資料了，直接更新UI即可
                 if (myProfileData) {
                     document.getElementById('store-coin-count').innerText = myProfileData.boneCoins || 0; 
                     updateStoreButtons(); 
@@ -333,7 +320,6 @@
             } else { modal.classList.add('hidden'); panel.style.transform = ''; unlockScroll(); } 
         };
 
-        // 確保這個函式存在且被呼叫
         function updateStoreButtons() { 
             const inv = myProfileData.inventory || {}; const today = new Date().toDateString(); const lastMeat = myProfileData.lastMeatDate; 
             const meatBtn = document.getElementById('btn-buy-meat'); 
@@ -353,70 +339,82 @@
             else { noadsBtn.classList.remove('sold-out'); noadsBtn.innerText = "1000 🦴 購買"; noadsBtn.disabled = false; }
         }
 
+        // 🔥 關鍵修正：本地優先鎖定邏輯
         window.buyItem = async (price, itemType) => {
-            // 防呆檢查：如果已經有了，直接擋下來
-            if(itemType !== 'meat' && myProfileData.inventory && myProfileData.inventory[itemType]) return;
-
-            if (myProfileData.boneCoins < price) return triggerShibaReaction("骨頭幣不夠啦！快去記帳！(氣)");
+            // 1. 本地預先檢查
+            if (!myProfileData.inventory) myProfileData.inventory = {};
             
-            let confirmMsg = `確定花費 ${price} 骨頭幣購買嗎？`;
-            if(itemType === 'meat') confirmMsg += "\n(心情將恢復至 100)";
+            if (itemType !== 'meat' && myProfileData.inventory[itemType]) {
+                alert("已經擁有此物品囉！");
+                updateStoreButtons(); 
+                return;
+            }
             
-            if(!confirm(confirmMsg)) return;
+            const today = new Date().toDateString();
+            if (itemType === 'meat' && myProfileData.lastMeatDate === today) {
+                alert("今天已經吃過大餐了！");
+                updateStoreButtons();
+                return;
+            }
 
-            // 🔥 1. 立即鎖定按鈕 (Optimistic UI)
-            const btn = document.getElementById('btn-buy-' + itemType);
-            const originalText = btn.innerText;
-            btn.disabled = true;
-            btn.innerText = "購買中...";
+            if ((myProfileData.boneCoins || 0) < price) {
+                triggerShibaReaction("骨頭幣不夠啦！快去記帳！(氣)");
+                return;
+            }
+            
+            if(!confirm(`確定花費 ${price} 骨頭幣購買嗎？`)) return;
 
-            const userRef = doc(db, "users", currentUser.uid);
-            let updates = { boneCoins: increment(-price) };
-            let msg = "購買成功！";
-
-            if(itemType === 'meat') {
-                updates.mood = 100;
-                updates.lastMeatDate = new Date().toDateString();
-                msg = "心情補滿了！好好吃！(汪!)";
-            } else {
-                let invKey = "inventory." + itemType;
-                updates[invKey] = true;
-                
-                if(itemType === 'hat') msg = "帶上新帽子了！帥嗎？";
-                if(itemType === 'black') msg = "變身黑柴！帥氣度+100！";
-                if(itemType === 'noads') msg = "廣告消失了！清爽！";
+            // 2. 立即鎖定按鈕 (Visual Lock)
+            const btnId = 'btn-buy-' + itemType;
+            const btn = document.getElementById(btnId);
+            const originalText = btn ? btn.innerText : "...";
+            if(btn) {
+                btn.disabled = true;
+                btn.innerText = "購買中...";
+                btn.classList.add('sold-out'); 
             }
 
             try {
-                // 更新資料庫
+                const userRef = doc(db, "users", currentUser.uid);
+                let updates = { boneCoins: increment(-price) };
+                let msg = "購買成功！";
+
+                if(itemType === 'meat') {
+                    updates.mood = 100;
+                    updates.lastMeatDate = today;
+                    msg = "心情補滿了！好好吃！(汪!)";
+                    myProfileData.lastMeatDate = today; // 本地立即更新
+                } else {
+                    updates[`inventory.${itemType}`] = true;
+                    if(itemType === 'hat') msg = "帶上新帽子了！帥嗎？";
+                    if(itemType === 'black') msg = "變身黑柴！帥氣度+100！";
+                    if(itemType === 'noads') msg = "廣告消失了！清爽！";
+                    myProfileData.inventory[itemType] = true; // 本地立即更新
+                }
+
+                // 3. 執行資料庫更新
                 await updateDoc(userRef, updates);
                 
-                // 🔥 2. 交易成功後，強制更新本地資料與按鈕狀態，不等待監聽器
-                if (itemType !== 'meat') {
-                    if(!myProfileData.inventory) myProfileData.inventory = {};
-                    myProfileData.inventory[itemType] = true;
-                    btn.classList.add('sold-out');
-                    btn.innerText = "已擁有";
-                } else {
-                    myProfileData.lastMeatDate = new Date().toDateString();
-                    btn.classList.add('sold-out');
-                    btn.innerText = "今日已達上限";
-                }
-                
-                // 更新錢包 (手動扣除以防延遲)
-                myProfileData.boneCoins -= price;
+                // 4. 更新餘額
+                myProfileData.boneCoins = (myProfileData.boneCoins || 0) - price;
                 document.getElementById('store-coin-count').innerText = myProfileData.boneCoins;
 
                 playCoin(); 
                 triggerShibaReaction(msg); 
-                applyInventoryEffects(); // 立即套用效果
-                
+                updateMoodUI(); 
+                applyInventoryEffects(); 
+                updateStoreButtons(); // 再次確保狀態正確
+
             } catch (e) {
-                // 失敗時還原按鈕
-                btn.disabled = false;
-                btn.classList.remove('sold-out');
-                btn.innerText = originalText;
-                alert("購買失敗，請稍後再試");
+                console.error("購買失敗", e);
+                alert("購買失敗，請檢查網路連線");
+                // 失敗恢復
+                if(btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('sold-out');
+                    btn.innerText = originalText;
+                    updateStoreButtons(); 
+                }
             }
         };
 
