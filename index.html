@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 帽子置中修正版</title>
+    <title>柴管家 - 帽子完美修復版</title>
     
     <link rel="icon" type="image/png" href="./Shiba Logo.png">
     <link rel="shortcut icon" href="./Shiba Logo.png">
@@ -38,7 +38,9 @@
         :root { --shiba-bg: #FFFCF5; --shiba-orange: #F4A261; --shiba-brown: #4A3B32; }
 
         @keyframes shiba-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        /* 🔥 修改：確保動畫應用在容器上，讓帽子跟著狗一起動 */
         .animate-shiba-float { animation: shiba-float 3s ease-in-out infinite; }
+        
         @keyframes shiba-bounce { 0%, 100% { transform: scale(1) rotate(0deg); } 40% { transform: scale(1.15) rotate(5deg); } 80% { transform: scale(0.95) rotate(-3deg); } }
         .animate-shiba-bounce { animation: shiba-bounce 0.4s ease-out; }
         @keyframes coin-drop { 0% { transform: translateY(-50px); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(0); opacity: 1; } }
@@ -110,9 +112,12 @@
 
         <div id="shiba-assistant-container" class="fixed bottom-[100px] right-4 z-40 pointer-events-auto group flex flex-col items-center">
              <div id="shiba-speech" class="hidden absolute bottom-full mb-3 right-0 bg-white p-3 rounded-2xl shadow-lg border-2 border-[#FFE8D6] text-xs font-black text-[#4A3B32] whitespace-nowrap scale-in origin-bottom-right">汪！今天也要加油喔！<div class="absolute -bottom-1.5 right-6 w-3 h-3 bg-white border-b-2 border-r-2 border-[#FFE8D6] rotate-45"></div></div>
-             <div class="relative" onclick="triggerShibaClick()">
+             
+             <div id="shiba-container-anim" class="relative animate-shiba-float" onclick="triggerShibaClick()">
                  <div id="shiba-hat" class="hidden absolute -top-5 left-1/2 -translate-x-1/2 text-5xl z-50 pointer-events-none drop-shadow-xl" style="transform: rotate(-10deg); transform-origin: bottom center;">🎩</div>
-                 <img src="./Shiba Logo.png" id="shiba-assistant" class="w-20 h-20 rounded-full border-2 border-white shadow-md object-cover animate-shiba-float cursor-pointer hover:scale-105 transition-transform z-10">
+                 
+                 <img src="./Shiba Logo.png" id="shiba-assistant" class="w-20 h-20 rounded-full border-2 border-white shadow-md object-cover cursor-pointer hover:scale-105 transition-transform z-10">
+                 
                  <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-white px-2 py-0.5 rounded-full border border-[#FFE8D6] shadow-sm flex items-center gap-1 z-30">
                      <span id="mood-icon" class="text-[10px]">❤️</span>
                      <div class="w-10 h-1.5 bg-[#E0E0E0] rounded-full overflow-hidden">
@@ -128,7 +133,7 @@
             <button onclick="toggleStoreModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#4A3B32] transition hover:scale-105 active:scale-95 group"><div class="relative"><svg class="w-6 h-6 group-hover:text-[#F4A261] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg><div class="absolute -top-1 -right-1 w-2 h-2 bg-[#E76F51] rounded-full hidden"></div></div><span class="text-[11px] font-black group-hover:text-[#F4A261] transition">商店</span></button>
         </nav>
 
-        <div id="settings-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleSettingsModal()"></div><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-6 relative z-10 shadow-2xl scale-in border-4 border-white"><div class="flex items-center justify-between mb-6"><h2 class="text-2xl font-black text-[#4A3B32]">系統設定</h2><button onclick="toggleSettingsModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full flex items-center justify-center">×</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-4"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🎵 背景音樂</span><span class="text-xs text-[#8D6E63] font-bold" id="bgm-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateBGMVolume(this.value)"></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-6"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🔊 按鈕音效</span><span class="text-xs text-[#8D6E63] font-bold" id="sfx-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateSFXVolume(this.value)"></div><div class="text-center text-xs text-[#8D6E63] opacity-60 font-bold">ShibaManager v5.9.3</div></div></div>
+        <div id="settings-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleSettingsModal()"></div><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-6 relative z-10 shadow-2xl scale-in border-4 border-white"><div class="flex items-center justify-between mb-6"><h2 class="text-2xl font-black text-[#4A3B32]">系統設定</h2><button onclick="toggleSettingsModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full flex items-center justify-center">×</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-4"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🎵 背景音樂</span><span class="text-xs text-[#8D6E63] font-bold" id="bgm-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateBGMVolume(this.value)"></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-6"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🔊 按鈕音效</span><span class="text-xs text-[#8D6E63] font-bold" id="sfx-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateSFXVolume(this.value)"></div><div class="text-center text-xs text-[#8D6E63] opacity-60 font-bold">ShibaManager v6.0 Fixed</div></div></div>
         
         <div id="store-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-end fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleStoreModal()"></div>
             <div id="store-panel" class="bg-[#FFFCF5] w-4/5 max-w-sm h-full flex flex-col relative z-10 slide-in-right shadow-2xl rounded-l-[2rem]" style="touch-action: pan-y;">
@@ -233,6 +238,8 @@
         let currentUser=null, currentViewUid=null, transactions=[], unsubscribe=null, currentDetailId=null, friendUnsubscribe=null;
         let myShortId=null, myProfileData=null, editingId=null, currentPhotoData=null, currentProfilePhotoData=null, myChart=null;
         let shibaMood = 100; let myInventory = {}; 
+        // 🔥 新增：監聽使用者檔案的變數
+        let userProfileUnsubscribe = null;
 
         const defaultCategories = { expense: ['餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他'], income: ['薪資', '獎金', '投資', '兼職', '其他'] };
         let userCustomCategories = { expense: [], income: [] };
@@ -246,25 +253,55 @@
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // 🔥 修正：確保 window.currentUser 可用，供 HTML onclick 使用
                 currentUser = user; 
                 window.currentUser = user; 
                 currentViewUid = user.uid;
                 
-                await ensureUserHasId(user); await loadCustomCategories(user);
+                await ensureUserHasId(user); 
+                // 🔥 啟動個人檔案即時監聽 (確保背包同步)
+                listenToUserProfile(user.uid);
+                
+                await loadCustomCategories(user);
                 if (document.getElementById('start-overlay').classList.contains('opacity-0')) {
                     document.getElementById('app-screen').classList.remove('hidden');
                     document.getElementById('login-screen').classList.add('hidden');
                 }
-                loadDataRealtime(user.uid); window.loadFriends(true); updateViewMode(); await checkDailyBonus(user.uid); initMoodSystem(); applyInventoryEffects();
+                loadDataRealtime(user.uid); window.loadFriends(true); updateViewMode(); await checkDailyBonus(user.uid); initMoodSystem();
+                // applyInventoryEffects() 已經被移到 listenToUserProfile 裡面，確保資料到才顯示
                 setTimeout(() => triggerShibaReaction("歡迎回來，主人！汪！"), 1500);
             } else {
                 if (document.getElementById('start-overlay').classList.contains('opacity-0')) {
                     document.getElementById('login-screen').classList.remove('hidden'); document.getElementById('app-screen').classList.add('hidden');
                 }
                 if(unsubscribe) unsubscribe();
+                if(userProfileUnsubscribe) userProfileUnsubscribe();
             }
         });
+
+        // 🔥 新增：即時監聽使用者檔案 (包含背包、心情、金幣)
+        function listenToUserProfile(uid) {
+            if (userProfileUnsubscribe) userProfileUnsubscribe();
+            const userRef = doc(db, "users", uid);
+            
+            userProfileUnsubscribe = onSnapshot(userRef, (doc) => {
+                if (doc.exists()) {
+                    const data = doc.data();
+                    // 更新本地資料
+                    myProfileData = { ...myProfileData, ...data };
+                    // 更新金幣顯示
+                    if (document.getElementById('store-coin-count')) {
+                        document.getElementById('store-coin-count').innerText = myProfileData.boneCoins || 0;
+                    }
+                    // 更新背包效果
+                    applyInventoryEffects();
+                    // 更新心情 UI
+                    if (data.mood !== undefined) {
+                        shibaMood = data.mood;
+                        updateMoodUI();
+                    }
+                }
+            });
+        }
 
         window.initMoodSystem = () => {
             const now = Date.now(); const lastUpdate = myProfileData.lastMoodUpdate || now; const hoursPassed = Math.floor((now - lastUpdate) / 3600000);
@@ -276,22 +313,46 @@
         
         window.applyInventoryEffects = () => { 
             myInventory = myProfileData.inventory || {}; 
+            
             const hatEl = document.getElementById('shiba-hat');
             const shibaEl = document.getElementById('shiba-assistant');
+            const hatBtn = document.getElementById('btn-buy-hat');
+            const blackBtn = document.getElementById('btn-buy-black');
+            const noadsBtn = document.getElementById('btn-buy-noads');
+
+            // 套用帽子效果
+            if(myInventory.hat) {
+                hatEl.classList.remove('hidden'); 
+                if(hatBtn) { hatBtn.classList.add('sold-out'); hatBtn.innerText = "已擁有"; hatBtn.disabled = true; }
+            } else {
+                hatEl.classList.add('hidden'); 
+                if(hatBtn) { hatBtn.classList.remove('sold-out'); hatBtn.innerText = "200 🦴 購買"; hatBtn.disabled = false; }
+            }
             
-            if(myInventory.hat) hatEl.classList.remove('hidden'); 
-            else hatEl.classList.add('hidden'); 
-            
-            if(myInventory.black) shibaEl.classList.add('black-shiba-filter'); 
-            else shibaEl.classList.remove('black-shiba-filter'); 
+            // 套用黑柴效果
+            if(myInventory.black) {
+                shibaEl.classList.add('black-shiba-filter'); 
+                if(blackBtn) { blackBtn.classList.add('sold-out'); blackBtn.innerText = "已擁有"; blackBtn.disabled = true; }
+            } else {
+                shibaEl.classList.remove('black-shiba-filter'); 
+                if(blackBtn) { blackBtn.classList.remove('sold-out'); blackBtn.innerText = "500 🦴 購買"; blackBtn.disabled = false; }
+            }
+
+            // 更新去廣告按鈕狀態
+            if(myInventory.noads) {
+                if(noadsBtn) { noadsBtn.classList.add('sold-out'); noadsBtn.innerText = "已擁有"; noadsBtn.disabled = true; }
+            }
         };
         
         window.toggleStoreModal = async () => { 
             const modal = document.getElementById('store-modal'); const panel = document.getElementById('store-panel');
             const isHidden = modal.classList.contains('hidden'); 
             if (isHidden) { 
-                const userRef = doc(db, "users", currentUser.uid); const snap = await getDoc(userRef); 
-                if (snap.exists()) { myProfileData.boneCoins = snap.data().boneCoins || 0; myProfileData.inventory = snap.data().inventory || {}; myProfileData.lastMeatDate = snap.data().lastMeatDate || 0; document.getElementById('store-coin-count').innerText = myProfileData.boneCoins; updateStoreButtons(); } 
+                // 打開商店時，再次確認資料
+                if(myProfileData) {
+                    document.getElementById('store-coin-count').innerText = myProfileData.boneCoins || 0; 
+                    updateStoreButtons(); 
+                }
                 modal.classList.remove('hidden'); lockScroll();
             } else { modal.classList.add('hidden'); panel.style.transform = ''; unlockScroll(); } 
         };
@@ -301,18 +362,8 @@
             const meatBtn = document.getElementById('btn-buy-meat'); 
             if(lastMeat === today) { meatBtn.classList.add('sold-out'); meatBtn.innerText = "今日已達上限"; meatBtn.disabled = true; } 
             else { meatBtn.classList.remove('sold-out'); meatBtn.innerText = "50 🦴 購買"; meatBtn.disabled = false; } 
-            
-            const hatBtn = document.getElementById('btn-buy-hat');
-            if(inv.hat) { hatBtn.classList.add('sold-out'); hatBtn.innerText = "已擁有"; hatBtn.disabled = true; }
-            else { hatBtn.classList.remove('sold-out'); hatBtn.innerText = "200 🦴 購買"; hatBtn.disabled = false; }
-            
-            const blackBtn = document.getElementById('btn-buy-black');
-            if(inv.black) { blackBtn.classList.add('sold-out'); blackBtn.innerText = "已擁有"; blackBtn.disabled = true; }
-            else { blackBtn.classList.remove('sold-out'); blackBtn.innerText = "500 🦴 購買"; blackBtn.disabled = false; }
-            
-            const noadsBtn = document.getElementById('btn-buy-noads');
-            if(inv.noads) { noadsBtn.classList.add('sold-out'); noadsBtn.innerText = "已擁有"; noadsBtn.disabled = true; }
-            else { noadsBtn.classList.remove('sold-out'); noadsBtn.innerText = "1000 🦴 購買"; noadsBtn.disabled = false; }
+            // 其他按鈕已經在 applyInventoryEffects 中統一處理
+            applyInventoryEffects();
         }
 
         window.buyItem = async (price, itemType) => {
@@ -320,7 +371,7 @@
             if (itemType !== 'meat' && myProfileData.inventory[itemType]) return alert('已經擁有此物品囉！');
             if (itemType === 'meat' && myProfileData.lastMeatDate === new Date().toDateString()) return alert('今天已經吃過大餐了！');
 
-            if (myProfileData.boneCoins < price) return triggerShibaReaction("骨頭幣不夠啦！快去記帳！(氣)");
+            if ((myProfileData.boneCoins || 0) < price) return triggerShibaReaction("骨頭幣不夠啦！快去記帳！(氣)");
             
             let confirmMsg = `確定花費 ${price} 骨頭幣購買嗎？`;
             if(itemType === 'meat') confirmMsg += "\n(心情將恢復至 100)";
@@ -338,31 +389,52 @@
                 myProfileData.lastMeatDate = updates.lastMeatDate;
                 msg = "心情補滿了！好好吃！(汪!)";
             } else {
-                let newInv = myProfileData.inventory || {};
-                newInv[itemType] = true;
+                // 🔥 確保正確更新背包結構
+                let currentInv = myProfileData.inventory || {};
+                let newInv = { ...currentInv, [itemType]: true }; // 使用 Spread Operator 確保不覆蓋舊物品
                 updates.inventory = newInv;
-                myProfileData.inventory = newInv; 
+                myProfileData.inventory = newInv; // 立即更新本地
+                
                 if(itemType === 'hat') msg = "帶上新帽子了！帥嗎？";
                 if(itemType === 'black') msg = "變身黑柴！帥氣度+100！";
                 if(itemType === 'noads') msg = "廣告消失了！清爽！";
             }
 
             await updateDoc(userRef, updates);
+            // 本地扣款顯示 (即時監聽會隨後更新)
             myProfileData.boneCoins -= price;
             document.getElementById('store-coin-count').innerText = myProfileData.boneCoins;
-            playCoin(); triggerShibaReaction(msg); updateMoodUI(); applyInventoryEffects(); updateStoreButtons();
+            
+            playCoin(); triggerShibaReaction(msg); 
+            // applyInventoryEffects() 會由監聽器觸發，但為了即時回饋先呼叫一次
+            applyInventoryEffects(); 
+            updateMoodUI(); 
+            updateStoreButtons();
         };
 
         window.closeBonusModal = () => document.getElementById('daily-bonus-modal').classList.add('hidden');
         const shibaEl = document.getElementById('shiba-assistant'); const speechEl = document.getElementById('shiba-speech'); let speechTimeout; const normalMessages = ["汪！今天花了多少錢？", "骨頭幣不夠用了嗎？", "我是不是很可愛？🐕", "努力存錢買罐罐！", "今天也要加油喔！"]; const sadMessages = ["主人...你不愛我了嗎？(嗚)", "肚子好餓...想吃罐罐...", "好久沒摸摸我了...", "我好無聊...陪我玩...", "是不是把我忘記了？"];
         window.triggerShibaClick = async () => { 
-            playBark(); shibaEl.classList.remove('animate-shiba-float'); void shibaEl.offsetWidth; shibaEl.classList.add('animate-shiba-bounce'); setTimeout(() => { shibaEl.classList.remove('animate-shiba-bounce'); shibaEl.classList.add('animate-shiba-float'); }, 400); 
+            // 🔥 確保點擊動畫作用在容器上
+            const containerAnim = document.getElementById('shiba-container-anim');
+            playBark(); 
+            containerAnim.classList.remove('animate-shiba-float'); 
+            void containerAnim.offsetWidth; 
+            containerAnim.classList.add('animate-shiba-bounce'); 
+            setTimeout(() => { 
+                containerAnim.classList.remove('animate-shiba-bounce'); 
+                containerAnim.classList.add('animate-shiba-float'); 
+            }, 400); 
+            
             const today = new Date().toDateString(); if(myProfileData.lastPetDate !== today) { myProfileData.dailyPetCount = 0; myProfileData.lastPetDate = today; }
             let msg = "";
             if((myProfileData.dailyPetCount || 0) < 4) { shibaMood = Math.min(100, shibaMood + 5); myProfileData.dailyPetCount = (myProfileData.dailyPetCount || 0) + 1; await updateDoc(doc(db, "users", currentUser.uid), { mood: shibaMood, dailyPetCount: myProfileData.dailyPetCount, lastPetDate: today }); updateMoodUI(); const heart = document.createElement('div'); heart.classList.add('animate-heart'); heart.innerText = '❤️'; heart.style.left = '50%'; heart.style.bottom = '100%'; document.getElementById('shiba-assistant-container').appendChild(heart); setTimeout(() => heart.remove(), 1000); }
             const pool = shibaMood <= 50 ? sadMessages : normalMessages; msg = pool[Math.floor(Math.random() * pool.length)]; showSpeechBubble(msg); 
         };
-        function triggerShibaReaction(message) { shibaEl.classList.remove('animate-shiba-float'); void shibaEl.offsetWidth; shibaEl.classList.add('animate-shiba-bounce'); setTimeout(() => { shibaEl.classList.remove('animate-shiba-bounce'); shibaEl.classList.add('animate-shiba-float'); }, 400); showSpeechBubble(message); }
+        function triggerShibaReaction(message) { 
+            const containerAnim = document.getElementById('shiba-container-anim');
+            containerAnim.classList.remove('animate-shiba-float'); void containerAnim.offsetWidth; containerAnim.classList.add('animate-shiba-bounce'); setTimeout(() => { containerAnim.classList.remove('animate-shiba-bounce'); containerAnim.classList.add('animate-shiba-float'); }, 400); showSpeechBubble(message); 
+        }
         function showSpeechBubble(text) { clearTimeout(speechTimeout); speechEl.innerText = text; speechEl.classList.remove('hidden'); speechTimeout = setTimeout(() => { speechEl.classList.add('hidden'); }, 3000); }
         window.toggleFriendModal = () => { const modal = document.getElementById('friend-modal'); const panel = document.getElementById('friend-panel'); const isHidden = modal.classList.contains('hidden'); if (isHidden) { modal.classList.remove('hidden'); lockScroll(); loadFriends(true); } else { modal.classList.add('hidden'); panel.style.transform = ''; unlockScroll(); } };
         
