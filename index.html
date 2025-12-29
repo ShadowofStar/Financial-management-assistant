@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>柴管家 - 啟動修復版</title>
+    <title>柴管家 - 安全啟動版</title>
     
     <link rel="icon" type="image/png" href="./Shiba Logo.png">
     <link rel="shortcut icon" href="./Shiba Logo.png">
@@ -134,7 +134,7 @@
             <button onclick="toggleStoreModal()" class="flex flex-col items-center gap-1 w-16 pb-3 text-[#4A3B32] transition hover:scale-105 active:scale-95 group"><div class="relative"><svg class="w-6 h-6 group-hover:text-[#F4A261] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg><div class="absolute -top-1 -right-1 w-2 h-2 bg-[#E76F51] rounded-full hidden"></div></div><span class="text-[11px] font-black group-hover:text-[#F4A261] transition">商店</span></button>
         </nav>
 
-        <div id="settings-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleSettingsModal()"></div><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-6 relative z-10 shadow-2xl scale-in border-4 border-white"><div class="flex items-center justify-between mb-6"><h2 class="text-2xl font-black text-[#4A3B32]">系統設定</h2><button onclick="toggleSettingsModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full flex items-center justify-center">×</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-4"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🎵 背景音樂</span><span class="text-xs text-[#8D6E63] font-bold" id="bgm-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateBGMVolume(this.value)"></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-6"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🔊 按鈕音效</span><span class="text-xs text-[#8D6E63] font-bold" id="sfx-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateSFXVolume(this.value)"></div><div class="text-center text-xs text-[#8D6E63] opacity-60 font-bold">ShibaManager v6.6 Boot Fix</div></div></div>
+        <div id="settings-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-center p-6 fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleSettingsModal()"></div><div class="bg-[#FFFCF5] w-full max-w-sm rounded-[2.5rem] p-6 relative z-10 shadow-2xl scale-in border-4 border-white"><div class="flex items-center justify-between mb-6"><h2 class="text-2xl font-black text-[#4A3B32]">系統設定</h2><button onclick="toggleSettingsModal()" class="text-[#8D6E63] text-xl font-bold bg-[#FFE8D6] w-8 h-8 rounded-full flex items-center justify-center">×</button></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-4"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🎵 背景音樂</span><span class="text-xs text-[#8D6E63] font-bold" id="bgm-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateBGMVolume(this.value)"></div><div class="bg-white p-4 rounded-2xl border-2 border-[#FFE8D6] mb-6"><div class="flex justify-between items-center mb-2"><span class="font-bold text-[#4A3B32] text-sm">🔊 按鈕音效</span><span class="text-xs text-[#8D6E63] font-bold" id="sfx-val-display">50%</span></div><input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateSFXVolume(this.value)"></div><div class="text-center text-xs text-[#8D6E63] opacity-60 font-bold">ShibaManager v6.7 Fail-Safe</div></div></div>
         
         <div id="store-modal" class="fixed inset-0 bg-[#4A3B32]/50 z-50 hidden flex items-center justify-end fade-in backdrop-blur-sm"><div class="absolute inset-0" onclick="toggleStoreModal()"></div>
             <div id="store-panel" class="bg-[#FFFCF5] w-4/5 max-w-sm h-full flex flex-col relative z-10 slide-in-right shadow-2xl rounded-l-[2rem]" style="touch-action: pan-y;">
@@ -167,71 +167,94 @@
         
         let audioCtx, bgmGainNode, bgmSource;
         let globalBGMVolume = 0.5; let globalSFXVolume = 0.5; let isMusicPlaying = false;
-        // 🔥 新增：狀態管理變數
+        // 🔥 狀態管理
         let isAppStarted = false;
         let isAuthReady = false;
 
-        window.initAudio = () => { if (!audioCtx) { const AudioContext = window.AudioContext || window.webkitAudioContext; audioCtx = new AudioContext(); bgmGainNode = audioCtx.createGain(); bgmGainNode.gain.value = globalBGMVolume; bgmGainNode.connect(audioCtx.destination); const bgMusic = document.getElementById('bg-music'); bgmSource = audioCtx.createMediaElementSource(bgMusic); bgmSource.connect(bgmGainNode); } if (audioCtx.state === 'suspended') audioCtx.resume(); };
-        const playPop = () => { if (!audioCtx) window.initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.1 * globalSFXVolume, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1); };
-        const playBark = () => { if (!audioCtx) window.initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'triangle'; osc.frequency.setValueAtTime(400, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(300, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.1 * globalSFXVolume, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.15); };
-        const playCoin = () => { if (!audioCtx) window.initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(1200, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(2000, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.1 * globalSFXVolume, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.3); };
-        
-        // 🔥 新增：統一的畫面更新函式
-        function updateMainDisplay() {
-            if (!isAppStarted) return; // 如果還沒按開始，保持原狀
-            
-            // 如果還沒確認完身分，就繼續等待
-            if (!isAuthReady) {
-                const btn = document.getElementById('btn-start-app');
-                if(btn) {
-                    btn.innerText = "資料讀取中...";
-                    btn.disabled = true;
-                    btn.classList.add('opacity-80', 'cursor-wait');
-                }
-                return; 
+        // 🔥 使用 try-catch 包裹音效初始化，避免因為瀏覽器限制而卡死整個程式
+        window.initAudio = () => { 
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext; 
+                if (!audioCtx && AudioContext) {
+                    audioCtx = new AudioContext(); 
+                    bgmGainNode = audioCtx.createGain(); 
+                    bgmGainNode.gain.value = globalBGMVolume; 
+                    bgmGainNode.connect(audioCtx.destination); 
+                    const bgMusic = document.getElementById('bg-music'); 
+                    if(bgMusic) {
+                        bgmSource = audioCtx.createMediaElementSource(bgMusic); 
+                        bgmSource.connect(bgmGainNode); 
+                    }
+                } 
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); 
+            } catch(e) {
+                console.warn("Audio init failed:", e);
             }
+        };
+
+        const playPop = () => { if (!audioCtx) window.initAudio(); if(!audioCtx) return; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.1 * globalSFXVolume, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1); };
+        const playBark = () => { if (!audioCtx) window.initAudio(); if(!audioCtx) return; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'triangle'; osc.frequency.setValueAtTime(400, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(300, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.1 * globalSFXVolume, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.15); };
+        const playCoin = () => { if (!audioCtx) window.initAudio(); if(!audioCtx) return; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(1200, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(2000, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.1 * globalSFXVolume, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.3); };
+        
+        // 🔥 核心修復：狀態統一管理
+        function updateMainDisplay() {
+            if (!isAppStarted) return; // 沒點擊按鈕前，保持原狀
 
             const overlay = document.getElementById('start-overlay');
+            const btn = document.getElementById('btn-start-app');
             const appScreen = document.getElementById('app-screen');
             const loginScreen = document.getElementById('login-screen');
 
-            // 隱藏歡迎頁
+            // 如果 Firebase 還沒準備好，顯示 Loading
+            if (!isAuthReady) {
+                if(btn) {
+                    btn.innerText = "啟動中...";
+                    btn.classList.add('opacity-80', 'cursor-wait');
+                }
+                return;
+            }
+
+            // 資料已準備好 -> 移除 Loading 頁面
             overlay.classList.add('opacity-0', 'pointer-events-none');
 
-            // 根據登入狀態切換畫面，並加上 fade-in 動畫
+            // 判斷該顯示主畫面還是登入畫面
             if (currentUser) {
                 appScreen.classList.remove('hidden');
                 appScreen.classList.add('fade-in');
                 loginScreen.classList.add('hidden');
-                loginScreen.classList.remove('fade-in');
             } else {
                 loginScreen.classList.remove('hidden');
                 loginScreen.classList.add('fade-in');
                 appScreen.classList.add('hidden');
-                appScreen.classList.remove('fade-in');
             }
         }
 
         window.startApp = () => { 
-            window.initAudio(); 
-            const bgMusic = document.getElementById('bg-music'); 
-            bgMusic.play().then(() => { 
-                isMusicPlaying = true; 
-                const btn = document.getElementById('music-btn'); 
-                btn.innerText = "🎵"; 
-                btn.classList.add('music-playing'); 
-            }).catch(e => console.log("Play failed:", e));
-            
+            // 1. 給予即時回饋，避免使用者以為當機
             isAppStarted = true;
-            updateMainDisplay(); // 嘗試更新畫面
+            updateMainDisplay();
 
-            // 🔥 安全機制：如果 5 秒後還是沒反應 (網路太慢)，強制顯示登入頁
+            // 2. 嘗試播放音樂 (失敗也沒關係)
+            try {
+                window.initAudio(); 
+                const bgMusic = document.getElementById('bg-music'); 
+                if(bgMusic) {
+                    bgMusic.play().then(() => { 
+                        isMusicPlaying = true; 
+                        const btn = document.getElementById('music-btn'); 
+                        if(btn) { btn.innerText = "🎵"; btn.classList.add('music-playing'); }
+                    }).catch(e => console.log("Play failed (expected in some browsers):", e));
+                }
+            } catch(e) { console.log("Audio init error:", e); }
+
+            // 3. 安全機制：如果 1.5 秒後 Firebase 還是沒回應，強制跳轉登入頁 (避免白畫面)
             setTimeout(() => {
                 if(!isAuthReady) {
-                    isAuthReady = true;
+                    console.log("Force fallback triggered");
+                    isAuthReady = true; 
                     updateMainDisplay();
                 }
-            }, 5000);
+            }, 1500);
         };
 
         window.toggleMusic = () => { const bgMusic = document.getElementById('bg-music'); const btn = document.getElementById('music-btn'); if(!audioCtx) window.initAudio(); if (isMusicPlaying) { bgMusic.pause(); btn.innerText = "🔇"; btn.classList.remove('music-playing'); isMusicPlaying = false; } else { bgMusic.play().then(() => { btn.innerText = "🎵"; btn.classList.add('music-playing'); isMusicPlaying = true; }); } };
@@ -302,7 +325,6 @@
         let myShortId=null, myProfileData=null, editingId=null, currentPhotoData=null, currentProfilePhotoData=null, myChart=null;
         let shibaMood = 100; let myInventory = {}; 
         let userProfileUnsubscribe = null;
-        let isAuthReady = false; // 🔥 新增：Firebase 驗證是否完成
 
         const defaultCategories = { expense: ['餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他'], income: ['薪資', '獎金', '投資', '兼職', '其他'] };
         let userCustomCategories = { expense: [], income: [] };
@@ -315,7 +337,7 @@
         window.logout = () => { if(confirm('確定登出？')) signOut(auth); };
 
         onAuthStateChanged(auth, async (user) => {
-            // 🔥 標記：已從資料庫收到回應
+            // 🔥 標記：已收到 Firebase 的回覆
             isAuthReady = true;
 
             if (user) {
@@ -328,14 +350,14 @@
                 
                 await loadCustomCategories(user);
                 
-                // 🔥 資料準備好了，更新畫面
+                // 🔥 資料就緒，嘗試更新顯示
                 updateMainDisplay();
                 
                 loadDataRealtime(user.uid); window.loadFriends(true); updateViewMode(); await checkDailyBonus(user.uid); initMoodSystem();
                 setTimeout(() => triggerShibaReaction("歡迎回來，主人！汪！"), 1500);
             } else {
                 currentUser = null;
-                updateMainDisplay(); // 🔥 更新畫面為登入頁
+                updateMainDisplay(); // 🔥 確保顯示登入頁
                 
                 if(unsubscribe) unsubscribe();
                 if(userProfileUnsubscribe) userProfileUnsubscribe();
